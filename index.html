@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>생물다양성 토론장 - 책으로 생각 넓히기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/static/woff2/SUIT.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['SUIT', 'sans-serif'] },
+                    colors: {
+                        /* 파스텔 핑크 */
+                        pinky: {
+                            50: '#fff5f8', 100: '#ffe9f0', 200: '#fbd0e0', 300: '#f7aecb',
+                            400: '#f088b0', 500: '#e56b99', 600: '#cf4f80', 700: '#a83b65'
+                        },
+                        /* 파스텔 옐로 */
+                        butter: {
+                            50: '#fffdf2', 100: '#fdf8e0', 200: '#fbefba', 300: '#f8e38e',
+                            400: '#f3d461', 500: '#e9be3a', 600: '#c99f20', 700: '#9c7a13'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'SUIT', sans-serif; background-color: #fffbf6; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .toast {
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.3s;
+            transform: translateY(100px);
+            opacity: 0;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .shake { animation: shake 0.35s; }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .header-gradient { background: linear-gradient(120deg, #ffe9f0 0%, #fdf8e0 100%); }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #fdf3f6; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #f7c9da; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f088b0; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen flex flex-col relative">
+
+    <header class="header-gradient py-7 border-b border-pinky-200">
+        <div class="max-w-4xl mx-auto px-4 flex items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold flex items-center gap-2 text-pinky-700">
+                    <i class="fa-solid fa-seedling text-butter-600"></i> 생물다양성 토론장
+                </h1>
+                <p class="text-gray-600 mt-1 text-sm md:text-base">책에서 읽은 주제로 내 생각을 정리하고 친구들과 비교해 봐요!</p>
+            </div>
+            <div class="hidden md:block opacity-90 text-4xl">🌸</div>
+        </div>
+    </header>
+
+    <!-- 개인정보 보호 안내 -->
+    <div class="bg-butter-100 border-b border-butter-200">
+        <div class="max-w-4xl mx-auto px-4 py-2.5 text-xs md:text-sm text-butter-700 flex items-start gap-2">
+            <i class="fa-solid fa-user-shield mt-0.5"></i>
+            <p>
+                <b class="text-gray-700">개인정보는 적지 않아요.</b>
+                이름·학교·학년/반·전화번호·이메일·주소·SNS 아이디는 쓰지 말아 주세요.
+                작성한 글은 <b class="text-gray-700">내 브라우저 화면에만 표시</b>되며 서버로 전송·저장되지 않습니다.
+                등장인물은 모두 <b class="text-gray-700">별명</b>을 씁니다.
+            </p>
+        </div>
+    </div>
+
+    <main class="flex-grow max-w-4xl mx-auto w-full px-4 py-8 relative">
+
+        <!-- ===================== 1단계 : 주제 선택 ===================== -->
+        <section id="step-1" class="fade-in block">
+            <div class="text-center mb-8">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800">1단계: 토론할 책과 주제를 선택하세요</h2>
+                <p class="text-gray-500 mt-2">최근에 읽었거나 관심 있는 주제의 카드를 클릭하세요.</p>
+                <p class="text-gray-400 text-sm mt-1">내 별명: <span id="nickname-badge" class="font-bold text-pinky-600"></span></p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="topic-cards-container"></div>
+        </section>
+
+        <!-- ===================== 2단계 : 의견 작성 ===================== -->
+        <section id="step-2" class="fade-in hidden">
+            <button onclick="goBackToStep1()" class="text-pinky-600 hover:text-pinky-700 font-medium mb-4 flex items-center gap-1 transition-colors">
+                <i class="fa-solid fa-arrow-left"></i> 다른 주제 선택하기
+            </button>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-pinky-100 p-6 md:p-8 mb-6">
+                <div class="inline-block bg-pinky-100 text-pinky-700 px-3 py-1 rounded-full text-sm font-bold mb-3" id="current-book-label">도서명</div>
+
+                <!-- 도서 요약 (교보문고 책소개 기반) -->
+                <div class="bg-pinky-50 border border-pinky-200 rounded-xl p-4 mb-5">
+                    <h3 class="text-sm font-bold text-pinky-700 mb-1 flex items-center gap-1">
+                        <i class="fa-solid fa-book-open"></i> 책 내용 요약
+                    </h3>
+                    <p class="text-xs text-pinky-600 mb-2" id="current-book-meta">저자 · 출판사</p>
+                    <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line" id="current-book-summary">책 요약 내용</p>
+                    <p class="text-[11px] text-gray-500 mt-3 pt-3 border-t border-pinky-200">
+                        출처: 교보문고 책소개
+                        <a id="current-book-link" href="#" target="_blank" rel="noopener noreferrer" class="text-pinky-600 underline ml-1">
+                            교보문고에서 보기 <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                        </a>
+                    </p>
+                </div>
+
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2" id="current-topic-title">주제 질문</h2>
+                <p class="text-gray-600 mb-6 pb-6 border-b border-gray-100" id="current-topic-desc">주제에 대한 부연 설명</p>
+
+                <!-- 핵심 통계 -->
+                <div id="factbox" class="bg-butter-50 border border-butter-200 rounded-xl p-4 mb-6"></div>
+
+                <!-- 자료 찾아보기 -->
+                <div class="border border-gray-200 rounded-xl mb-6 overflow-hidden">
+                    <button onclick="toggleRefs()" class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors text-left">
+                        <span class="font-bold text-gray-700 text-sm">
+                            <i class="fa-solid fa-magnifying-glass-chart text-pinky-500 mr-1"></i>
+                            자료 찾아보기 — 관련 기사 · 통계 · 누리집
+                        </span>
+                        <i id="refs-chevron" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+                    </button>
+                    <div id="refs-body" class="hidden px-4 py-4 space-y-5 bg-white"></div>
+                </div>
+
+                <h3 class="text-lg font-bold mb-4">나의 입장은?</h3>
+                <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                    <button id="btn-pro" onclick="selectStance('pro')" class="flex-1 py-4 px-6 rounded-xl border-2 border-gray-200 hover:border-butter-400 hover:bg-butter-50 transition-all text-left group">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xl font-bold text-gray-700 group-hover:text-butter-700"><i class="fa-regular fa-thumbs-up mr-2 text-butter-500"></i>찬성합니다</span>
+                            <div class="w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-butter-400 flex items-center justify-center stance-radio"></div>
+                        </div>
+                    </button>
+                    <button id="btn-con" onclick="selectStance('con')" class="flex-1 py-4 px-6 rounded-xl border-2 border-gray-200 hover:border-pinky-400 hover:bg-pinky-50 transition-all text-left group">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xl font-bold text-gray-700 group-hover:text-pinky-700"><i class="fa-regular fa-thumbs-down mr-2 text-pinky-400"></i>반대합니다</span>
+                            <div class="w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-pinky-400 flex items-center justify-center stance-radio"></div>
+                        </div>
+                    </button>
+                </div>
+
+                <div id="writing-area" class="hidden fade-in">
+
+                    <!-- 입장별 자료 탐색 안내 -->
+                    <div id="stance-tips" class="rounded-xl p-4 mb-4"></div>
+
+                    <!-- 정확한 작성 안내 -->
+                    <div class="bg-white border-2 border-dashed border-pinky-200 rounded-xl p-4 mb-6">
+                        <h4 class="font-bold text-pinky-700 text-sm mb-2"><i class="fa-solid fa-pen-ruler mr-1"></i> 정확하게 쓰는 방법</h4>
+                        <ol class="text-xs md:text-sm text-gray-600 space-y-1.5 list-decimal list-inside leading-relaxed">
+                            <li><b>완성된 문장</b>으로 씁니다. 자음·모음만 반복하거나(예: ㅂㅂㅂ, ㅇㅇㅇ) 뜻이 없는 글자는 등록되지 않아요.</li>
+                            <li><b>주장</b>은 “~해야 한다 / ~하면 안 된다”처럼 입장이 드러나는 <b>한 문장</b>으로 씁니다.</li>
+                            <li><b>근거</b>에는 <b>숫자·자료 이름·과학 개념</b>을 넣습니다. (예: “2019년 조사에서 79개 지점 중 12개 지점, 156개체만 확인되었다”)</li>
+                            <li>위의 <b>‘자료 찾아보기’</b>에 있는 기사와 통계에서 근거를 찾아 <b>출처와 함께</b> 인용하면 훨씬 설득력이 있어요.</li>
+                            <li><b>주장 2개</b>와 각각을 뒷받침하는 <b>근거 2개</b>를 모두 작성해야 등록됩니다.</li>
+                            <li>욕설·비속어와 개인정보(이름·학교·연락처)는 쓰지 않습니다.</li>
+                        </ol>
+                    </div>
+
+                    <!-- 논거 1 -->
+                    <div class="border border-pinky-200 rounded-xl p-4 md:p-5 mb-4 bg-pinky-50/40">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="w-6 h-6 rounded-full bg-pinky-500 text-white text-xs font-bold flex items-center justify-center">1</span>
+                            <h3 class="text-base font-bold text-gray-800">첫 번째 주장과 근거</h3>
+                        </div>
+                        <div class="mb-3">
+                            <div class="flex items-end justify-between mb-1.5">
+                                <label for="main-1" class="text-sm font-bold text-gray-700">주장 ①</label>
+                                <span class="text-xs text-gray-400"><span id="count-main-1">0</span>/100자</span>
+                            </div>
+                            <input type="text" id="main-1" maxlength="100"
+                                class="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pinky-300 focus:border-pinky-400 outline-none text-gray-700"
+                                placeholder="예) 동물원은 멸종 위기종의 유전자 다양성을 지키기 위해 꼭 필요하다.">
+                        </div>
+                        <div>
+                            <div class="flex items-end justify-between mb-1.5">
+                                <label for="evidence-1" class="text-sm font-bold text-gray-700">근거 ①</label>
+                                <span class="text-xs text-gray-400"><span id="count-evidence-1">0</span>/300자</span>
+                            </div>
+                            <textarea id="evidence-1" maxlength="300"
+                                class="w-full h-28 p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pinky-300 focus:border-pinky-400 outline-none resize-none text-gray-700 leading-relaxed"
+                                placeholder="주장 ①을 뒷받침하는 과학 원리·통계·기사 내용을 출처와 함께 적어보세요."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 논거 2 -->
+                    <div class="border border-butter-200 rounded-xl p-4 md:p-5 mb-4 bg-butter-50/50">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="w-6 h-6 rounded-full bg-butter-500 text-white text-xs font-bold flex items-center justify-center">2</span>
+                            <h3 class="text-base font-bold text-gray-800">두 번째 주장과 근거</h3>
+                        </div>
+                        <div class="mb-3">
+                            <div class="flex items-end justify-between mb-1.5">
+                                <label for="main-2" class="text-sm font-bold text-gray-700">주장 ②</label>
+                                <span class="text-xs text-gray-400"><span id="count-main-2">0</span>/100자</span>
+                            </div>
+                            <input type="text" id="main-2" maxlength="100"
+                                class="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-butter-300 focus:border-butter-400 outline-none text-gray-700"
+                                placeholder="예) 동물원은 시민에게 생물다양성 교육을 제공하는 공간이기도 하다.">
+                        </div>
+                        <div>
+                            <div class="flex items-end justify-between mb-1.5">
+                                <label for="evidence-2" class="text-sm font-bold text-gray-700">근거 ②</label>
+                                <span class="text-xs text-gray-400"><span id="count-evidence-2">0</span>/300자</span>
+                            </div>
+                            <textarea id="evidence-2" maxlength="300"
+                                class="w-full h-28 p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-butter-300 focus:border-butter-400 outline-none resize-none text-gray-700 leading-relaxed"
+                                placeholder="주장 ②를 뒷받침하는 과학 원리·통계·기사 내용을 출처와 함께 적어보세요."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 검사 결과 패널 -->
+                    <div id="filter-panel" class="hidden mt-4 rounded-xl border p-4 text-sm fade-in">
+                        <div class="flex items-start gap-3">
+                            <i id="filter-icon" class="fa-solid fa-triangle-exclamation mt-0.5"></i>
+                            <div class="flex-grow">
+                                <p id="filter-title" class="font-bold mb-1"></p>
+                                <ul id="filter-list" class="list-disc list-inside space-y-1 leading-relaxed"></ul>
+                                <p id="filter-help" class="mt-2 text-xs opacity-80"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3">
+                        <p class="text-xs text-gray-400 sm:mr-auto">
+                            <i class="fa-solid fa-shield-halved mr-1"></i>등록 전 욕설·비속어, 개인정보, 무의미한 입력을 자동으로 검사합니다.
+                        </p>
+                        <button id="submit-btn" onclick="submitOpinion()" class="bg-pinky-500 hover:bg-pinky-600 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-transform transform hover:-translate-y-1">
+                            내 생각 등록하고 친구들과 비교하기 <i class="fa-solid fa-paper-plane ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== 3단계 : 결과 비교 ===================== -->
+        <section id="step-3" class="fade-in hidden">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800">🌷 멋진 생각이네요!</h2>
+                <p class="text-gray-500 mt-2">나의 글을 확인하고, 가상 친구들의 생각과 비교해 보세요.</p>
+                <span class="inline-flex items-center gap-1.5 mt-3 bg-butter-100 text-butter-700 text-xs font-bold px-3 py-1.5 rounded-full">
+                    <i class="fa-solid fa-circle-check"></i> 바른 말 · 개인정보 · 작성 형식 검사 통과
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 내 의견 -->
+                <div class="bg-white rounded-2xl shadow-sm border-2 border-pinky-200 p-6 flex flex-col h-full">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="bg-pinky-100 text-pinky-700 text-xs font-bold px-2 py-1 rounded">나의 입장</span>
+                            <h3 class="text-lg font-bold mt-2 flex items-center gap-2" id="result-my-stance"></h3>
+                            <p class="text-xs text-gray-400 mt-1">작성자 별명: <span id="result-my-nickname"></span></p>
+                        </div>
+                        <div class="w-10 h-10 bg-pinky-100 rounded-full flex items-center justify-center text-xl">🌱</div>
+                    </div>
+
+                    <div class="space-y-3 flex-grow">
+                        <div class="bg-pinky-50 p-4 rounded-xl border border-pinky-100">
+                            <span class="text-xs font-bold text-pinky-600 mb-1 block">주장 ①</span>
+                            <p id="result-main-1" class="text-gray-800 font-bold leading-snug mb-2"></p>
+                            <span class="text-xs font-bold text-gray-500 mb-1 block">근거 ①</span>
+                            <p id="result-evidence-1" class="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap"></p>
+                        </div>
+                        <div class="bg-butter-50 p-4 rounded-xl border border-butter-100">
+                            <span class="text-xs font-bold text-butter-700 mb-1 block">주장 ②</span>
+                            <p id="result-main-2" class="text-gray-800 font-bold leading-snug mb-2"></p>
+                            <span class="text-xs font-bold text-gray-500 mb-1 block">근거 ②</span>
+                            <p id="result-evidence-2" class="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap"></p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex gap-2">
+                        <button onclick="copyMyText()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-regular fa-copy"></i> 내 글 복사하기
+                        </button>
+                        <button onclick="resetApp()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-rotate-right"></i> 다시 하기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 가상 친구 -->
+                <div class="space-y-4">
+                    <h3 class="font-bold text-gray-700 ml-1"><i class="fa-solid fa-users mr-1"></i> 가상 친구들의 생각 <span class="text-xs font-normal text-gray-400">(모두 별명이에요)</span></h3>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-butter-400"></div>
+                        <div class="flex items-center gap-3 mb-2 flex-wrap">
+                            <div class="w-8 h-8 bg-butter-100 rounded-full flex items-center justify-center text-sm">🌼</div>
+                            <span class="font-bold text-gray-800" id="friend-pro-name"></span>
+                            <span class="text-xs bg-butter-100 text-butter-700 px-2 py-0.5 rounded-full font-bold">찬성</span>
+                        </div>
+                        <div id="friend-pro-args" class="space-y-2"></div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-pinky-400"></div>
+                        <div class="flex items-center gap-3 mb-2 flex-wrap">
+                            <div class="w-8 h-8 bg-pinky-100 rounded-full flex items-center justify-center text-sm">🌸</div>
+                            <span class="font-bold text-gray-800" id="friend-con-name"></span>
+                            <span class="text-xs bg-pinky-100 text-pinky-700 px-2 py-0.5 rounded-full font-bold">반대</span>
+                        </div>
+                        <div id="friend-con-args" class="space-y-2"></div>
+                    </div>
+
+                    <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5">
+                        <h4 class="font-bold text-gray-700 text-sm mb-2"><i class="fa-solid fa-lightbulb text-butter-500 mr-1"></i> 토론 예절</h4>
+                        <ul class="text-xs text-gray-600 space-y-1 list-disc list-inside leading-relaxed">
+                            <li>사람이 아니라 <b>주장</b>을 반박해요.</li>
+                            <li>근거에는 자료·통계·과학 원리를 붙이고 <b>출처</b>를 밝혀요.</li>
+                            <li>친구의 이름·학교 등 개인정보는 쓰지 않아요.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-pinky-100 bg-white py-4 mt-8">
+        <div class="max-w-4xl mx-auto px-4 text-xs text-gray-400 text-center leading-relaxed">
+            도서 요약 출처: 교보문고 책소개 · 통계 출처: 각 자료에 표기 · 이 앱은 개인정보를 수집·저장하지 않습니다.
+        </div>
+    </footer>
+
+    <div id="toast-message" class="toast fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-lg z-50 flex items-center gap-3 max-w-[90vw]">
+        <i class="fa-solid fa-circle-check text-butter-300"></i>
+        <span id="toast-text">메시지</span>
+    </div>
+
+    <script>
+    /* =========================================================
+       1. 공통 누리집 (모든 주제에서 자료를 찾을 수 있는 곳)
+       ========================================================= */
+    const COMMON_SITES = [
+        { name: "국립생태원 – 멸종위기 야생생물 검색", url: "https://www.nie.re.kr/nie/pgm/edSearch/main.do?menuNo=200133", desc: "분류군·등급·이름으로 멸종위기종을 찾아 형태·서식지·위협요인을 볼 수 있어요." },
+        { name: "국립생태원 – 멸종위기 야생생물 지정현황", url: "https://www.nie.re.kr/nie/pgm/edSpecies/edSpeciesList.do?menuNo=200127", desc: "Ⅰ급·Ⅱ급 전체 목록과 분류군별 종 수를 확인할 수 있어요." },
+        { name: "국립생태원 – 멸종위기 야생생물 분포현황", url: "https://www.nie.re.kr/nie/pgm/edDistStat/list.do?menuNo=200128", desc: "지역(시·도)을 클릭해 우리 지역에 사는 멸종위기종을 찾아볼 수 있어요." },
+        { name: "e-나라지표 – 멸종위기 야생생물 지정 현황", url: "https://www.index.go.kr/unity/potal/main/EachDtlPageDetail.do?idx_cd=1463", desc: "연도별 지정 종 수 변화를 표와 그래프로 제공하는 국가 통계 지표예요." },
+        { name: "공공데이터포털 – 국가생물다양성 통계자료집", url: "https://www.data.go.kr/data/15069684/fileData.do", desc: "국립생물자원관이 해마다 펴내는 통계자료집(PDF)을 무료로 내려받을 수 있어요." },
+        { name: "찾기쉬운 생활법령정보 – 생태계교란 생물의 지정", url: "https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&csmSeq=1812&ccfNo=3&cciNo=2&cnpClsNo=1", desc: "생태계교란 생물을 어떤 기준으로 지정하는지 법령 내용을 쉽게 설명해 줘요." }
+    ];
+
+    /* =========================================================
+       2. 토론 주제 데이터
+          - bookSummary : 교보문고 책소개 기반
+          - factbox     : 핵심 통계
+          - refs        : 관련 기사 / 통계·자료 / 누리집
+          - friends     : 별명 + 과학적 근거를 갖춘 주장 2개
+       ========================================================= */
+    const discussionData = [
+        {
+            id: 1,
+            book: "친절한 교과 씨 생물 다양성으로 수다 떨다",
+            bookMeta: "이고은 글 · 불곰 그림 | 데이스타 | 2026",
+            kyoboUrl: "https://product.kyobobook.co.kr/detail/S000219311332",
+            bookSummary: "“쇼츠보다 재미있고, 선생님만큼 친절하며, 교과서보다 유익하다!”\n교과서에는 미처 담을 수 없었던 잡다하고 흥미로운 이야기를 담은 시리즈입니다. 현직 생물 교사인 저자가 바나나의 멸종, 제주도의 아열대 기후화, 종자 사용료, 적응과 다양성의 반비례 관계처럼 교과 내용과 깊이 있게 연계된 주제로 생물 다양성의 중요성을 알려 줍니다. “멸종을 코앞에 둔 인류에게 남은 마지막 등불, 생물 다양성을 지켜라!” 흥미로운 이야기를 따라가다 보면 복잡한 생태계의 아름다움을 이해하고, 일상 속에서 지구를 위해 내디딜 첫걸음을 발견하게 됩니다.",
+            title: "종 보존을 위해 동물원을 계속 유지해야 할까?",
+            desc: "우리 지역의 대전 오월드나 야생동물 보호소로 변신 중인 청주동물원 사례를 생각해 봅시다. 멸종 위기 '종'을 보호하기 위해 동물원이 꼭 필요할까요?",
+            icon: "fa-hippo",
+            color: "text-butter-700",
+            bgColor: "bg-butter-100",
+            factbox: {
+                title: "우리나라 멸종위기 야생생물 지정 현황",
+                rows: [
+                    { label: "멸종위기 야생생물 Ⅰ급", value: "68종" },
+                    { label: "멸종위기 야생생물 Ⅱ급", value: "214종" },
+                    { label: "합계", value: "282종" },
+                    { label: "관찰종", value: "56종" }
+                ],
+                note: "2022년 12월 기준",
+                source: "e-나라지표 「멸종위기 야생생물 지정 현황」",
+                sourceUrl: "https://www.index.go.kr/unity/potal/main/EachDtlPageDetail.do?idx_cd=1463"
+            },
+            refs: {
+                news: [
+                    { title: "청주동물원, 토종 야생동물 보호하는 동물원 된다", media: "경향신문", date: "2023.4.27", url: "https://www.khan.co.kr/article/202304271123011", point: "천연기념물 동물 보존관 사업에 21억 원을 투입해 구조·치료·재활 후 자연 방사를 추진한다는 내용." },
+                    { title: "청주동물원, 천연기념물 동물보존관 개소…야생 복귀 돕는다", media: "중부매일", date: "2026.4.2", url: "https://www.jbnews.com/news/articleView.html?idxno=1501691", point: "총 20억 7천만 원을 들여 방사훈련장·이동진료차량을 갖췄고, 몽골에서 오는 어린 독수리 약 10%가 전선 충돌·농약 중독으로 다친다는 내용." }
+                ],
+                stats: [
+                    { title: "멸종위기 야생생물 지정 현황 (Ⅰ급 68종 / Ⅱ급 214종)", media: "e-나라지표", url: "https://www.index.go.kr/unity/potal/main/EachDtlPageDetail.do?idx_cd=1463" },
+                    { title: "멸종위기 야생생물 통계자료집 (PDF)", media: "국립생태원", url: "https://www.nie.re.kr/resources/nie/files/edSpeciesDataBook.pdf" }
+                ]
+            },
+            searchTips: {
+                pro: [
+                    "동물원이 <b>서식지 외 보전기관</b>으로 지정된 현황과, 증식·방사에 성공한 사례를 찾아보세요.",
+                    "e-나라지표에서 <b>멸종위기 야생생물 지정 종 수의 연도별 변화</b>를 확인하면 보호가 얼마나 시급한지 보여 줄 수 있어요.",
+                    "청주동물원 동물보존관의 <b>구조·치료·재활 실적</b>(중부매일 2026.4.2)을 근거로 쓰면 좋아요.",
+                    "‘유전자 병목 현상’, ‘근친교배’, ‘유전적 다양성’ 개념을 책이나 국립생태원 자료에서 확인하세요."
+                ],
+                con: [
+                    "사육 개체를 자연에 풀었을 때의 <b>야생 적응 실패·방사 성공률</b> 자료를 찾아보세요.",
+                    "좁은 사육 환경에서 나타나는 <b>정형행동</b>과 동물복지 관련 자료를 확인하세요.",
+                    "동물원 운영비와 <b>서식지 복원 사업 예산</b>을 비교해 어느 쪽이 더 많은 종을 지키는지 따져 보세요.",
+                    "청주동물원이 전시 중심에서 <b>구조·재활 중심으로 전환</b>한 배경(경향신문 2023.4.27)을 근거로 쓰면 좋아요."
+                ]
+            },
+            friends: {
+                pro: {
+                    name: "보전연구하는 두루미",
+                    args: [
+                        { claim: "동물원은 멸종을 막는 마지막 유전자 저장고이므로 유지해야 한다.", evidence: "개체 수가 급격히 줄면 '유전자 병목 현상'이 일어나 집단의 유전적 다양성이 낮아지고, 근친교배로 열성 유전자가 드러나 질병 저항성이 떨어져. 동물원은 혈통을 기록해 계획적으로 교배하는 '서식지 외 보전기관' 역할을 하기 때문에 야생 개체군이 무너져도 종 자체를 남길 수 있어. 우리나라 멸종위기 야생생물이 282종(Ⅰ급 68종·Ⅱ급 214종, 2022년 12월 기준, e-나라지표)이나 되는 상황에서는 이런 보험이 꼭 필요해." },
+                        { claim: "동물원은 다친 야생동물을 치료해 자연으로 돌려보내는 구조·재활 거점이다.", evidence: "청주동물원은 20억 7천만 원을 들여 천연기념물 동물보존관과 방사훈련장을 열었어. 몽골에서 겨울을 나러 오는 어린 독수리 가운데 약 10%가 전선에 걸리거나 농약에 중독돼 죽거나 다치는데, 이런 개체를 치료하고 재활 훈련을 시켜 야생으로 돌려보내는 시설이 바로 동물원이야(중부매일, 2026.4.2). 치료 시설이 없으면 다친 개체는 그대로 죽고 개체군은 더 빨리 줄어들어." }
+                    ]
+                },
+                con: {
+                    name: "야생으로 가는 삵",
+                    args: [
+                        { claim: "좁은 사육 공간의 소수 개체군으로는 장기적인 종 보전이 어렵다.", evidence: "적은 수의 개체로 여러 세대를 이어 가면 '유전적 부동'과 근친교배 때문에 유전적 다양성이 오히려 빠르게 사라져. 또 행동권이 넓은 대형 동물은 좁은 공간에서 같은 동작을 반복하는 정형행동을 보이고, 야생에서 먹이를 찾고 포식자를 피하는 행동을 배우지 못해 방사해도 살아남기 어려워. 보전의 최종 목표가 '야생에서 스스로 유지되는 개체군'이라면 전시 중심 동물원은 목표에 닿지 못해." },
+                        { claim: "예산은 전시 시설보다 서식지 복원과 구조·재활에 써야 효율이 높다.", evidence: "청주동물원도 방향을 바꿔 토종 야생동물을 구조·치료해 자연으로 돌려보내는 곳으로 전환하고 있어(경향신문, 2023.4.27). 한 종을 동물원에서 기르는 비용으로 서식지의 물길과 숲을 복원하면 그 안에 사는 수많은 종이 함께 보호돼 비용 대비 효과가 훨씬 커. 종 하나가 아니라 생태계 전체를 지키는 방식이 생물다양성 보전의 본래 목적에 더 맞아." }
+                    ]
+                }
+            }
+        },
+        {
+            id: 2,
+            book: "생물다양성 쫌 아는 10대",
+            bookMeta: "김성호 글 · 도아마 그림 | 풀빛 | 2024",
+            kyoboUrl: "https://product.kyobobook.co.kr/detail/S000214555182",
+            bookSummary: "지구 생태계의 균형을 맞추는 다양성의 힘을 이야기하는 청소년 교양서입니다. 생물다양성은 종 다양성, 유전자 다양성, 생태계 다양성 세 가지로 확인되며, 지구가 생물학적으로 얼마나 건강한지를 가늠하는 잣대라고 설명합니다. 오늘날 멸종 속도는 원래의 자연적 빈도보다 100배에서 1,000배까지 빠르며, 기후 변화와 무분별한 개발, 외래종 도입, 지나친 채취와 남획이 그 원인으로 지목됩니다.\n산림청·환경부의 최신 통계 자료와 국립생태원의 사진 자료가 잘 정리되어 있어, 당장 실천할 수 있는 생활 방식부터 우리 사회가 나아가야 할 방향까지 자연스럽게 알게 됩니다.",
+            title: "천연기념물 '미호종개' 서식지 인근의 지역 개발을 허가해야 할까?",
+            desc: "충청 지역 미호강에만 사는 고유종 '미호종개'가 하천 개발로 멸종 위기입니다. 지역 경제 발전을 위한 개발과 고유종의 '종 다양성' 보호 중 무엇이 우선일까요?",
+            icon: "fa-fish",
+            color: "text-pinky-600",
+            bgColor: "bg-pinky-100",
+            factbox: {
+                title: "미호종개(Cobitis choii) 서식 개체수 조사 결과",
+                rows: [
+                    { label: "2015년 조사", value: "19개 지점 중 9개 지점 · 163개체" },
+                    { label: "2018년 조사", value: "22개 지점 중 5개 지점 · 39개체" },
+                    { label: "2019년 조사", value: "79개 지점 중 12개 지점 · 156개체" },
+                    { label: "멸종위협 등급", value: "위기(EN A2ac) — 개체수 50% 이상 감소" }
+                ],
+                note: "우리나라 고유종이며 멸종위기 야생생물 Ⅰ급·천연기념물",
+                source: "고명훈·한미숙(2024) 「멸종위기어류 미호종개의 분포양상과 멸종위협 평가」, 한국어류학회지",
+                sourceUrl: "https://www.koreascience.kr/article/JAKO202420059623142.page?lang=ko"
+            },
+            refs: {
+                news: [
+                    { title: "갑천에서 다시 만난 미호종개… ‘준설계획’ 멈춰야", media: "오마이뉴스", date: "2025.12.8", url: "https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003189437", point: "갑천에서 미호종개가 재확인됐는데도 하천기본계획 평가서에서 누락돼 부실 조사 논란이 일었다는 내용." },
+                    { title: "“미호강은 아직 살아 있었다”…멸종위기 ‘미호종개’, 중·하류서 첫 발견", media: "충청도민일보", date: "2026.5.19", url: "https://www.dominilbo.com/news/articleView.html?idxno=268521", point: "상류에서만 보이던 미호종개가 1984년 신종 발표 이후 처음으로 중·하류에서 확인됐다는 내용." },
+                    { title: "“잘 살아야 해”… 고향으로 돌아온 미호종개 4000마리", media: "뉴스펭귄", date: "2022.10.31", url: "https://www.newspenguin.com/news/articleView.html?idxno=12617", point: "금강유역환경청·국립문화재연구원·K-water가 미호강에 미호종개 4,000마리를 방류한 복원 사업 내용." }
+                ],
+                stats: [
+                    { title: "미호종개 분포양상과 멸종위협 평가 (2015·2018·2019년 개체수 조사)", media: "한국어류학회지 2024", url: "https://www.koreascience.kr/article/JAKO202420059623142.page?lang=ko" },
+                    { title: "멸종위기 야생생물 검색 — ‘어류’에서 미호종개 조회", media: "국립생태원", url: "https://www.nie.re.kr/nie/pgm/edSearch/main.do?menuNo=200133" },
+                    { title: "멸종위기 야생생물 분포현황 — 충청 지역 서식 종 확인", media: "국립생태원", url: "https://www.nie.re.kr/nie/pgm/edDistStat/list.do?menuNo=200128" },
+                    { title: "멸종위기 야생생물 통계자료집 (PDF)", media: "국립생태원", url: "https://www.nie.re.kr/resources/nie/files/edSpeciesDataBook.pdf" }
+                ]
+            },
+            searchTips: {
+                pro: [
+                    "<b>지역 인구·고용·지역내총생산</b> 같은 경제 통계를 국가통계포털(KOSIS)에서 찾아 개발의 필요성을 뒷받침하세요.",
+                    "미호종개 조사에서 <b>개체 수가 늘었거나 새로 서식이 확인된 지점</b>(초평천·금강 본류·갑천)을 근거로 공존 가능성을 보여 주세요.",
+                    "하천 개발에 쓰이는 <b>친환경 공법·저감 대책 사례</b>를 찾아보세요.",
+                    "복원 사업(방류·모니터링)에 <b>해마다 드는 예산과 재원</b>을 확인하면 설득력이 커져요."
+                ],
+                con: [
+                    "위 통계 상자의 <b>2015년 163개체 → 2018년 39개체</b> 급감 자료를 그대로 인용하세요.",
+                    "<b>준설·보 건설이 모래 하상에 미치는 영향</b>과 미호종개의 서식 조건(고운 모래·느린 유속)을 찾아보세요.",
+                    "갑천 하천기본계획에서 미호종개가 <b>누락된 부실 조사 논란</b>(오마이뉴스 2025.12.8)을 근거로 쓰세요.",
+                    "IUCN <b>위기(EN) 등급의 기준</b>과 ‘고유종’이 왜 대체 불가능한지 국립생태원 자료에서 확인하세요."
+                ]
+            },
+            friends: {
+                pro: {
+                    name: "마을살림 살피는 청설모",
+                    args: [
+                        { claim: "서식 구간을 피해 설계하면 개발과 보호를 함께 이룰 수 있다.", evidence: "2019년 조사에서 미호종개는 79개 지점 중 12개 지점에서 156개체가 확인됐는데, 초평천과 금강 본류에서는 서식이 새로 확인됐고 갑천에서는 개체 수가 늘었어(한국어류학회지, 2024). 즉 모래 하상과 느린 유속이라는 서식 조건만 지키면 하천 안에서도 개체군이 유지될 수 있다는 뜻이야. 확인된 서식 구간을 보전구역으로 지정해 공사에서 제외하고 나머지 구간만 개발하면 두 가지를 모두 얻을 수 있어." },
+                        { claim: "지역 경제가 무너지면 생태 보전을 이어 갈 사람과 예산도 사라진다.", evidence: "미호종개 복원은 금강유역환경청·국립문화재연구원·K-water가 함께 4,000마리를 방류하는 식으로 계속 예산과 인력이 들어가야 하는 사업이야(뉴스펭귄, 2022.10.31). 지역에 일자리와 세수가 있어야 이런 장기 모니터링과 복원 사업을 유지할 수 있어. 개발을 무조건 막기보다 개발 이익의 일부를 서식지 관리 기금으로 쓰도록 조건을 붙이는 방식이 현실적이야." }
+                    ]
+                },
+                con: {
+                    name: "모래강 지키는 미호종개",
+                    args: [
+                        { claim: "미호종개 개체수는 이미 위험한 수준으로 줄어 개발을 감당할 여력이 없다.", evidence: "같은 조사에서 미호종개는 2015년 163개체에서 2018년 39개체로 급감했고, 최종 멸종위협 등급은 위기(EN A2ac), 즉 '개체수 50% 이상 감소'로 평가됐어(한국어류학회지, 2024). 백곡천은 저수지 둑 높이기 사업으로, 유구천은 보 붕괴와 재건설로 서식지가 교란돼 개체 수가 줄었다고 분석됐어. 개발이 실제로 개체군을 줄인 원인으로 지목된 이상 추가 개발은 위험해." },
+                        { claim: "미호종개는 모래 속에 사는 종이라 준설을 하면 서식지 자체가 사라진다.", evidence: "미호종개는 고운 모래층에 몸을 묻고 사는 어류여서 준설로 모래가 걷히면 숨을 곳도 산란 장소도 없어져. 그런데 갑천 하천기본계획 평가서에서는 재확인된 미호종개가 아예 누락돼 부실 조사 논란이 일었고, 보호 대책도 '5m 이상 이격' 수준에 그쳤어(오마이뉴스, 2025.12.8). 고유종은 한 번 사라지면 지구 어디에서도 다시 데려올 수 없으니, 조사가 부실한 상태의 개발 허가는 되돌릴 수 없는 손실을 만들어." }
+                    ]
+                }
+            }
+        },
+        {
+            id: 3,
+            book: "여우와 토종 씨의 행방불명",
+            bookMeta: "박경화 지음 | 양철북 | 2021 개정판",
+            kyoboUrl: "https://product.kyobobook.co.kr/detail/S000000992688",
+            bookSummary: "십 대를 위한 한반도 생물 다양성 이야기입니다. 지은이는 최근 100년 사이 한반도에서 일어난 변화를 짚으며, 이 땅에서 사라졌거나 겨우 살아남았거나 변이된 생물종에 관해 이야기합니다.\n1부는 호랑이와 여우처럼 사라진 야생동물을, 2부는 멸종 위기의 식물과 토종 씨앗을, 3부는 인간 주변에서 살아가는 생명들이 겪는 문제를, 4부는 생수·쓰레기·감염병 같은 환경 이슈를 다룹니다. 2010년 초판 이후 나온 개정판에는 오버투어리즘, 유리창에 부딪혀 죽는 새, 코로나19 같은 최신 현안이 더해졌습니다. 기후 변화로 인한 기상 이변과 감염병으로 마비된 일상은 우리 삶의 방식에 근본적인 변화를 요구하고 있으며, 결국 인간과 자연, 생태계가 모두 연결되어 있음을 보여 줍니다.",
+            title: "금강 생태계를 위협하는 '미국가재'와 '배스'를 모두 포획해야 할까?",
+            desc: "충남, 대전, 충북을 흐르는 금강과 대청호에 미국가재, 배스 등 외래종이 급증하여 토종 생물이 위협받고 있습니다. 고유 종 다양성을 지키기 위해 외래종을 적극 제거해야 할까요?",
+            icon: "fa-frog",
+            color: "text-pinky-700",
+            bgColor: "bg-pinky-100",
+            factbox: {
+                title: "대청호 외래어종과 생태계교란 생물 현황",
+                rows: [
+                    { label: "대청호 그물 어획량 중 배스·블루길 비율", value: "60~70%" },
+                    { label: "보은군 2025년 유해 어종 수매량", value: "3톤" },
+                    { label: "수매 단가 / 사업비", value: "1kg당 3,200원 / 1,248만 원" },
+                    { label: "함께 방류한 뱀장어 치어", value: "1만 7천 마리" }
+                ],
+                note: "큰입배스·블루길(파랑볼우럭)은 1998년 2월 황소개구리와 함께 처음 생태계교란 생물로 지정되었습니다.",
+                source: "충청매일 「충북 보은군 대청호 유해 어류 퇴치 앞장」(2025.7.15)",
+                sourceUrl: "https://www.ccdn.co.kr/news/articleView.html?idxno=1030679"
+            },
+            refs: {
+                news: [
+                    { title: "충북 보은군 대청호 유해 어류 퇴치 앞장", media: "충청매일", date: "2025.7.15", url: "https://www.ccdn.co.kr/news/articleView.html?idxno=1030679", point: "배스·블루길 3톤을 kg당 3,200원에 수매하고 뱀장어 치어 1만 7천 마리를 방류했다는 내용. 그물에 잡히는 물고기의 60~70%가 배스·블루길." }
+                ],
+                stats: [
+                    { title: "생태계교란 생물의 지정 — 지정 기준과 피해 사례", media: "찾기쉬운 생활법령정보", url: "https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&csmSeq=1812&ccfNo=3&cciNo=2&cnpClsNo=1" },
+                    { title: "국가생물다양성 통계자료집 — 국내 생물종 현황", media: "공공데이터포털(국립생물자원관)", url: "https://www.data.go.kr/data/15069684/fileData.do" },
+                    { title: "멸종위기 야생생물 분포현황 — 충청 지역 토종 어류 확인", media: "국립생태원", url: "https://www.nie.re.kr/nie/pgm/edDistStat/list.do?menuNo=200128" }
+                ]
+            },
+            searchTips: {
+                pro: [
+                    "대청호 <b>어획량 중 배스·블루길 비율(60~70%)</b>과 수매 실적을 근거로 피해 규모를 보여 주세요.",
+                    "배스·블루길의 <b>먹이 습성과 포식량</b>에 관한 연구 자료를 찾아보세요.",
+                    "<b>생태계교란 생물 지정 기준과 피해 사례</b>를 생활법령정보에서 확인하세요.",
+                    "‘회복 탄력성(resilience)’, ‘먹이사슬’ 개념을 책에서 찾아 종 다양성이 왜 중요한지 설명하세요."
+                ],
+                con: [
+                    "<b>연도별 수매량과 개체 수 변화</b>를 비교해 퇴치 사업이 실제로 효과가 있었는지 따져 보세요.",
+                    "지금까지 외래종 퇴치에 <b>투입된 예산 총액</b>을 찾아 비용 대비 효과를 계산해 보세요.",
+                    "<b>산란장 제거, 수변 식생 복원</b> 같은 대체 관리 방법의 사례를 찾아보세요.",
+                    "‘보상 반응’, ‘풍선 효과’처럼 <b>일부만 제거했을 때 생기는 부작용</b> 개념을 확인하세요."
+                ]
+            },
+            friends: {
+                pro: {
+                    name: "토종을 지키는 쉬리",
+                    args: [
+                        { claim: "최상위 포식자가 된 외래종을 줄이지 않으면 토종 어류의 재생산이 끊긴다.", evidence: "대청호에서 그물에 잡히는 물고기의 60~70%가 배스와 블루길이야(충청매일, 2025.7.15). 이 두 종은 육식성이라 토종 물고기의 알과 치어를 잡아먹는데, 먹이 피라미드의 중간 단계가 사라지면 위아래가 모두 무너져. 종 구성이 단순해지면 환경 변화나 질병이 닥쳤을 때 생태계가 스스로 회복하는 힘인 '회복 탄력성(resilience)'이 떨어지기 때문에 밀도를 낮추는 관리가 필요해." },
+                        { claim: "수매를 통한 밀도 조절과 토종 방류를 함께 하면 실제로 효과가 있다.", evidence: "보은군은 2025년에 kg당 3,200원, 사업비 1,248만 원으로 배스·블루길 3톤을 수매해 잡은 개체가 다시 호수로 돌아가지 못하게 했고, 같은 시기에 뱀장어 치어 1만 7천 마리를 방류했어(충청매일, 2025.7.15). 포식자를 줄이면서 동시에 토종 개체군을 보충하는 두 가지를 함께 해야 먹이사슬이 회복돼. 큰입배스와 블루길이 1998년부터 생태계교란 생물로 지정된 것도 그만큼 피해가 확실하기 때문이야." }
+                    ]
+                },
+                con: {
+                    name: "물길을 살피는 왜가리",
+                    args: [
+                        { claim: "포획만으로는 이미 정착한 외래종을 없앨 수 없다.", evidence: "충북은 10년 넘게 해마다 예산을 들여 외래어종을 수매해 왔지만 어민들은 오히려 개체 수가 늘었다고 말해. 배스·블루길처럼 번식력이 강한 종은 일부만 제거하면 남은 개체들이 먹이와 공간을 더 많이 차지해 생존율과 번식률이 높아지는 '보상 반응'이 나타나기 때문이야. 잡는 속도가 번식 속도를 넘지 못하면 예산만 계속 들어가고 밀도는 제자리로 돌아와." },
+                        { claim: "포획보다 서식 환경을 토종에게 유리하게 바꾸는 방법이 더 효과적이다.", evidence: "배스는 자갈 바닥의 얕은 곳에 산란장을 만들고 수컷이 알을 지키는 습성이 있어서, 산란기에 산란장을 제거하면 잡는 것보다 적은 비용으로 개체 수 증가를 막을 수 있어. 또 수변 식생과 여울·웅덩이를 복원하면 토종 어류의 치어가 숨을 곳이 늘어나 포식 압력을 견딜 수 있어. 생태계교란 생물은 전국적으로 관리 대상이 계속 늘고 있어서, 모두 잡아내겠다는 목표보다 토종이 버틸 수 있는 서식지를 만드는 전략이 현실적이야." }
+                    ]
+                }
+            }
+        }
+    ];
+
+    /* =========================================================
+       3. 바른 말 필터 (욕설·비속어) + 개인정보 검사
+       ========================================================= */
+    const BadWordFilter = (function () {
+        // 강한 비속어 : 그대로 쓰인 경우 (등록 차단)
+        const SEVERE = [
+            '시발','씨발','씨팔','시팔','씨바','시부랄','씨부랄','시부럴','씨불',
+            '개새끼','개색기','개세끼','개쉐끼','쌍놈','쌍년','썅','개놈',
+            '좆','존나','존내','졸라게','지랄','병신','등신','머저리','새끼야','새끼들아',
+            '또라이','돌아이','미친놈','미친년','미쳤냐','개소리','개드립',
+            '닥쳐라','꺼져라','꺼지라','엿먹','뒈져','뒤져라','죽여버','죽어버려','죽을래',
+            '느금마','니애미','니애비','앰창','애미없','호로자식','후레자식',
+            '씹새','씹할','씹창','썩을놈','빌어먹을',
+            'fuck','fucking','shit','bitch','bastard','asshole'
+        ];
+        // (1) 특수문자·숫자를 끼워 넣은 우회 표기용 : 시*발, 시1발, 씨~발
+        //     공백은 지우지 않는다. ("동시 발생", "무시 발생" 같은 정상 문장 오탐 방지)
+        const LOOSE_SYMBOL = ['시발','씨발','씨팔','시팔','개새끼','지랄','씹새','좆'];
+        // (2) 초성 축약 : 공백까지 지우고 검사해도 우연히 만들어질 수 없는 형태만
+        const LOOSE_JAMO = ['ㅅㅂ','ㅆㅂ','ㅄ','ㅂㅅ','ㅈㄹ','ㄲㅈ','ㅅㄲ','ㄴㄱㅁ','ㅁㅊㄴ','ㅗ'];
+        // 거친 표현·인신공격 : 경고 후 등록 가능
+        const MILD = [
+            '바보','멍청','한심','찌질','재수없','짜증나','밥맛없','무식',
+            '닥쳐','꺼져','같잖','어이없네','못생','띨빵','띨띨'
+        ];
+
+        // 개인정보 패턴
+        const PII_RULES = [
+            { name: '주민등록번호', re: /\d{6}\s*[-–.]\s*[1-4]\d{6}/g },
+            { name: '휴대전화번호', re: /01[016789]\s*[-–.\s]?\s*\d{3,4}\s*[-–.\s]?\s*\d{4}/g },
+            { name: '전화번호', re: /0(2|3[1-3]|4[1-4]|5[1-5]|6[1-4])\s*[-–.]\s*\d{3,4}\s*[-–.]\s*\d{4}/g },
+            { name: '이메일 주소', re: /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g },
+            { name: '카드·계좌번호', re: /\d{4}\s*[-–\s]\s*\d{4}\s*[-–\s]\s*\d{4}\s*[-–\s]\s*\d{3,4}/g },
+            { name: '학교 이름', re: /[가-힣]{2,10}(초등학교|중학교|고등학교)/g },
+            { name: '학년·반·번호', re: /\d\s*학년\s*\d{1,2}\s*반|\d{1,2}\s*반\s*\d{1,2}\s*번/g },
+            { name: '집 주소', re: /[가-힣0-9]{2,12}(아파트|빌라)\s*\d+\s*(동|호)|\d+\s*동\s*\d+\s*호|\d+\s*번지/g },
+            { name: 'SNS·메신저 아이디', re: /@[A-Za-z0-9._]{3,}|(카톡|카카오톡|인스타|인스타그램|텔레그램|디스코드|오픈채팅|페이스북)\s*(아이디|계정|id)\s*[:：]?\s*[A-Za-z0-9._가-힣]{2,}/gi },
+            { name: '실명(이름)', re: /(제|내|나의|본인)\s*이름은?\s*[가-힣]{2,4}|(이름|성함)\s*[:：]\s*[가-힣]{2,4}/g }
+        ];
+
+        // 특수문자·숫자만 제거 (공백은 남김)
+        function stripSymbols(text) {
+            return text.toLowerCase().replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-z\s]/g, '');
+        }
+        // 공백까지 모두 제거
+        function stripAll(text) {
+            return text.toLowerCase().replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-z]/g, '');
+        }
+
+        function findWords(text, list) {
+            const lower = text.toLowerCase();
+            const hits = [];
+            list.forEach(function (w) {
+                if (lower.indexOf(w) !== -1 && hits.indexOf(w) === -1) hits.push(w);
+            });
+            return hits;
+        }
+
+        function findVariant(text, list, normalizer, already) {
+            const norm = normalizer(text);
+            const hits = [];
+            list.forEach(function (w) {
+                if (norm.indexOf(w) !== -1 && already.indexOf(w) === -1 && hits.indexOf(w) === -1) hits.push(w);
+            });
+            return hits;
+        }
+
+        function findPii(text) {
+            const hits = [];
+            PII_RULES.forEach(function (rule) {
+                rule.re.lastIndex = 0;
+                const m = text.match(rule.re);
+                if (m && m.length) hits.push({ name: rule.name, sample: m[0].trim() });
+            });
+            return hits;
+        }
+
+        function mask(word) {
+            if (word.length <= 1) return '●';
+            return word[0] + '●'.repeat(word.length - 1);
+        }
+
+        function maskSample(s) {
+            const t = String(s).trim();
+            if (t.length <= 3) return t[0] + '●●';
+            return t.slice(0, 2) + '●'.repeat(Math.min(t.length - 2, 8));
+        }
+
+        return {
+            check: function (text) {
+                if (!text) return { severe: [], mild: [], pii: [], clean: true };
+                const severeExact = findWords(text, SEVERE);
+                const bySymbol = findVariant(text, LOOSE_SYMBOL, stripSymbols, severeExact);
+                const found = severeExact.concat(bySymbol);
+                const byJamo = findVariant(text, LOOSE_JAMO, stripAll, found);
+                const severe = found.concat(byJamo);
+                const mild = findWords(text, MILD);
+                const pii = findPii(text);
+                return {
+                    severe: severe, mild: mild, pii: pii,
+                    clean: severe.length === 0 && mild.length === 0 && pii.length === 0
+                };
+            },
+            mask: mask,
+            maskSample: maskSample
+        };
+    })();
+
+    /* =========================================================
+       4. 무의미한 입력 검사 (ㅂㅂㅂ, ㅇㅇㅇ, 같은 글자 반복 등)
+          문제가 있으면 이유 문구를 돌려준다. 없으면 null.
+       ========================================================= */
+    function checkMeaningful(text) {
+        const t = text.replace(/\s/g, '');
+        if (t.length === 0) return '내용을 입력해 주세요.';
+
+        const jamo = (t.match(/[ㄱ-ㅎㅏ-ㅣ]/g) || []).length;
+        if (jamo / t.length > 0.3) {
+            return '자음이나 모음만으로는 뜻이 전달되지 않아요. (예: ㅂㅂㅂ, ㅇㅇㅇ) 완성된 문장으로 다시 써 주세요.';
+        }
+        if (/(.)\1{3,}/.test(t)) {
+            return '같은 글자를 네 번 이상 이어서 쓴 부분이 있어요. 뜻이 있는 문장으로 바꿔 주세요.';
+        }
+        const uniq = new Set(t.split('')).size;
+        if (uniq < 5) {
+            return '서로 다른 글자가 너무 적어요. 생각을 문장으로 풀어서 써 주세요.';
+        }
+        if (t.length > 12 && uniq / t.length < 0.25) {
+            return '같은 글자가 지나치게 반복되고 있어요. 뜻이 있는 문장으로 바꿔 주세요.';
+        }
+        const syll = (t.match(/[가-힣]/g) || []).length;
+        const letters = (t.match(/[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z]/g) || []).length;
+        if (letters > 0 && syll / letters < 0.5 && !/[a-zA-Z]{3,}/.test(t)) {
+            return '완성된 한글 낱말이 거의 없어요. 문장으로 다시 써 주세요.';
+        }
+        return null;
+    }
+
+    /* =========================================================
+       5. 상태 & DOM
+       ========================================================= */
+    let currentTopic = null;
+    let selectedStance = null;
+    let mildConfirmed = false;
+    let myNickname = '';
+
+    const FIELDS = [
+        { id: 'main-1', label: '주장 ①', min: 8 },
+        { id: 'evidence-1', label: '근거 ①', min: 20 },
+        { id: 'main-2', label: '주장 ②', min: 8 },
+        { id: 'evidence-2', label: '근거 ②', min: 20 }
+    ];
+
+    const step1 = document.getElementById('step-1');
+    const step2 = document.getElementById('step-2');
+    const step3 = document.getElementById('step-3');
+    const cardsContainer = document.getElementById('topic-cards-container');
+    const filterPanel = document.getElementById('filter-panel');
+    const submitBtn = document.getElementById('submit-btn');
+
+    function el(id) { return document.getElementById(id); }
+    function escapeHtml(s) {
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    /* 별명 자동 생성 (개인정보를 입력받지 않기 위함) */
+    function makeNickname() {
+        const adj = ['궁금한', '슬기로운', '용감한', '따뜻한', '꼼꼼한', '씩씩한', '차분한', '반짝이는'];
+        const animal = ['수달', '삵', '두루미', '반딧불이', '미호종개', '황새', '산양', '점박이물범', '수리부엉이'];
+        const a = adj[Math.floor(Math.random() * adj.length)];
+        const b = animal[Math.floor(Math.random() * animal.length)];
+        const n = Math.floor(Math.random() * 90) + 10;
+        return a + ' ' + b + n;
+    }
+
+    /* =========================================================
+       6. 화면 렌더링
+       ========================================================= */
+    function initApp() {
+        myNickname = makeNickname();
+        el('nickname-badge').innerText = myNickname;
+
+        cardsContainer.innerHTML = '';
+        discussionData.forEach(function (topic) {
+            const card = document.createElement('div');
+            card.className = "bg-white rounded-2xl shadow-sm border border-pinky-100 p-6 hover:shadow-lg hover:border-pinky-300 transition-all cursor-pointer flex flex-col h-full transform hover:-translate-y-1";
+            card.onclick = function () { selectTopic(topic.id); };
+            card.innerHTML =
+                '<div class="w-12 h-12 ' + topic.bgColor + ' ' + topic.color + ' rounded-full flex items-center justify-center text-2xl mb-4">' +
+                    '<i class="fa-solid ' + topic.icon + '"></i>' +
+                '</div>' +
+                '<div class="text-xs font-bold text-gray-500 mb-2 truncate">' + escapeHtml(topic.book) + '</div>' +
+                '<h3 class="text-xl font-bold text-gray-800 mb-3 leading-tight">' + escapeHtml(topic.title) + '</h3>' +
+                '<p class="text-sm text-gray-600 flex-grow">' + escapeHtml(topic.desc) + '</p>' +
+                '<div class="mt-4 pt-4 border-t border-gray-100 text-pinky-600 font-bold text-sm flex items-center justify-between">' +
+                    '토론 참여하기 <i class="fa-solid fa-arrow-right"></i>' +
+                '</div>';
+            cardsContainer.appendChild(card);
+        });
+
+        FIELDS.forEach(function (f) {
+            el(f.id).addEventListener('input', onWriting);
+        });
+    }
+
+    function renderFactbox(topic) {
+        const fb = topic.factbox;
+        let html =
+            '<h4 class="text-sm font-bold text-butter-700 mb-3"><i class="fa-solid fa-chart-simple mr-1"></i> ' + escapeHtml(fb.title) + '</h4>' +
+            '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">';
+        fb.rows.forEach(function (r) {
+            html +=
+                '<div class="bg-white rounded-lg border border-butter-200 px-3 py-2">' +
+                    '<div class="text-[11px] text-gray-500">' + escapeHtml(r.label) + '</div>' +
+                    '<div class="text-sm font-bold text-gray-800">' + escapeHtml(r.value) + '</div>' +
+                '</div>';
+        });
+        html += '</div>';
+        if (fb.note) html += '<p class="text-[11px] text-gray-600 mb-2">※ ' + escapeHtml(fb.note) + '</p>';
+        html +=
+            '<p class="text-[11px] text-gray-500 pt-2 border-t border-butter-200">출처: ' + escapeHtml(fb.source) +
+            ' <a href="' + fb.sourceUrl + '" target="_blank" rel="noopener noreferrer" class="text-pinky-600 underline ml-1">원문 보기 <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a></p>';
+        el('factbox').innerHTML = html;
+    }
+
+    function linkItem(title, media, date, url, point) {
+        return '<li class="pl-1">' +
+            '<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="font-bold text-pinky-700 hover:underline">' +
+                escapeHtml(title) + ' <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>' +
+            '<div class="text-[11px] text-gray-500 mt-0.5">' + escapeHtml(media) + (date ? ' · ' + escapeHtml(date) : '') + '</div>' +
+            (point ? '<div class="text-xs text-gray-600 mt-1 leading-relaxed">' + escapeHtml(point) + '</div>' : '') +
+        '</li>';
+    }
+
+    function renderRefs(topic) {
+        let html = '';
+
+        html += '<div><h5 class="text-sm font-bold text-gray-700 mb-2"><i class="fa-regular fa-newspaper text-pinky-500 mr-1"></i> 관련 기사</h5><ul class="space-y-3">';
+        topic.refs.news.forEach(function (n) {
+            html += linkItem(n.title, n.media, n.date, n.url, n.point);
+        });
+        html += '</ul></div>';
+
+        html += '<div><h5 class="text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-chart-column text-butter-600 mr-1"></i> 통계·연구 자료</h5><ul class="space-y-3">';
+        topic.refs.stats.forEach(function (s) {
+            html += linkItem(s.title, s.media, '', s.url, '');
+        });
+        html += '</ul></div>';
+
+        html += '<div><h5 class="text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-globe text-pinky-500 mr-1"></i> 자료를 직접 찾아볼 수 있는 누리집</h5><ul class="space-y-3">';
+        COMMON_SITES.forEach(function (s) {
+            html += linkItem(s.name, '', '', s.url, s.desc);
+        });
+        html += '</ul></div>';
+
+        html += '<p class="text-[11px] text-gray-400 pt-2 border-t border-gray-100">링크는 새 창에서 열립니다. 근거를 옮겨 적을 때는 <b>매체 이름과 날짜</b>를 함께 쓰세요.</p>';
+
+        el('refs-body').innerHTML = html;
+    }
+
+    function toggleRefs() {
+        const body = el('refs-body');
+        const chev = el('refs-chevron');
+        body.classList.toggle('hidden');
+        chev.className = body.classList.contains('hidden')
+            ? 'fa-solid fa-chevron-down text-gray-400 text-xs'
+            : 'fa-solid fa-chevron-up text-gray-400 text-xs';
+    }
+
+    function selectTopic(id) {
+        currentTopic = discussionData.find(function (t) { return t.id === id; });
+
+        el('current-book-label').innerText = currentTopic.book;
+        el('current-book-meta').innerText = currentTopic.bookMeta;
+        el('current-book-summary').innerText = currentTopic.bookSummary;
+        el('current-book-link').href = currentTopic.kyoboUrl;
+        el('current-topic-title').innerText = currentTopic.title;
+        el('current-topic-desc').innerText = currentTopic.desc;
+
+        renderFactbox(currentTopic);
+        renderRefs(currentTopic);
+        el('refs-body').classList.add('hidden');
+        el('refs-chevron').className = 'fa-solid fa-chevron-down text-gray-400 text-xs';
+
+        selectedStance = null;
+        mildConfirmed = false;
+        FIELDS.forEach(function (f) { el(f.id).value = ''; });
+        updateCounters();
+        hideFilterPanel();
+        resetSubmitButton();
+        resetStanceButtons();
+        el('writing-area').classList.add('hidden');
+
+        step1.classList.add('hidden');
+        step2.classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    function goBackToStep1() {
+        step2.classList.add('hidden');
+        step1.classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    function selectStance(stance) {
+        selectedStance = stance;
+        resetStanceButtons();
+
+        const btnPro = el('btn-pro');
+        const btnCon = el('btn-con');
+
+        if (stance === 'pro') {
+            btnPro.classList.add('border-butter-400', 'bg-butter-50');
+            btnPro.classList.remove('border-gray-200');
+            const r = btnPro.querySelector('.stance-radio');
+            r.classList.add('border-butter-400');
+            r.innerHTML = '<div class="w-2.5 h-2.5 bg-butter-500 rounded-full"></div>';
+        } else {
+            btnCon.classList.add('border-pinky-400', 'bg-pinky-50');
+            btnCon.classList.remove('border-gray-200');
+            const r = btnCon.querySelector('.stance-radio');
+            r.classList.add('border-pinky-400');
+            r.innerHTML = '<div class="w-2.5 h-2.5 bg-pinky-500 rounded-full"></div>';
+        }
+
+        renderStanceTips(stance);
+
+        el('writing-area').classList.remove('hidden');
+        setTimeout(function () {
+            el('writing-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    /* 선택한 입장에 맞춰 '어떤 자료를 찾으면 좋을지' 안내 */
+    function renderStanceTips(stance) {
+        const isPro = stance === 'pro';
+        const tips = currentTopic.searchTips[stance];
+        const box = el('stance-tips');
+
+        box.className = "rounded-xl p-4 mb-4 border-2 fade-in " +
+            (isPro ? "bg-butter-50 border-butter-300" : "bg-pinky-50 border-pinky-300");
+
+        let html =
+            '<h4 class="font-bold text-sm mb-1 ' + (isPro ? 'text-butter-700' : 'text-pinky-700') + '">' +
+                '<i class="fa-solid fa-compass mr-1"></i> ' +
+                (isPro ? '‘찬성’ 입장이라면 이런 자료를 찾아보세요' : '‘반대’ 입장이라면 이런 자료를 찾아보세요') +
+            '</h4>' +
+            '<p class="text-xs text-gray-500 mb-2.5">위쪽 <b>‘자료 찾아보기’</b>의 기사·통계·누리집에서 실제 자료를 확인한 뒤, 근거에 <b>출처와 숫자</b>를 함께 적으면 좋아요.</p>' +
+            '<ul class="text-xs md:text-sm text-gray-700 space-y-1.5 list-disc list-inside leading-relaxed">';
+        tips.forEach(function (t) { html += '<li>' + t + '</li>'; });
+        html += '</ul>';
+
+        box.innerHTML = html;
+    }
+
+    function resetStanceButtons() {
+        const btnPro = el('btn-pro');
+        const btnCon = el('btn-con');
+
+        btnPro.className = "flex-1 py-4 px-6 rounded-xl border-2 border-gray-200 hover:border-butter-400 hover:bg-butter-50 transition-all text-left group";
+        btnCon.className = "flex-1 py-4 px-6 rounded-xl border-2 border-gray-200 hover:border-pinky-400 hover:bg-pinky-50 transition-all text-left group";
+
+        const rp = btnPro.querySelector('.stance-radio');
+        rp.innerHTML = '';
+        rp.className = "w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-butter-400 flex items-center justify-center stance-radio";
+
+        const rc = btnCon.querySelector('.stance-radio');
+        rc.innerHTML = '';
+        rc.className = "w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-pinky-400 flex items-center justify-center stance-radio";
+    }
+
+    /* =========================================================
+       7. 작성 중 실시간 검사
+       ========================================================= */
+    function updateCounters() {
+        el('count-main-1').innerText = el('main-1').value.length;
+        el('count-evidence-1').innerText = el('evidence-1').value.length;
+        el('count-main-2').innerText = el('main-2').value.length;
+        el('count-evidence-2').innerText = el('evidence-2').value.length;
+    }
+
+    function allText() {
+        return FIELDS.map(function (f) { return el(f.id).value; }).join('\n');
+    }
+
+    function onWriting() {
+        updateCounters();
+        mildConfirmed = false;
+        resetSubmitButton();
+        const result = BadWordFilter.check(allText());
+        if (result.clean) hideFilterPanel();
+        else renderFilterPanel(result, false);
+    }
+
+    function hideFilterPanel() {
+        filterPanel.classList.add('hidden');
+    }
+
+    function shakePanel() {
+        filterPanel.classList.add('shake');
+        setTimeout(function () { filterPanel.classList.remove('shake'); }, 400);
+    }
+
+    /* 작성 형식 문제(무의미한 입력·글자 수 부족)를 패널에 표시 */
+    function renderFormatPanel(issues) {
+        filterPanel.className = "mt-4 rounded-xl border p-4 text-sm fade-in bg-pinky-50 border-pinky-200 text-pinky-700";
+        el('filter-icon').className = "fa-solid fa-pen-to-square mt-0.5";
+        el('filter-title').innerText = '정확하게 작성해 주세요.';
+        const list = el('filter-list');
+        list.innerHTML = '';
+        issues.forEach(function (msg) {
+            const li = document.createElement('li');
+            li.innerHTML = msg;
+            list.appendChild(li);
+        });
+        el('filter-help').innerText = '주장은 입장이 드러나는 한 문장으로, 근거는 숫자·자료 이름·과학 개념을 넣어 씁니다. 위의 ‘자료 찾아보기’에서 근거를 찾을 수 있어요.';
+        filterPanel.classList.remove('hidden');
+    }
+
+    function renderFilterPanel(result, blocking) {
+        const isSevere = result.severe.length > 0 || result.pii.length > 0;
+        const list = el('filter-list');
+
+        filterPanel.className = "mt-4 rounded-xl border p-4 text-sm fade-in " +
+            (isSevere ? "bg-pinky-100 border-pinky-300 text-pinky-700" : "bg-butter-50 border-butter-300 text-butter-700");
+        el('filter-icon').className = (isSevere ? "fa-solid fa-ban" : "fa-solid fa-triangle-exclamation") + " mt-0.5";
+
+        list.innerHTML = '';
+
+        if (result.pii.length > 0) {
+            result.pii.forEach(function (p) {
+                const li = document.createElement('li');
+                li.innerHTML = '<b>개인정보</b>로 보이는 내용이 있어요 — ' + escapeHtml(p.name) +
+                               ' <span class="opacity-70">(' + escapeHtml(BadWordFilter.maskSample(p.sample)) + ')</span>';
+                list.appendChild(li);
+            });
+        }
+        if (result.severe.length > 0) {
+            const li = document.createElement('li');
+            li.innerHTML = '<b>욕설·비속어</b>가 발견되었어요 — ' +
+                result.severe.map(function (w) { return escapeHtml(BadWordFilter.mask(w)); }).join(', ');
+            list.appendChild(li);
+        }
+        if (result.mild.length > 0) {
+            const li = document.createElement('li');
+            li.innerHTML = '<b>거친 표현</b>이 있어요 — ' +
+                result.mild.map(function (w) { return escapeHtml(BadWordFilter.mask(w)); }).join(', ');
+            list.appendChild(li);
+        }
+
+        if (isSevere) {
+            el('filter-title').innerText = blocking ? '이대로는 등록할 수 없어요.' : '수정이 필요한 내용이 있어요.';
+            el('filter-help').innerText = result.pii.length > 0
+                ? '이름·학교·학년/반·연락처·주소·아이디 같은 개인정보는 쓰지 않아도 토론에 아무 문제가 없어요. 해당 부분을 지우고 다시 등록해 주세요.'
+                : '토론은 사람이 아니라 주장을 상대로 하는 거예요. 비속어를 지우고 근거 중심으로 바꿔 볼까요?';
+        } else {
+            el('filter-title').innerText = blocking ? '이 표현, 그대로 등록할까요?' : '조금 더 부드럽게 바꿔 볼까요?';
+            el('filter-help').innerText = '예) “바보 같은 주장” → “근거가 부족한 주장”. 그래도 등록하려면 등록 버튼을 한 번 더 누르세요.';
+        }
+
+        filterPanel.classList.remove('hidden');
+    }
+
+    function resetSubmitButton() {
+        submitBtn.className = "bg-pinky-500 hover:bg-pinky-600 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-transform transform hover:-translate-y-1";
+        submitBtn.innerHTML = '내 생각 등록하고 친구들과 비교하기 <i class="fa-solid fa-paper-plane ml-1"></i>';
+    }
+
+    /* =========================================================
+       8. 등록
+       ========================================================= */
+    function submitOpinion() {
+        if (!selectedStance) {
+            showToast("찬성 또는 반대 입장을 먼저 선택해 주세요.", "error");
+            return;
+        }
+
+        // (1) 작성 형식 검사 : 빈칸 · 글자 수 · 무의미한 입력
+        const issues = [];
+        let firstBad = null;
+        FIELDS.forEach(function (f) {
+            const v = el(f.id).value.trim();
+            if (v.length === 0) {
+                issues.push('<b>' + f.label + '</b>이(가) 비어 있어요. 주장 2개와 근거 2개를 모두 작성해야 합니다.');
+                if (!firstBad) firstBad = f.id;
+                return;
+            }
+            if (v.length < f.min) {
+                issues.push('<b>' + f.label + '</b>이(가) 너무 짧아요. ' + f.min + '자 이상으로 자세히 써 주세요. (현재 ' + v.length + '자)');
+                if (!firstBad) firstBad = f.id;
+                return;
+            }
+            const why = checkMeaningful(v);
+            if (why) {
+                issues.push('<b>' + f.label + '</b> — ' + why);
+                if (!firstBad) firstBad = f.id;
+            }
+        });
+
+        if (issues.length > 0) {
+            renderFormatPanel(issues);
+            shakePanel();
+            if (firstBad) el(firstBad).focus();
+            showToast("작성 형식을 확인해 주세요.", "error");
+            return;
+        }
+
+        // (2) 바른 말 · 개인정보 검사
+        const result = BadWordFilter.check(allText());
+
+        if (result.pii.length > 0) {
+            renderFilterPanel(result, true);
+            shakePanel();
+            showToast("개인정보가 포함되어 등록할 수 없어요.", "error");
+            return;
+        }
+        if (result.severe.length > 0) {
+            renderFilterPanel(result, true);
+            shakePanel();
+            showToast("욕설·비속어가 포함되어 등록할 수 없어요.", "error");
+            return;
+        }
+        if (result.mild.length > 0 && !mildConfirmed) {
+            mildConfirmed = true;
+            renderFilterPanel(result, true);
+            submitBtn.className = "bg-butter-500 hover:bg-butter-600 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-transform transform hover:-translate-y-1";
+            submitBtn.innerHTML = '표현을 확인했어요. 그대로 등록하기 <i class="fa-solid fa-check ml-1"></i>';
+            showToast("거친 표현이 있어요. 다듬거나 한 번 더 누르면 등록됩니다.", "error");
+            return;
+        }
+
+        // (3) 결과 화면 바인딩
+        const stanceLabel = selectedStance === 'pro'
+            ? '<i class="fa-regular fa-thumbs-up text-butter-600"></i> 찬성'
+            : '<i class="fa-regular fa-thumbs-down text-pinky-500"></i> 반대';
+
+        el('result-my-stance').innerHTML = stanceLabel;
+        el('result-my-nickname').innerText = myNickname;
+        el('result-main-1').innerText = el('main-1').value.trim();
+        el('result-evidence-1').innerText = el('evidence-1').value.trim();
+        el('result-main-2').innerText = el('main-2').value.trim();
+        el('result-evidence-2').innerText = el('evidence-2').value.trim();
+
+        renderFriend('pro');
+        renderFriend('con');
+
+        step2.classList.add('hidden');
+        step3.classList.remove('hidden');
+        window.scrollTo(0, 0);
+
+        showToast("성공적으로 등록되었습니다!", "success");
+    }
+
+    function renderFriend(side) {
+        const f = currentTopic.friends[side];
+        el('friend-' + side + '-name').innerText = f.name;
+        const box = el('friend-' + side + '-args');
+        box.innerHTML = '';
+        f.args.forEach(function (a, i) {
+            const wrap = document.createElement('div');
+            wrap.className = "bg-gray-50 rounded-lg p-3 border border-gray-100";
+            wrap.innerHTML =
+                '<div class="text-[11px] font-bold ' + (side === 'pro' ? 'text-butter-700' : 'text-pinky-600') + ' mb-1">주장 ' + (i + 1) + '</div>' +
+                '<p class="text-sm font-bold text-gray-800 leading-snug mb-1.5">' + escapeHtml(a.claim) + '</p>' +
+                '<div class="text-[11px] font-bold text-gray-500 mb-1">근거 ' + (i + 1) + '</div>' +
+                '<p class="text-xs text-gray-600 leading-relaxed">' + escapeHtml(a.evidence) + '</p>';
+            box.appendChild(wrap);
+        });
+    }
+
+    /* =========================================================
+       9. 보조 기능
+       ========================================================= */
+    function copyMyText() {
+        const fullText =
+            '[나의 생각 - ' + currentTopic.title + ']\n' +
+            '도서: ' + currentTopic.book + '\n' +
+            '작성자 별명: ' + myNickname + '\n' +
+            '입장: ' + (selectedStance === 'pro' ? '찬성' : '반대') + '\n\n' +
+            '주장 ①: ' + el('result-main-1').innerText + '\n' +
+            '근거 ①: ' + el('result-evidence-1').innerText + '\n\n' +
+            '주장 ②: ' + el('result-main-2').innerText + '\n' +
+            '근거 ②: ' + el('result-evidence-2').innerText;
+
+        const textArea = document.createElement("textarea");
+        textArea.value = fullText;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+            const ok = document.execCommand('copy');
+            showToast(ok ? "내 글이 클립보드에 복사되었습니다! 📋" : "복사에 실패했습니다.", ok ? "success" : "error");
+        } catch (err) {
+            showToast("이 브라우저에서는 복사 기능을 지원하지 않습니다.", "error");
+        }
+
+        document.body.removeChild(textArea);
+    }
+
+    function resetApp() {
+        step3.classList.add('hidden');
+        step1.classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    let toastTimeout;
+    function showToast(message, type) {
+        const toast = el('toast-message');
+        const toastText = el('toast-text');
+        const icon = toast.querySelector('i');
+
+        toastText.innerText = message;
+        icon.className = (type === 'error')
+            ? "fa-solid fa-circle-exclamation text-pinky-300"
+            : "fa-solid fa-circle-check text-butter-300";
+
+        toast.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(function () { toast.classList.remove('show'); }, 3000);
+    }
+
+    initApp();
+    </script>
+</body>
+</html>

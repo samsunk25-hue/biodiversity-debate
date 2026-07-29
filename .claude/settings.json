@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:product.kyobobook.co.kr)",
+      "WebFetch(domain:search.kyobobook.co.kr)"
+    ]
+  }
+}
