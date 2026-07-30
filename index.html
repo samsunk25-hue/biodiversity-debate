@@ -81,6 +81,36 @@
             75% { transform: translateX(6px); }
         }
         .header-gradient { background: linear-gradient(120deg, #ffe9f0 0%, #fdf8e0 100%); }
+        /* 정책 시뮬레이터 슬라이더 */
+        .sim-range {
+            -webkit-appearance: none; appearance: none;
+            width: 100%; height: 6px; border-radius: 999px;
+            background: #fbd0e0; outline: none; cursor: pointer;
+        }
+        .sim-range::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #e56b99; border: 3px solid #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer;
+        }
+        .sim-range::-moz-range-thumb {
+            width: 18px; height: 18px; border-radius: 50%;
+            background: #e56b99; border: 3px solid #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer;
+        }
+        .sim-range:focus-visible { box-shadow: 0 0 0 3px rgba(229,107,153,.35); }
+        .sim-canvas { width: 100%; display: block; }
+        /* 토론 타이머 */
+        .timer-flash { animation: timerFlash 0.6s ease-in-out 4; }
+        @keyframes timerFlash {
+            0%, 100% { background-color: #fff; }
+            50% { background-color: #ffe9f0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .timer-flash { animation: none; }
+            .fade-in { animation: none; }
+            .shake { animation: none; }
+        }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #fdf3f6; border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: #f7c9da; border-radius: 4px; }
@@ -195,6 +225,19 @@
                     <div id="refs-body" class="hidden px-4 py-4 space-y-5 bg-white"></div>
                 </div>
 
+                <!-- 정책 시뮬레이터 -->
+                <div class="border-2 border-butter-200 rounded-xl mb-6 overflow-hidden">
+                    <button onclick="toggleSim()" class="w-full flex items-center justify-between px-4 py-3 bg-butter-50 hover:bg-butter-100 transition-colors text-left">
+                        <span class="font-bold text-gray-700 text-sm">
+                            <i class="fa-solid fa-sliders text-butter-600 mr-1"></i>
+                            정책 시뮬레이터 — 변수를 바꿔 결과를 확인하기
+                            <span class="hidden sm:inline text-xs font-normal text-gray-500 ml-1">과학적 근거를 그래프로 확인해요</span>
+                        </span>
+                        <i id="sim-chevron" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+                    </button>
+                    <div id="sim-body" class="hidden px-4 py-4 bg-white"></div>
+                </div>
+
                 <h3 class="text-lg font-bold mb-4">나의 입장은?</h3>
                 <div class="flex flex-col sm:flex-row gap-4 mb-6">
                     <button id="btn-pro" onclick="selectStance('pro')" class="flex-1 py-4 px-6 rounded-xl border-2 border-gray-200 hover:border-butter-400 hover:bg-butter-50 transition-all text-left group">
@@ -215,6 +258,7 @@
 
                     <!-- 입장별 자료 탐색 안내 -->
                     <div id="stance-tips" class="rounded-xl p-4 mb-4"></div>
+
 
                     <!-- 정확한 작성 안내 -->
                     <div class="bg-white border-2 border-dashed border-pinky-200 rounded-xl p-4 mb-6">
@@ -278,6 +322,30 @@
                             <textarea id="evidence-2" maxlength="300"
                                 class="w-full h-28 p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-butter-300 focus:border-butter-400 outline-none resize-none text-gray-700 leading-relaxed"
                                 placeholder="주장 ②를 뒷받침하는 과학 원리·통계·기사 내용을 출처와 함께 적어보세요."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 자기 점검 체크리스트 -->
+                    <div class="border-2 border-pinky-200 rounded-xl p-4 mb-4 bg-white">
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <h4 class="font-bold text-pinky-700 text-sm">
+                                <i class="fa-solid fa-list-check mr-1"></i> 등록하기 전 스스로 점검하기
+                            </h4>
+                            <span id="selfcheck-score" class="text-xs font-bold text-gray-500 whitespace-nowrap">0 / 6</span>
+                        </div>
+                        <p class="text-[11px] text-gray-500 mb-3">
+                            앞의 네 가지는 글을 쓰는 동안 <b>자동으로</b> 확인됩니다. 다 채우지 않아도 등록은 되지만, 채울수록 근거가 탄탄해져요.
+                        </p>
+                        <ul id="selfcheck-auto" class="space-y-2 mb-3"></ul>
+                        <div class="border-t border-pinky-100 pt-3 space-y-2">
+                            <label class="flex items-start gap-2 cursor-pointer">
+                                <input type="checkbox" id="sc-manual-1" onchange="updateSelfCheck()" class="mt-0.5 w-4 h-4 accent-pinky-500 shrink-0">
+                                <span class="text-xs text-gray-700 leading-snug">주장과 근거를 <b>소리 내어 이어 읽어</b> 보았고, 서로 말이 된다.</span>
+                            </label>
+                            <label class="flex items-start gap-2 cursor-pointer">
+                                <input type="checkbox" id="sc-manual-2" onchange="updateSelfCheck()" class="mt-0.5 w-4 h-4 accent-pinky-500 shrink-0">
+                                <span class="text-xs text-gray-700 leading-snug">책이나 누리집에서 <b>내가 직접 확인한</b> 내용이다. (기억이나 짐작으로 쓰지 않았다)</span>
+                            </label>
                         </div>
                     </div>
 
@@ -386,6 +454,18 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 예상 반론 (교차조사) — 글을 다 쓴 뒤에 보여 준다 -->
+            <div class="bg-white rounded-2xl shadow-sm border-2 border-pinky-200 p-6 mt-6">
+                <h3 class="font-bold text-pinky-700 mb-1">
+                    <i class="fa-solid fa-comments mr-1"></i> 예상 반론 — 이 질문에 답할 수 있나요?
+                </h3>
+                <p class="text-xs text-gray-500 mb-4">
+                    이제 글을 다 썼으니, 상대 쪽에서 어떤 질문이 올지 미리 겪어 볼 차례예요.
+                    답이 막히는 질문이 있다면 <b>그 부분의 근거를 더 찾아</b> 보세요.
+                </p>
+                <div id="cross-body"></div>
+            </div>
         </section>
     </main>
 
@@ -394,6 +474,56 @@
             도서 요약 출처: 교보문고 책소개 · 통계 출처: 각 자료에 표기 · 이 앱은 개인정보를 수집·저장하지 않습니다.
         </div>
     </footer>
+
+    <!-- 토론 타이머 -->
+    <button id="timer-fab" onclick="openTimer()"
+        class="fixed bottom-5 right-5 z-40 bg-pinky-500 hover:bg-pinky-600 text-white font-bold text-sm pl-4 pr-5 py-3 rounded-full shadow-lg transition-transform transform hover:-translate-y-0.5 flex items-center gap-2">
+        <i class="fa-regular fa-clock text-base"></i>
+        <span id="timer-fab-label">토론 타이머</span>
+    </button>
+
+    <div id="timer-panel" class="hidden fixed bottom-5 right-5 z-40 w-[min(21rem,calc(100vw-2.5rem))] bg-white rounded-2xl shadow-2xl border-2 border-pinky-200 overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-pinky-100 bg-pinky-50">
+            <h3 class="font-bold text-pinky-700 text-sm"><i class="fa-regular fa-clock mr-1"></i> 토론 타이머</h3>
+            <div class="flex items-center gap-1">
+                <button id="timer-sound-btn" onclick="toggleTimerSound()" class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-lg" aria-label="소리 켜기/끄기" title="소리 켜기/끄기">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+                <button onclick="closeTimer()" class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-lg" aria-label="타이머 닫기">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="p-4">
+            <div class="flex flex-wrap gap-1.5 mb-3" id="timer-presets"></div>
+
+            <p id="timer-stage" class="text-center text-xs font-bold text-gray-500 mb-1">입론</p>
+            <p id="timer-display" class="text-center font-bold text-gray-800 tabular-nums leading-none mb-3" style="font-size:3.25rem" role="timer" aria-live="off">03:00</p>
+
+            <div class="h-2 rounded-full bg-gray-100 overflow-hidden mb-4">
+                <div id="timer-bar" class="h-full bg-pinky-400 rounded-full" style="width:100%; transition: width .2s linear"></div>
+            </div>
+
+            <div class="flex gap-2 mb-2">
+                <button id="timer-toggle" onclick="toggleTimerRun()" class="flex-1 bg-pinky-500 hover:bg-pinky-600 text-white font-bold text-sm py-2.5 rounded-xl transition-colors">
+                    <i class="fa-solid fa-play mr-1"></i> 시작
+                </button>
+                <button onclick="resetTimer()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors" aria-label="처음으로 되돌리기">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+
+            <div class="flex gap-2" id="timer-adjust">
+                <button onclick="addTimerSeconds(-30)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold text-xs py-2 rounded-lg transition-colors">−30초</button>
+                <button onclick="addTimerSeconds(30)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold text-xs py-2 rounded-lg transition-colors">+30초</button>
+            </div>
+
+            <p class="text-[11px] text-gray-400 mt-3 leading-relaxed">
+                시간은 내 브라우저에서만 계산되고 어디에도 전송·저장되지 않아요. 다른 화면으로 넘어가도 계속 돌아갑니다.
+            </p>
+        </div>
+    </div>
 
     <div id="toast-message" class="toast fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-lg z-50 flex items-center gap-3 max-w-[90vw]">
         <i class="fa-solid fa-circle-check text-butter-300"></i>
@@ -468,6 +598,18 @@
                     "청주동물원이 전시 중심에서 <b>구조·재활 중심으로 전환</b>한 배경(경향신문 2023.4.27)을 근거로 쓰면 좋아요."
                 ]
             },
+            crossQuestions: {
+                pro: [
+                    { q: "동물원에서 태어난 동물이 야생에서 살아남지 못한다면, 종을 지켰다고 할 수 있나요?", hint: "청주동물원이 20억 7천만 원을 들여 방사훈련장을 갖춘 사례(중부매일 2026.4.2)를 드세요. ‘야생 개체군이 무너졌을 때를 대비한 보험’과 ‘당장 야생에 내보내는 일’은 다른 목표라는 점을 구분해 설명하면 좋아요." },
+                    { q: "좁은 사육 공간에서 정형행동을 보이는 동물의 복지는 어떻게 하실 건가요?", hint: "문제를 인정하되 ‘어떤 동물원이냐’로 논점을 옮기세요. 전시 중심에서 구조·재활 중심으로 바꾸고 있는 청주동물원 사례(경향신문 2023.4.27)가 근거가 됩니다." },
+                    { q: "동물원 운영비로 서식지를 복원하면 더 많은 종을 지킬 수 있지 않나요?", hint: "시뮬레이터에서 예산을 서식지에 100% 몰아 보세요. 야생 개체군은 늘지만 사육 상한이 10마리로 줄어 유전다양성 유지가 어려워집니다. ‘둘 중 하나’가 아니라 조합이 필요하다고 답하세요." }
+                ],
+                con: [
+                    { q: "야생 개체군이 이미 무너진 종은 동물원이 없으면 어디서 지키나요?", hint: "시뮬레이터에서 서식지 복원 예산을 0%로 두면 야생 개체군이 0에 가까워집니다. 서식지 복원이 효과를 내기까지 걸리는 시간 동안 개체군이 버틸 수 있는지를 따져 답하세요." },
+                    { q: "다쳐서 구조된 야생동물은 동물원이 없으면 어디서 치료하나요?", hint: "야생동물구조센터가 그 역할을 대신할 수 있는지 조사해 보세요. ‘전시 시설’과 ‘구조·치료 시설’을 나누자는 답이 가능합니다." },
+                    { q: "멸종위기 야생생물이 282종인데 서식지 복원만으로 모두 지킬 수 있나요?", hint: "e-나라지표 수치를 인정하고, 서식지 한 곳을 살리면 그 안의 여러 종이 함께 산다는 ‘효율’로 반박하세요. 종 하나씩 기르는 방식과 비교해 보세요." }
+                ]
+            },
             friends: {
                 pro: {
                     name: "보전연구하는 두루미",
@@ -535,6 +677,18 @@
                     "IUCN <b>위기(EN) 등급의 기준</b>과 ‘고유종’이 왜 대체 불가능한지 국립생태원 자료에서 확인하세요."
                 ]
             },
+            crossQuestions: {
+                pro: [
+                    { q: "2015년 163개체에서 2018년 39개체로 줄었는데, 추가 개발을 감당할 여력이 있나요?", hint: "감소를 인정한 뒤 2019년 조사에서 79개 지점 중 12개 지점 156개체로 늘고 초평천·금강 본류에서 서식이 새로 확인된 점(한국어류학회지 2024)을 드세요. ‘조건만 지키면 하천 안에서도 유지된다’로 이어 가세요." },
+                    { q: "갑천에서는 미호종개가 평가서에서 아예 누락됐습니다. 그런 조사를 믿고 개발해도 되나요?", hint: "부실 조사(오마이뉴스 2025.12.8)를 인정하는 편이 낫습니다. 그다음 ‘충분한 사전 조사와 확인된 서식 구간 제외’를 허가 조건으로 붙이자는 쪽으로 논점을 옮기세요." },
+                    { q: "고유종은 한 번 사라지면 되돌릴 수 있나요?", hint: "되돌릴 수 없음을 인정하세요. 그 위험을 얼마나 줄일 수 있는지를 시뮬레이터 수치로 답하면 됩니다. 완충 거리 200m·준설 0%면 개발 구간이 100%여도 개체군이 유지되는 결과를 확인해 보세요." }
+                ],
+                con: [
+                    { q: "개발을 막으면 지역 주민의 일자리와 생존권은 어떻게 하나요?", hint: "‘개발 전면 금지’가 아니라 ‘서식 구간을 뺀 개발’이라고 범위를 좁히세요. 개발 이익의 일부를 서식지 관리 기금으로 돌리는 조건부 허가, 생태 관광 같은 대안을 미리 준비하면 좋아요." },
+                    { q: "미호종개 복원 사업에도 해마다 예산이 듭니다. 지역 경제가 없으면 그 돈은 어디서 나오나요?", hint: "4,000마리 방류가 금강유역환경청·국립문화재연구원·K-water의 국가 예산으로 이뤄진 점(뉴스펭귄 2022.10.31)을 드세요. 지역 개발 세수와는 별개 재원이라는 점이 반박이 됩니다." },
+                    { q: "완충 구간만 충분히 두면 개발과 보전을 함께 할 수 있지 않나요?", hint: "시뮬레이터에서 완충 거리 5m와 200m를 비교해 보세요. ‘완충을 두느냐’가 아니라 ‘얼마나 두느냐’가 쟁점임을 숫자로 보이면 강한 답이 됩니다." }
+                ]
+            },
             friends: {
                 pro: {
                     name: "마을살림 살피는 청설모",
@@ -597,6 +751,18 @@
                     "지금까지 외래종 퇴치에 <b>투입된 예산 총액</b>을 찾아 비용 대비 효과를 계산해 보세요.",
                     "<b>산란장 제거, 수변 식생 복원</b> 같은 대체 관리 방법의 사례를 찾아보세요.",
                     "‘보상 반응’, ‘풍선 효과’처럼 <b>일부만 제거했을 때 생기는 부작용</b> 개념을 확인하세요."
+                ]
+            },
+            crossQuestions: {
+                pro: [
+                    { q: "10년 넘게 해마다 수매했는데도 개체 수가 줄지 않았다면 실패한 정책 아닌가요?", hint: "시뮬레이터에서 포획률 20%로 두면 배스 번식률 55%를 넘지 못해 개체 수가 평형에서 멈춥니다. ‘포획을 그만두자’가 아니라 ‘포획률을 올리거나 산란장 제거를 함께 하자’로 답을 바꾸세요." },
+                    { q: "잡는 데 쓴 돈으로 서식지를 복원하는 게 낫지 않나요?", hint: "시뮬레이터에서 포획만·복원만·둘 다 한 경우의 토종 개체 수를 비교해 보세요. 둘 다 했을 때 토종이 가장 많이 남는 결과를 숫자로 제시하면 됩니다." },
+                    { q: "‘모두 포획한다’는 목표가 현실적으로 가능한가요?", hint: "‘완전 제거’와 ‘밀도 조절’을 구분하세요. 목표를 밀도 조절로 다시 정의하면, 60~70%인 어획 비율을 얼마까지 낮출 것인지로 논의를 옮길 수 있어요." }
+                ],
+                con: [
+                    { q: "그물에 잡히는 물고기의 60~70%가 배스·블루길인데 그냥 두자는 건가요?", hint: "‘방치’가 아니라 ‘방법을 바꾸자’임을 먼저 분명히 하세요. 그다음 산란장 제거와 수변 식생 복원의 효과를 시뮬레이터 수치로 제시하면 설득력이 생깁니다." },
+                    { q: "산란장 제거나 식생 복원도 사람이 해야 하는 일인데, 그것도 비용 아닌가요?", hint: "비용이 든다는 점은 인정하세요. 시뮬레이터의 누적 수매 비용과 비교해 ‘같은 돈으로 어느 쪽 효과가 큰지’로 답하면 됩니다." },
+                    { q: "토종 어류가 사라지고 나면 되돌릴 수 있나요?", hint: "되돌리기 어렵다는 점을 인정하고, 그래서 효과가 확실한 방법에 예산을 써야 한다고 연결하세요. 뱀장어 치어 1만 7천 마리 방류처럼 토종을 보충하는 방법도 함께 들 수 있어요." }
                 ]
             },
             friends: {
@@ -821,6 +987,9 @@
         FIELDS.forEach(function (f) {
             el(f.id).addEventListener('input', onWriting);
         });
+
+        renderTimerPresets();
+        renderTimer();
     }
 
     function renderFactbox(topic) {
@@ -902,9 +1071,17 @@
         el('refs-body').classList.add('hidden');
         el('refs-chevron').className = 'fa-solid fa-chevron-down text-gray-400 text-xs';
 
+        renderSimulator(currentTopic);
+        el('sim-body').classList.add('hidden');
+        el('sim-chevron').className = 'fa-solid fa-chevron-down text-gray-400 text-xs';
+
         selectedStance = null;
         mildConfirmed = false;
         FIELDS.forEach(function (f) { el(f.id).value = ''; });
+        el('sc-manual-1').checked = false;
+        el('sc-manual-2').checked = false;
+        writingTimerStarted = false;
+        updateSelfCheck();
         updateCounters();
         hideFilterPanel();
         resetSubmitButton();
@@ -944,6 +1121,7 @@
         }
 
         renderStanceTips(stance);
+        updateSelfCheck();
 
         el('writing-area').classList.remove('hidden');
         setTimeout(function () {
@@ -990,7 +1168,946 @@
     }
 
     /* =========================================================
-       7. 작성 중 실시간 검사
+       7. 정책 시뮬레이터
+          변수를 바꾸면 개체군 모형을 계산해 그래프로 보여 준다.
+          교육용으로 크게 단순화한 모형이며, 출발값은 각 주제의 실제 통계를 쓴다.
+       ========================================================= */
+    const SIM_C = {
+        pink: '#e56b99',   /* 지키려는 생물 (야생 개체군·미호종개·토종 어류) */
+        gold: '#c99f20',   /* 비율·유전다양성 같은 % 지표 */
+        teal: '#2f8f83',   /* 보조 지표 (사육 개체군·서식지 질) */
+        gray: '#9ca3af'
+    };
+
+    function simNum(n) { return Math.round(n).toLocaleString('ko-KR'); }
+
+    /* --- 주제 1 : 동물원 유지와 서식지 복원의 예산 배분 --- */
+    function simZoo(v) {
+        const K = Math.round(300 * (0.4 + 0.012 * v.budget));   /* 야생 서식지 수용력 120~480마리 */
+        const rWild = -0.06 + 0.0022 * v.budget;                /* 서식지가 나빠지면 야생 개체군은 그냥 두어도 줄어든다 */
+        const surv = 0.10 + 0.004 * v.budget;                   /* 방사 개체의 정착 성공률 10~50% */
+        const capLimit = Math.round(10 + (100 - v.budget) * 1.9); /* 동물원 몫 예산이 줄면 기를 수 있는 상한도 준다 */
+        const target = Math.min(v.cap, capLimit);
+        const neRate = v.plan ? 0.7 : 0.2;                      /* 계획 교배를 하면 유효 집단 크기가 커진다 */
+
+        let cap = target, wild = 60, gene = 1;
+        const xs = [0], capL = [cap], wildL = [wild], geneL = [100];
+
+        for (let t = 1; t <= v.years; t++) {
+            /* 사육 집단 : 방사한 만큼 줄고, 해마다 최대 12%까지 번식으로 회복한다 */
+            cap = Math.min(target, (cap - v.release) * 1.12);
+            if (cap < 2) cap = 0;
+            /* 야생 집단 : 로지스틱 성장 + 방사 개체의 정착 */
+            wild = wild + rWild * wild * (1 - wild / K) + (cap > 0 ? v.release * surv : 0);
+            if (wild < 1) wild = 0;
+            /* 유전다양성 : 유효 집단 크기가 작을수록 유전자 부동으로 빠르게 사라진다.
+               이형접합도는 한 세대에 1/(2Ne)씩 줄어들므로 세대 길이(5년)마다 계산한다. */
+            if (t % 5 === 0) {
+                const ne = cap * neRate + wild * 0.25;
+                gene = ne >= 1 ? gene * (1 - 1 / (2 * ne)) : gene * 0.5;
+            }
+
+            xs.push(t); capL.push(cap); wildL.push(wild); geneL.push(gene * 100);
+        }
+
+        const g = gene * 100;
+        const tone = g >= 90 ? 'good' : (g >= 70 ? 'warn' : 'bad');
+        let verdict;
+        if (wild < 20) {
+            verdict = { tone: 'bad', title: '야생 개체군이 무너집니다', text: '동물원 안에 개체가 남아 있어도 야생에서는 사라지는 상태입니다. 서식지 복원 예산 비중을 올려 수용력(K)과 방사 개체의 정착 성공률을 함께 높여 보세요.' };
+        } else if (g < 70) {
+            verdict = { tone: 'bad', title: '유전다양성이 절반 가까이 사라집니다', text: '유효 집단 크기(Ne)가 작으면 개체 수가 유지돼도 유전자 병목·근친교배로 질병 저항성이 떨어집니다. 사육 개체 수를 늘리거나 계획 교배를 켜 보세요.' };
+        } else if (g < 90) {
+            verdict = { tone: 'warn', title: '‘100년 동안 90% 유지’ 목표에 못 미칩니다', text: '보전 유전학에서는 100년 뒤에도 유전다양성의 90%가 남는 것을 목표로 삼습니다. 지금은 ' + g.toFixed(0) + '%입니다. 사육 개체 수·계획 교배·서식지 복원을 조합해 90%를 넘겨 보세요.' };
+        } else {
+            verdict = { tone: 'good', title: '종을 남기면서 야생 개체군도 늘어납니다', text: '유전다양성이 ‘100년간 90% 유지’ 목표를 지켰고 야생 개체군도 늘었습니다. 사육 집단이 유전자를 지키고 복원된 서식지가 방사 개체를 받아 주는 조합입니다. 어느 한쪽만으로는 이 결과가 나오지 않는다는 점을 그래프로 확인해 보세요.' };
+        }
+
+        return {
+            xs: xs, xLabel: '경과 연수(년)',
+            rightMax: 100,
+            series: [
+                { name: '야생 개체군(마리)', color: SIM_C.pink, values: wildL, axis: 'left' },
+                { name: '동물원 사육 개체(마리)', color: SIM_C.teal, values: capL, axis: 'left' },
+                { name: '유전다양성 유지율(%)', color: SIM_C.gold, values: geneL, axis: 'right' }
+            ],
+            metrics: [
+                { label: v.years + '년 뒤 야생 개체군', value: simNum(wild) + '마리', tone: wild >= 60 ? 'good' : (wild >= 20 ? 'warn' : 'bad') },
+                { label: '사육 개체(예산 상한 ' + simNum(capLimit) + '마리)', value: simNum(cap) + '마리', tone: cap > 0 ? 'none' : 'bad' },
+                { label: '유전다양성 유지율', value: g.toFixed(0) + '%', tone: tone },
+                { label: '서식지 수용력(K)', value: simNum(K) + '마리', tone: 'none' }
+            ],
+            verdict: verdict,
+            evidence: '정책 시뮬레이터로 계산하면, 사육 개체 ' + simNum(target) + '마리·' + (v.plan ? '계획 교배 적용' : '무작위 교배') +
+                '·서식지 복원 예산 ' + v.budget + '% 조건에서 ' + v.years + '년 뒤 유전다양성은 처음의 ' + g.toFixed(0) +
+                '%가 남고 야생 개체군은 60마리에서 ' + simNum(wild) + '마리가 된다. 유효 집단 크기가 작을수록 유전자 부동으로 다양성이 빨리 사라진다는 뜻이다.'
+        };
+    }
+
+    /* --- 주제 2 : 미호종개 서식지 인근 개발 --- */
+    function simFish(v) {
+        const mitig = Math.min(1, v.buffer / 150) * 0.7;        /* 완충 거리가 넓을수록 개발 피해를 최대 70%까지 줄인다 */
+        const devLoss = (v.dev / 100) * (1 - mitig);
+        const dredgeLoss = (v.dredge / 100) * 0.8;              /* 준설은 미호종개가 몸을 묻는 고운 모래층을 걷어 낸다 */
+        const quality = Math.max(0, (1 - devLoss) * (1 - dredgeLoss));
+        const K = Math.max(1, Math.round(260 * quality));       /* 서식지가 온전할 때 이 구간이 먹여 살릴 수 있는 최대 개체 수 */
+        const A = 30;                                           /* 이보다 적어지면 짝을 만나기 어려워 스스로 줄어든다 (알리 효과) */
+
+        let n = 156;                                            /* 2019년 조사 : 12개 지점 156개체 */
+        const xs = [0], nL = [n], qL = [quality * 100];
+
+        for (let t = 1; t <= v.years; t++) {
+            if (n > 0) {
+                const allee = (n - A) / (n + A);
+                n = n + 0.35 * n * (1 - n / K) * allee;
+            }
+            n += v.stock * 0.02 * quality;                      /* 방류한 치어 중 살아남아 정착하는 비율 */
+            if (n > K * 1.2) n = K * 1.2;
+            if (n < 5) n = 0;                                   /* 지역 절멸 */
+            xs.push(t); nL.push(n); qL.push(quality * 100);
+        }
+
+        const change = (n - 156) / 156 * 100;
+        let verdict;
+        if (n <= 0) {
+            verdict = { tone: 'bad', title: '미호종개가 이 구간에서 사라집니다', text: '고유종은 한 번 사라지면 지구 어디에서도 다시 데려올 수 없습니다. 개발 구간을 줄이거나 완충 거리를 넓혀 서식지 질을 되살려 보세요.' };
+        } else if (change <= -50) {
+            verdict = { tone: 'bad', title: 'IUCN ‘위기(EN)’ 기준을 넘는 감소입니다', text: '개체 수가 ' + Math.abs(change).toFixed(0) + '% 줄었습니다. 미호종개의 실제 멸종위협 등급 EN A2ac는 바로 ‘개체수 50% 이상 감소’를 뜻합니다.' };
+        } else if (change < 0) {
+            verdict = { tone: 'warn', title: '줄기는 하지만 버티는 수준입니다', text: '개체 수가 ' + Math.abs(change).toFixed(0) + '% 줄었습니다. 방류만으로 수를 채우면 수용력(K)이 낮아 다시 줄어듭니다. 서식지 질 자체를 올려야 합니다.' };
+        } else {
+            verdict = { tone: 'good', title: '개체군이 유지·회복됩니다', text: '서식지 질이 ' + (quality * 100).toFixed(0) + '%로 남아 수용력이 충분합니다. 개발과 보전을 함께 이루려면 확인된 서식 구간을 공사에서 제외하는 설계가 핵심입니다.' };
+        }
+
+        return {
+            xs: xs, xLabel: '경과 연수(년)',
+            rightMax: 100,
+            series: [
+                { name: '미호종개 개체 수(마리)', color: SIM_C.pink, values: nL, axis: 'left' },
+                { name: '서식지 질(%)', color: SIM_C.teal, values: qL, axis: 'right' }
+            ],
+            metrics: [
+                { label: '서식지 질', value: (quality * 100).toFixed(0) + '%', tone: quality >= 0.7 ? 'good' : (quality >= 0.4 ? 'warn' : 'bad') },
+                { label: '서식지 수용력(K)', value: quality <= 0.02 ? '거의 없음' : simNum(K) + '마리', tone: 'none' },
+                { label: v.years + '년 뒤 개체 수', value: n <= 0 ? '지역 절멸' : simNum(n) + '마리', tone: n <= 0 ? 'bad' : 'none' },
+                { label: '2019년(156마리) 대비', value: (change >= 0 ? '+' : '') + change.toFixed(0) + '%', tone: change >= 0 ? 'good' : (change > -50 ? 'warn' : 'bad') }
+            ],
+            verdict: verdict,
+            evidence: '정책 시뮬레이터로 계산하면, 하천의 ' + v.dev + '%를 개발하고 완충 거리를 ' + v.buffer + 'm 두며 준설 강도가 ' + v.dredge +
+                '%일 때 서식지 질은 ' + (quality * 100).toFixed(0) + '%로 떨어지고, 2019년 조사값 156개체에서 ' + v.years + '년 뒤 ' +
+                (n <= 0 ? '지역 절멸' : simNum(n) + '개체(' + (change >= 0 ? '+' : '') + change.toFixed(0) + '%)') +
+                '가 된다. 미호종개의 멸종위협 등급 EN A2ac는 개체수 50% 이상 감소를 뜻한다.'
+        };
+    }
+
+    /* --- 주제 3 : 금강·대청호 외래종 관리 --- */
+    function simBass(v) {
+        const KB = 12000;
+        const KN = 10000 * (0.6 + 0.004 * v.veg);               /* 수변 식생·여울을 되살리면 토종이 살 수 있는 공간이 늘어난다 */
+        const rB = 0.55 * (1 - 0.7 * v.nest / 100);             /* 산란장을 없애면 배스의 번식률 자체가 낮아진다 */
+        const attack = 0.38 * (1 - 0.6 * v.veg / 100);          /* 치어가 숨을 곳이 늘면 잡아먹히는 비율이 준다 */
+
+        let bass = 10000, native = 4000, cost = 0, caughtTotal = 0;
+        const xs = [0], bL = [bass], nL = [native], rL = [bass / (bass + native) * 100];
+
+        for (let t = 1; t <= v.years; t++) {
+            const caught = bass * v.harvest / 100;
+            caughtTotal += caught;
+            cost += caught * 0.7 * 3200;                        /* 평균 0.7kg · 수매 단가 1kg당 3,200원(보은군 2025년) */
+            /* 로지스틱 항 자체가 ‘보상 반응’이다 : 밀도가 낮아지면 남은 개체의 번식·생존이 좋아진다 */
+            bass = bass + rB * bass * (1 - bass / KB) - caught;
+            if (bass < 1) bass = 0;
+            native = native + 0.30 * native * (1 - native / KN) - attack * native * (bass / KB);
+            if (native < 1) native = 0;
+            xs.push(t); bL.push(bass); nL.push(native);
+            rL.push(bass + native > 0 ? bass / (bass + native) * 100 : 0);
+        }
+
+        const ratio = bass + native > 0 ? bass / (bass + native) * 100 : 0;
+        const rate = '번식률 ' + (rB * 100).toFixed(0) + '% vs 포획률 ' + v.harvest + '%';
+        let verdict;
+        if (bass <= 0) {
+            verdict = { tone: 'good', title: '포획이 번식을 앞질러 개체군이 사라졌습니다', text: rate + '. 잡는 속도가 번식 속도를 넘으면 개체군은 사라집니다. 다만 실제 호수에는 그물에 걸리지 않는 개체와 다른 수역에서 들어오는 개체가 있어 이만큼 되기는 어렵습니다.' };
+        } else if (ratio >= 60) {
+            verdict = { tone: 'bad', title: '배스·블루길이 여전히 우점합니다', text: rate + '. 어획 중 배스·블루길이 ' + ratio.toFixed(0) + '%로, 대청호 조사값(60~70%)과 비슷하거나 더 나쁜 상태입니다. 토종 어류가 ' + simNum(native) + '까지 줄었습니다.' };
+        } else if (v.harvest <= rB * 100) {
+            verdict = { tone: 'warn', title: '줄어들다가 새 평형에서 멈췄습니다', text: rate + '. 잡는 비율이 번식률보다 낮으면 남은 개체가 먹이와 공간을 더 차지해 번식·생존이 좋아지는 ‘보상 반응’ 때문에 개체 수가 어느 선에서 멈춥니다. 산란장 제거를 올려 번식률 자체를 낮춰 보세요.' };
+        } else {
+            verdict = { tone: 'good', title: '밀도가 크게 낮아졌습니다', text: rate + '. 배스·블루길 비율이 ' + ratio.toFixed(0) + '%까지 내려갔고 토종은 ' + simNum(native) + '입니다. 포획·산란장 제거·서식지 복원을 함께 썼을 때 같은 비용으로 효과가 더 크다는 점을 확인해 보세요.' };
+        }
+        const costText = cost >= 100000000 ? (cost / 100000000).toFixed(1) + '억 원' : simNum(cost / 10000) + '만 원';
+
+        return {
+            xs: xs, xLabel: '경과 연수(년)',
+            rightMax: 100,
+            series: [
+                { name: '토종 어류(상대 개체 수)', color: SIM_C.pink, values: nL, axis: 'left' },
+                { name: '배스·블루길(상대 개체 수)', color: SIM_C.teal, values: bL, axis: 'left' },
+                { name: '어획 중 배스·블루길 비율(%)', color: SIM_C.gold, values: rL, axis: 'right' }
+            ],
+            metrics: [
+                { label: '배스·블루길 비율', value: ratio.toFixed(0) + '%', tone: ratio <= 30 ? 'good' : (ratio <= 55 ? 'warn' : 'bad') },
+                { label: v.years + '년 뒤 토종(처음 4,000)', value: simNum(native), tone: native >= 4000 ? 'good' : (native >= 2000 ? 'warn' : 'bad') },
+                { label: '배스 번식률 / 포획률', value: (rB * 100).toFixed(0) + '% / ' + v.harvest + '%', tone: v.harvest > rB * 100 ? 'good' : 'warn' },
+                { label: '누적 수매 비용', value: costText, tone: 'none' }
+            ],
+            verdict: verdict,
+            evidence: '정책 시뮬레이터로 계산하면, 해마다 ' + v.harvest + '%를 잡고 산란장 제거 ' + v.nest + '%·수변 식생 복원 ' + v.veg +
+                '% 조건에서 ' + v.years + '년 뒤 어획 중 배스·블루길 비율은 71%에서 ' + ratio.toFixed(0) + '%가 되고 수매 비용은 약 ' +
+                costText + '이 든다. 포획률이 번식률(' + (rB * 100).toFixed(0) + '%)을 넘지 못하면 보상 반응 때문에 개체 수가 어느 선에서 멈춘다.'
+        };
+    }
+
+    const SIM_MODELS = {
+        1: {
+            title: '동물원과 서식지, 예산을 어떻게 나눌까?',
+            intro: '동물원이 지키는 것은 <b>유전다양성</b>이고, 서식지 복원이 지키는 것은 <b>야생 개체군</b>입니다. 두 값이 함께 움직이는지 확인해 보세요.',
+            controls: [
+                { key: 'cap', label: '동물원 사육 개체 수', min: 10, max: 200, step: 5, value: 50, unit: '마리', help: '서식지 외 보전기관이 관리하는 개체 수' },
+                { key: 'budget', label: '서식지 복원에 쓰는 예산', min: 0, max: 100, step: 5, value: 40, unit: '%', help: '나머지는 동물원 사육·전시 시설에 씁니다' },
+                { key: 'release', label: '해마다 자연으로 방사', min: 0, max: 20, step: 1, value: 4, unit: '마리', help: '너무 많이 내보내면 사육 집단이 유지되지 않습니다' },
+                { key: 'years', label: '계산 기간', min: 20, max: 120, step: 10, value: 100, unit: '년', help: '보전 유전학의 목표는 ‘100년 뒤에도 유전다양성 90% 유지’입니다' }
+            ],
+            toggles: [
+                { key: 'plan', label: '혈통 기록에 따른 계획 교배를 한다', value: true, help: '혈연이 먼 개체끼리 짝지어 유효 집단 크기(Ne)를 키웁니다' }
+            ],
+            concepts: [
+                { term: '유효 집단 크기(Ne)', desc: '실제로 자손을 남기는 개체 수. 이 값이 작을수록 유전다양성이 빨리 사라집니다.' },
+                { term: '유전자 부동 · 병목', desc: '집단이 작아지면 유전자가 우연히 사라져, 이형접합도가 한 세대에 1/(2Ne)씩 줄어듭니다. (세대 길이 5년으로 계산)' },
+                { term: '수용력(K)', desc: '그 서식지가 먹여 살릴 수 있는 최대 개체 수. 복원 예산이 커지면 K도 커집니다.' }
+            ],
+            run: simZoo
+        },
+        2: {
+            title: '개발과 미호종개, 어디까지 함께 갈 수 있을까?',
+            intro: '2019년 조사에서 확인된 <b>156개체</b>를 출발점으로, 개발 방식에 따라 개체군이 어떻게 달라지는지 계산합니다.',
+            controls: [
+                { key: 'dev', label: '개발하는 하천 구간 비율', min: 0, max: 100, step: 5, value: 30, unit: '%' },
+                { key: 'buffer', label: '서식 구간과의 완충(이격) 거리', min: 0, max: 200, step: 5, value: 5, unit: 'm', help: '갑천 하천기본계획의 보호 대책은 ‘5m 이상 이격’ 수준이었습니다' },
+                { key: 'dredge', label: '모래 하상 준설 강도', min: 0, max: 100, step: 5, value: 50, unit: '%', help: '미호종개는 고운 모래에 몸을 묻고 삽니다' },
+                { key: 'stock', label: '해마다 방류하는 치어', min: 0, max: 5000, step: 250, value: 0, unit: '마리', help: '2022년 미호강에 4,000마리를 방류했습니다' },
+                { key: 'years', label: '계산 기간', min: 5, max: 50, step: 5, value: 20, unit: '년' }
+            ],
+            concepts: [
+                { term: '서식지 질 · 수용력(K)', desc: '개발과 준설로 모래 하상이 줄면 살 수 있는 최대 개체 수 자체가 줄어듭니다.' },
+                { term: '알리 효과', desc: '개체 수가 너무 적어지면 짝을 만나기 어려워, 서식지가 남아 있어도 스스로 줄어듭니다.' },
+                { term: '고유종', desc: '미호종개는 우리나라에만 사는 종이라 사라지면 다른 곳에서 데려올 수 없습니다.' }
+            ],
+            run: simFish
+        },
+        3: {
+            title: '외래종을 잡을까, 서식지를 바꿀까?',
+            intro: '대청호에서 그물에 잡히는 물고기의 <b>60~70%</b>가 배스·블루길이라는 조사에 맞춰 출발값을 정했습니다(배스 10,000 : 토종 4,000 = 71%).',
+            controls: [
+                { key: 'harvest', label: '해마다 잡는 비율(수매)', min: 0, max: 80, step: 5, value: 20, unit: '%' },
+                { key: 'nest', label: '산란기 산란장 제거', min: 0, max: 100, step: 5, value: 0, unit: '%', help: '배스는 얕은 자갈 바닥에 산란장을 만들고 수컷이 알을 지킵니다' },
+                { key: 'veg', label: '수변 식생 · 여울 복원', min: 0, max: 100, step: 5, value: 0, unit: '%', help: '토종 치어가 숨을 곳이 늘어납니다' },
+                { key: 'years', label: '계산 기간', min: 1, max: 30, step: 1, value: 10, unit: '년' }
+            ],
+            concepts: [
+                { term: '보상 반응', desc: '일부만 잡으면 남은 개체가 먹이와 공간을 더 차지해 번식·생존이 좋아집니다. 그래프의 로지스틱 곡선에 이 효과가 들어 있습니다.' },
+                { term: '포획률 vs 번식률', desc: '해마다 잡는 비율이 번식률을 넘지 못하면 개체 수는 줄다가 새 평형에서 멈춥니다.' },
+                { term: '회복 탄력성', desc: '종 구성이 단순해지면 환경이 바뀌었을 때 생태계가 스스로 되돌아오는 힘이 약해집니다.' }
+            ],
+            run: simBass
+        }
+    };
+
+    let simModel = null;
+    let simLast = null;
+
+    function toggleSim() {
+        const body = el('sim-body');
+        const chev = el('sim-chevron');
+        body.classList.toggle('hidden');
+        const open = !body.classList.contains('hidden');
+        chev.className = 'fa-solid fa-chevron-' + (open ? 'up' : 'down') + ' text-gray-400 text-xs';
+        if (open) runSim();
+    }
+
+    function renderSimulator(topic) {
+        const body = el('sim-body');
+        simModel = SIM_MODELS[topic.id] || null;
+        simLast = null;
+        if (!simModel) { body.innerHTML = ''; return; }
+
+        let html =
+            '<h4 class="font-bold text-gray-800 mb-1">' + escapeHtml(simModel.title) + '</h4>' +
+            '<p class="text-xs md:text-sm text-gray-600 mb-4 leading-relaxed">' + simModel.intro + '</p>' +
+            '<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-4">';
+
+        simModel.controls.forEach(function (c) {
+            html +=
+                '<div>' +
+                    '<div class="flex items-baseline justify-between mb-1.5 gap-2">' +
+                        '<label for="sim-' + c.key + '" class="text-xs font-bold text-gray-700">' + escapeHtml(c.label) + '</label>' +
+                        '<span class="text-sm font-bold text-pinky-600 whitespace-nowrap">' +
+                            '<span id="simval-' + c.key + '">' + c.value + '</span>' + escapeHtml(c.unit) +
+                        '</span>' +
+                    '</div>' +
+                    '<input type="range" class="sim-range" id="sim-' + c.key + '" min="' + c.min + '" max="' + c.max + '" step="' + c.step + '" value="' + c.value + '" oninput="runSim()">' +
+                    (c.help ? '<p class="text-[11px] text-gray-500 mt-1.5 leading-snug">' + escapeHtml(c.help) + '</p>' : '') +
+                '</div>';
+        });
+        html += '</div>';
+
+        (simModel.toggles || []).forEach(function (t) {
+            html +=
+                '<label class="flex items-start gap-2 bg-pinky-50 border border-pinky-200 rounded-xl px-3 py-2.5 mb-4 cursor-pointer">' +
+                    '<input type="checkbox" id="sim-' + t.key + '" ' + (t.value ? 'checked' : '') + ' onchange="runSim()" class="mt-0.5 w-4 h-4 accent-pinky-500">' +
+                    '<span class="text-xs text-gray-700 leading-snug">' +
+                        '<b>' + escapeHtml(t.label) + '</b>' +
+                        (t.help ? '<br><span class="text-gray-500">' + escapeHtml(t.help) + '</span>' : '') +
+                    '</span>' +
+                '</label>';
+        });
+
+        html +=
+            '<div class="rounded-xl border border-gray-200 bg-gray-50/70 p-3 mb-3">' +
+                '<div id="sim-legend" class="flex flex-wrap gap-x-4 gap-y-1 mb-2"></div>' +
+                '<canvas id="sim-chart" class="sim-canvas" role="img" aria-label="시뮬레이션 결과 그래프. 아래 요약 숫자에 같은 내용이 글로 적혀 있습니다."></canvas>' +
+                '<p id="sim-xlabel" class="text-[11px] text-gray-500 text-center mt-1"></p>' +
+            '</div>' +
+            '<div id="sim-metrics" class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3"></div>' +
+            '<div id="sim-verdict" class="rounded-xl border p-3 mb-4 text-sm"></div>';
+
+        html += '<div class="bg-white border border-gray-200 rounded-xl p-3 mb-4">' +
+            '<h5 class="text-xs font-bold text-gray-700 mb-2"><i class="fa-solid fa-flask text-pinky-500 mr-1"></i> 이 계산에 쓰인 과학 개념</h5>' +
+            '<ul class="space-y-1.5">';
+        simModel.concepts.forEach(function (c) {
+            html += '<li class="text-xs text-gray-600 leading-relaxed"><b class="text-gray-800">' + escapeHtml(c.term) + '</b> — ' + escapeHtml(c.desc) + '</li>';
+        });
+        html += '</ul></div>';
+
+        html +=
+            '<div class="flex flex-col sm:flex-row gap-2 mb-3">' +
+                '<button onclick="useSimEvidence()" class="flex-1 bg-pinky-500 hover:bg-pinky-600 text-white font-bold text-sm py-2.5 px-4 rounded-xl transition-colors">' +
+                    '<i class="fa-solid fa-arrow-down-long mr-1"></i> 이 결과를 근거 칸에 옮겨 적기' +
+                '</button>' +
+                '<button onclick="resetSim()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-semibold text-sm py-2.5 px-4 rounded-xl transition-colors">' +
+                    '<i class="fa-solid fa-rotate-right mr-1"></i> 처음 값으로' +
+                '</button>' +
+            '</div>' +
+            '<p class="text-[11px] text-gray-500 leading-relaxed border-t border-gray-100 pt-3">' +
+                '<b class="text-gray-600">이 그래프는 교육용으로 단순화한 계산입니다.</b> 출발값(개체 수·비율·단가)은 위 ‘핵심 통계’와 ‘자료 찾아보기’의 실제 조사 자료를 썼지만, ' +
+                '성장률·생존율 같은 계수는 수업에서 변화를 눈으로 보기 위해 정한 값입니다. 실제 생태계는 훨씬 복잡하므로 <b class="text-gray-600">시뮬레이터 결과는 ‘경향’으로만 쓰고, ' +
+                '근거에는 실제 통계와 기사를 함께 인용</b>하세요.' +
+            '</p>';
+
+        body.innerHTML = html;
+        runSim();
+    }
+
+    function resetSim() {
+        if (!simModel) return;
+        simModel.controls.forEach(function (c) { el('sim-' + c.key).value = c.value; });
+        (simModel.toggles || []).forEach(function (t) { el('sim-' + t.key).checked = t.value; });
+        runSim();
+    }
+
+    function runSim() {
+        if (!simModel || !el('sim-chart')) return;
+        const v = {};
+        simModel.controls.forEach(function (c) {
+            v[c.key] = Number(el('sim-' + c.key).value);
+            el('simval-' + c.key).innerText = v[c.key].toLocaleString('ko-KR');
+        });
+        (simModel.toggles || []).forEach(function (t) { v[t.key] = el('sim-' + t.key).checked; });
+
+        const out = simModel.run(v);
+        simLast = out;
+
+        let legend = '';
+        out.series.forEach(function (s) {
+            legend += '<span class="flex items-center gap-1.5 text-[11px] font-bold text-gray-600">' +
+                '<span class="inline-block w-3 h-1.5 rounded-full" style="background:' + s.color + '"></span>' +
+                escapeHtml(s.name) + '</span>';
+        });
+        el('sim-legend').innerHTML = legend;
+        el('sim-xlabel').innerText = out.xLabel;
+
+        let mh = '';
+        out.metrics.forEach(function (m) {
+            const tone = m.tone === 'good' ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                : m.tone === 'bad' ? 'border-rose-200 bg-rose-50 text-rose-800'
+                : m.tone === 'warn' ? 'border-amber-200 bg-amber-50 text-amber-800'
+                : 'border-gray-200 bg-white text-gray-800';
+            mh += '<div class="rounded-xl border px-3 py-2 ' + tone + '">' +
+                '<div class="text-[11px] opacity-80 leading-tight">' + escapeHtml(m.label) + '</div>' +
+                '<div class="text-sm md:text-base font-bold mt-0.5">' + escapeHtml(m.value) + '</div>' +
+            '</div>';
+        });
+        el('sim-metrics').innerHTML = mh;
+
+        const vd = out.verdict;
+        const vtone = vd.tone === 'good' ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+            : vd.tone === 'bad' ? 'border-rose-200 bg-rose-50 text-rose-800'
+            : 'border-amber-200 bg-amber-50 text-amber-800';
+        const vicon = vd.tone === 'good' ? 'fa-circle-check' : (vd.tone === 'bad' ? 'fa-circle-exclamation' : 'fa-triangle-exclamation');
+        el('sim-verdict').className = 'rounded-xl border p-3 mb-4 text-sm ' + vtone;
+        el('sim-verdict').innerHTML =
+            '<p class="font-bold mb-1"><i class="fa-solid ' + vicon + ' mr-1"></i>' + escapeHtml(vd.title) + '</p>' +
+            '<p class="text-xs leading-relaxed opacity-90">' + escapeHtml(vd.text) + '</p>';
+
+        drawSimChart(el('sim-chart'), out);
+    }
+
+    /* --- 캔버스 꺾은선 그래프 (외부 라이브러리 없이 직접 그린다) --- */
+    function simNiceMax(v) {
+        if (!(v > 0)) return 1;
+        const base = Math.pow(10, Math.floor(Math.log10(v)));
+        const f = v / base;
+        const m = f <= 1 ? 1 : (f <= 2 ? 2 : (f <= 2.5 ? 2.5 : (f <= 5 ? 5 : 10)));
+        return m * base;
+    }
+
+    function simAxisLabel(v) {
+        if (v >= 10000) return Math.round(v / 1000) + '천';
+        if (v >= 100) return String(Math.round(v));
+        return String(Math.round(v * 10) / 10);
+    }
+
+    function drawSimChart(canvas, out) {
+        if (!canvas || !canvas.getContext) return;
+        const cssW = Math.max(240, canvas.clientWidth || (canvas.parentElement ? canvas.parentElement.clientWidth : 320));
+        const cssH = 230;
+        const dpr = window.devicePixelRatio || 1;
+        canvas.style.height = cssH + 'px';
+        canvas.width = Math.round(cssW * dpr);
+        canvas.height = Math.round(cssH * dpr);
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, cssW, cssH);
+
+        const hasRight = out.series.some(function (s) { return s.axis === 'right'; });
+        const padL = 44, padR = hasRight ? 40 : 14, padT = 12, padB = 26;
+        const w = cssW - padL - padR, h = cssH - padT - padB;
+        const xn = out.xs.length - 1;
+        if (w < 40 || h < 40 || xn < 1) return;
+
+        let lmax = 0, rmax = 0;
+        out.series.forEach(function (s) {
+            const m = s.values.reduce(function (a, b) { return b > a ? b : a; }, 0);
+            if (s.axis === 'right') rmax = Math.max(rmax, m); else lmax = Math.max(lmax, m);
+        });
+        lmax = simNiceMax(lmax);
+        rmax = out.rightMax || simNiceMax(rmax);
+
+        ctx.font = '11px SUIT, sans-serif';
+        for (let i = 0; i <= 4; i++) {
+            const y = Math.round(padT + h * i / 4) + 0.5;
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + w, y); ctx.stroke();
+            ctx.fillStyle = SIM_C.gray;
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'right';
+            ctx.fillText(simAxisLabel(lmax * (4 - i) / 4), padL - 6, y);
+            if (hasRight) {
+                ctx.textAlign = 'left';
+                ctx.fillText(simAxisLabel(rmax * (4 - i) / 4), padL + w + 6, y);
+            }
+        }
+
+        ctx.fillStyle = SIM_C.gray;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        for (let i = 0; i <= 4; i++) {
+            const idx = Math.round(xn * i / 4);
+            ctx.fillText(String(out.xs[idx]), padL + w * idx / xn, padT + h + 7);
+        }
+
+        out.series.forEach(function (s) {
+            const max = s.axis === 'right' ? rmax : lmax;
+            ctx.beginPath();
+            ctx.strokeStyle = s.color;
+            ctx.lineWidth = 2.5;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            s.values.forEach(function (val, i) {
+                const x = padL + w * i / xn;
+                const y = padT + h - h * Math.min(Math.max(val, 0), max) / max;
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+        });
+    }
+
+    window.addEventListener('resize', function () {
+        if (simLast && el('sim-chart')) drawSimChart(el('sim-chart'), simLast);
+    });
+
+    /* 시뮬레이션 결과 문장을 근거 칸에 넣어 준다 */
+    function useSimEvidence() {
+        if (!simLast) return;
+        const text = simLast.evidence;
+
+        if (!selectedStance) {
+            copyToClipboard(text);
+            showToast('결과 문장을 복사했어요. 입장을 고르면 근거 칸에 바로 넣을 수 있어요.', 'info');
+            return;
+        }
+
+        const target = el('evidence-1').value.trim() === '' ? el('evidence-1') : el('evidence-2');
+        const current = target.value.trim();
+        let next = current === '' ? text : current + ' ' + text;
+        if (next.length > 300) next = next.slice(0, 300);
+        target.value = next;
+        onWriting();
+        target.focus();
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showToast('근거 ' + (target.id === 'evidence-1' ? '①' : '②') + ' 칸에 넣었어요. 실제 통계·기사도 함께 인용하세요!', 'success');
+    }
+
+    /* =========================================================
+       8. 예상 반론 (교차조사) 카드
+       ========================================================= */
+    function renderCrossQuestions(stance) {
+        const list = (currentTopic.crossQuestions || {})[stance] || [];
+        const isPro = stance === 'pro';
+        let html = '';
+
+        list.forEach(function (item, i) {
+            html +=
+                '<div class="border border-gray-200 rounded-xl p-3 mb-2 bg-gray-50/60">' +
+                    '<p class="text-sm font-bold text-gray-800 leading-snug mb-2">' +
+                        '<span class="' + (isPro ? 'text-butter-600' : 'text-pinky-600') + ' mr-1">Q' + (i + 1) + '.</span>' +
+                        escapeHtml(item.q) +
+                    '</p>' +
+                    '<button onclick="toggleCrossHint(' + i + ')" id="cross-btn-' + i + '" ' +
+                        'class="text-xs font-bold text-pinky-600 hover:text-pinky-700 transition-colors">' +
+                        '<i class="fa-solid fa-lightbulb mr-1"></i> 답변 준비 힌트 보기' +
+                    '</button>' +
+                    '<div id="cross-hint-' + i + '" class="hidden mt-2 pt-2 border-t border-gray-200 text-xs text-gray-700 leading-relaxed">' +
+                        escapeHtml(item.hint) +
+                    '</div>' +
+                '</div>';
+        });
+
+        html += '<p class="text-[11px] text-gray-400 mt-3">질문과 힌트는 이 앱에 미리 적어 둔 것입니다. 실제 토론에서는 더 날카로운 질문이 나올 수 있어요.</p>';
+
+        el('cross-body').innerHTML = html;
+    }
+
+    function toggleCrossHint(i) {
+        const hint = el('cross-hint-' + i);
+        const btn = el('cross-btn-' + i);
+        hint.classList.toggle('hidden');
+        btn.innerHTML = hint.classList.contains('hidden')
+            ? '<i class="fa-solid fa-lightbulb mr-1"></i> 답변 준비 힌트 보기'
+            : '<i class="fa-regular fa-lightbulb mr-1"></i> 힌트 접기';
+    }
+
+
+    /* =========================================================
+       9. 자기 점검 체크리스트
+          규칙 기반이라 브라우저 안에서만 계산된다.
+          등록을 막지는 않고, 무엇이 빠졌는지만 알려 준다.
+       ========================================================= */
+    /* 입장이 드러나는 표현 */
+    const STANCE_MARKS = [
+        '해야', '해서는', '하면 안', '안 된다', '안된다', '말아야', '필요하다', '필요가 있',
+        '옳다', '옳지', '낫다', '바람직', '중요하다', '막아야', '지켜야', '허가', '금지',
+        '찬성', '반대', '줄여야', '늘려야', '멈춰야', '계속해야', '해야만'
+    ];
+
+    /* 주제별 과학 개념어 */
+    const SCIENCE_TERMS = {
+        1: ['유전다양성', '유전적 다양성', '유전자', '근친', '병목', '유효 집단', '수용력', '정형행동',
+            '서식지 외 보전', '방사', '개체군', '멸종위기', '유전적 부동', '종 보전', '증식', '혈통'],
+        2: ['고유종', '서식지', '수용력', '개체군', '준설', '모래', '유속', '산란', '멸종위협',
+            '위기', '절멸', '생태', '하상', '종 다양성', '분포', '이격', '복원'],
+        3: ['외래종', '생태계교란', '먹이사슬', '포식', '회복 탄력성', '보상 반응', '산란장', '개체군',
+            '밀도', '토종', '수매', '번식률', '치어', '방류', '수변', '여울']
+    };
+
+    /* 근거에 자료 이름이 들어갔는지 확인할 때 쓰는 낱말.
+       주제 데이터의 매체 이름을 그대로 가져와 쓴다. */
+    function sourceWords() {
+        const words = ['통계', '조사', '연구', '보고서', '자료집', '지표', '학회지', '기사',
+                       '신문', '일보', '뉴스', '누리집', '국립', '환경청', '학회'];
+        if (currentTopic) {
+            currentTopic.refs.news.forEach(function (n) { words.push(n.media); });
+            currentTopic.refs.stats.forEach(function (s) { words.push(s.media); });
+        }
+        return words;
+    }
+
+    function hasAny(text, list) {
+        for (let i = 0; i < list.length; i++) {
+            if (list[i] && text.indexOf(list[i]) !== -1) return true;
+        }
+        return false;
+    }
+
+    function updateSelfCheck() {
+        if (!currentTopic) return;
+        const box = el('selfcheck-auto');
+        if (!box) return;
+
+        const m1 = el('main-1').value.trim();
+        const m2 = el('main-2').value.trim();
+        const e1 = el('evidence-1').value.trim();
+        const e2 = el('evidence-2').value.trim();
+        const ev = e1 + ' ' + e2;
+        const written = m1 || m2 || e1 || e2;
+
+        /* 어느 칸이 비었는지 이름으로 알려 주기 위한 도우미 */
+        function missing(pairs) {
+            const out = [];
+            pairs.forEach(function (p) { if (!p.ok) out.push(p.name); });
+            return out;
+        }
+
+        const claimMiss = missing([
+            { ok: m1 && hasAny(m1, STANCE_MARKS), name: '주장 ①' },
+            { ok: m2 && hasAny(m2, STANCE_MARKS), name: '주장 ②' }
+        ]);
+        const numberMiss = missing([
+            { ok: /\d/.test(e1), name: '근거 ①' },
+            { ok: /\d/.test(e2), name: '근거 ②' }
+        ]);
+        const srcList = sourceWords();
+        const sourceMiss = missing([
+            { ok: hasAny(e1, srcList), name: '근거 ①' },
+            { ok: hasAny(e2, srcList), name: '근거 ②' }
+        ]);
+        const terms = SCIENCE_TERMS[currentTopic.id] || [];
+
+        const items = [
+            {
+                ok: claimMiss.length === 0,
+                label: '주장이 <b>입장이 드러나는 문장</b>으로 쓰여 있다',
+                helpOk: '‘~해야 한다 / ~하면 안 된다’처럼 입장이 분명해요.',
+                helpNo: claimMiss.join('·') + '에 입장을 드러내는 표현이 없어요. ‘~해야 한다’, ‘~하면 안 된다’처럼 써 보세요.'
+            },
+            {
+                ok: numberMiss.length === 0,
+                label: '근거에 <b>숫자</b>가 들어 있다',
+                helpOk: '개체 수·연도·비율 같은 숫자가 들어갔어요.',
+                helpNo: numberMiss.join('·') + '에 숫자가 없어요. 위 ‘핵심 통계’의 개체 수나 연도를 넣어 보세요.'
+            },
+            {
+                ok: sourceMiss.length === 0,
+                label: '근거에 <b>자료 이름이나 출처</b>가 밝혀져 있다',
+                helpOk: '어디서 가져온 자료인지 읽는 사람이 알 수 있어요.',
+                helpNo: sourceMiss.join('·') + '에 출처가 없어요. ‘자료 찾아보기’의 매체 이름과 날짜를 함께 적으세요. ' +
+                        '시뮬레이터 결과만 적었다면 실제 기사·통계를 하나 더 붙여야 해요.'
+            },
+            {
+                ok: hasAny(ev, terms),
+                label: '근거에 <b>과학 개념어</b>가 들어 있다',
+                helpOk: '과학 시간에 배운 개념으로 설명하고 있어요.',
+                helpNo: '예를 들어 ‘' + terms.slice(0, 4).join('’, ‘') + '’ 같은 말을 써서 왜 그런지 설명해 보세요.'
+            }
+        ];
+
+        let html = '';
+        items.forEach(function (it) {
+            const icon = it.ok
+                ? '<i class="fa-solid fa-circle-check text-emerald-500 mt-0.5 shrink-0"></i>'
+                : '<i class="fa-regular fa-circle text-gray-300 mt-0.5 shrink-0"></i>';
+            html +=
+                '<li class="flex items-start gap-2">' + icon +
+                    '<div class="min-w-0">' +
+                        '<p class="text-xs leading-snug ' + (it.ok ? 'text-gray-700' : 'text-gray-600') + '">' + it.label + '</p>' +
+                        '<p class="text-[11px] mt-0.5 leading-snug ' + (it.ok ? 'text-emerald-700' : 'text-gray-500') + '">' +
+                            (written ? (it.ok ? it.helpOk : it.helpNo) : '아직 쓴 내용이 없어요.') +
+                        '</p>' +
+                    '</div>' +
+                '</li>';
+        });
+        box.innerHTML = html;
+
+        const manual = (el('sc-manual-1').checked ? 1 : 0) + (el('sc-manual-2').checked ? 1 : 0);
+        const auto = items.filter(function (it) { return it.ok; }).length;
+        const total = auto + manual;
+        const score = el('selfcheck-score');
+        score.textContent = total + ' / 6';
+        score.className = 'text-xs font-bold whitespace-nowrap ' +
+            (total === 6 ? 'text-emerald-600' : (total >= 4 ? 'text-butter-700' : 'text-gray-500'));
+    }
+
+    /* =========================================================
+       10. 토론 타이머
+          시간은 Date.now() 기준으로 계산하므로 다른 탭에 있어도 밀리지 않는다.
+          소리는 웹 오디오로 그 자리에서 만들어 내므로 받아 오는 파일이 없다.
+       ========================================================= */
+    const FLASH_EVERY = 600;   /* 글쓰기 모드에서 몇 초마다 깜빡일지 (10분) */
+
+    const TIMER_PRESETS = [
+        { name: '글쓰기', up: true },
+        { name: '준비', sec: 30 },
+        { name: '입론', sec: 180 },
+        { name: '교차조사', sec: 120 },
+        { name: '반박', sec: 120 },
+        { name: '최종 발언', sec: 60 }
+    ];
+
+    let timerUp = false;       /* true 면 0부터 올라가는 글쓰기 타이머 */
+    let timerStage = '입론';
+    let timerTotal = 180;      /* 이번 단계의 전체 시간(초) */
+    let timerRemain = 180;     /* 남은 시간(초, 소수 포함) */
+    let timerElapsed = 0;      /* 글쓰기 모드에서 흐른 시간(초) */
+    let timerEndAt = 0;        /* 끝나는 시각 */
+    let timerStartAt = 0;      /* 글쓰기 모드에서 시작한 시각 */
+    let timerRunning = false;
+    let timerHandle = null;
+    let timerSoundOn = true;
+    let timerLastBeep = -1;
+    let timerLastMark = 0;     /* 마지막으로 깜빡인 10분 구간 */
+    let writingTimerStarted = false;
+    let audioCtx = null;
+
+    function renderTimerPresets() {
+        let html = '';
+        TIMER_PRESETS.forEach(function (p, i) {
+            html += '<button onclick="setTimerPreset(' + i + ')" id="timer-preset-' + i + '" ' +
+                'class="text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-colors">' +
+                escapeHtml(p.name) + '</button>';
+        });
+        el('timer-presets').innerHTML = html;
+        highlightTimerPreset();
+    }
+
+    function highlightTimerPreset() {
+        TIMER_PRESETS.forEach(function (p, i) {
+            const btn = el('timer-preset-' + i);
+            if (!btn) return;
+            btn.className = 'text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-colors ' +
+                (p.name === timerStage
+                    ? 'bg-pinky-500 border-pinky-500 text-white'
+                    : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50');
+        });
+    }
+
+    function setTimerPreset(i) {
+        const p = TIMER_PRESETS[i];
+        stopTimerLoop();
+        timerStage = p.name;
+        timerUp = !!p.up;
+        timerLastBeep = -1;
+        timerLastMark = 0;
+        if (timerUp) {
+            timerElapsed = 0;
+        } else {
+            timerTotal = p.sec;
+            timerRemain = p.sec;
+        }
+        highlightTimerPreset();
+        renderTimer();
+    }
+
+    /* 학생이 첫 글자를 치면 글쓰기 시간을 재기 시작한다.
+       이미 다른 단계를 돌리고 있으면 건드리지 않는다. */
+    function startWritingTimerOnce() {
+        if (writingTimerStarted || timerRunning) return;
+        writingTimerStarted = true;
+        setTimerPreset(0);
+        toggleTimerRun();
+        showToast('작성 시간을 재기 시작했어요. 10분마다 알려 드릴게요. ⏱', 'success');
+    }
+
+    function formatClock(sec) {
+        const s = Math.max(0, Math.ceil(sec));
+        const m = Math.floor(s / 60);
+        const r = s % 60;
+        return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r;
+    }
+
+    function renderTimer() {
+        const text = formatClock(timerUp ? timerElapsed : timerRemain);
+        const display = el('timer-display');
+        /* 0.15초마다 다시 그리므로 화면 계산이 필요 없는 textContent 를 쓴다 */
+        display.textContent = text;
+        el('timer-stage').textContent = timerUp
+            ? '글쓰기 — 10분마다 알림'
+            : timerStage;
+
+        const bar = el('timer-bar');
+        let color;
+
+        if (timerUp) {
+            /* 다음 10분 알림까지 얼마나 남았는지를 막대로 보여 준다 */
+            bar.style.width = (timerElapsed % FLASH_EVERY) / FLASH_EVERY * 100 + '%';
+            color = { text: '#1f2937', bar: 'bg-butter-400' };
+        } else {
+            bar.style.width = (timerTotal > 0 ? Math.max(0, Math.min(100, timerRemain / timerTotal * 100)) : 0) + '%';
+            if (timerRemain <= 10) color = { text: '#cf4f80', bar: 'bg-pinky-600' };
+            else if (timerRemain <= 30) color = { text: '#c99f20', bar: 'bg-butter-500' };
+            else color = { text: '#1f2937', bar: 'bg-pinky-400' };
+        }
+
+        display.style.color = color.text;
+        bar.className = 'h-full rounded-full ' + color.bar;
+        bar.style.transition = 'width .2s linear';
+
+        /* 글쓰기 모드에서는 시간을 더하고 빼는 버튼이 뜻이 없다 */
+        const adj = el('timer-adjust');
+        if (timerUp) adj.classList.add('hidden');
+        else adj.classList.remove('hidden');
+
+        const toggle = el('timer-toggle');
+        const resumable = timerUp
+            ? timerElapsed > 0
+            : (timerRemain < timerTotal && timerRemain > 0);
+        toggle.innerHTML = timerRunning
+            ? '<i class="fa-solid fa-pause mr-1"></i> 일시정지'
+            : '<i class="fa-solid fa-play mr-1"></i> ' + (resumable ? '이어서' : '시작');
+
+        /* 타이머를 닫아 두었을 때도 시간이 보이도록 */
+        el('timer-fab-label').textContent = timerRunning
+            ? (timerUp ? '글쓰기 ' : timerStage + ' ') + text
+            : '토론 타이머';
+    }
+
+    function timerLoop() {
+        if (!timerRunning) return;
+
+        if (timerUp) {
+            timerElapsed = (Date.now() - timerStartAt) / 1000;
+            /* 10분이 지날 때마다 깜빡이며 알려 준다 */
+            const mark = Math.floor(timerElapsed / FLASH_EVERY);
+            if (mark > timerLastMark) {
+                timerLastMark = mark;
+                beep(660, 0.15, 2);
+                flashTimer();
+                showToast('글을 쓰기 시작한 지 ' + (mark * FLASH_EVERY / 60) + '분이 지났어요. ⏱', 'success');
+            }
+            renderTimer();
+            timerHandle = setTimeout(timerLoop, 150);
+            return;
+        }
+
+        timerRemain = (timerEndAt - Date.now()) / 1000;
+
+        const whole = Math.ceil(timerRemain);
+        if (whole !== timerLastBeep && whole <= 10 && whole >= 1) {
+            timerLastBeep = whole;
+            beep(880, 0.08);
+        }
+
+        if (timerRemain <= 0) {
+            timerRemain = 0;
+            timerRunning = false;
+            renderTimer();
+            onTimerEnd();
+            return;
+        }
+        renderTimer();
+        timerHandle = setTimeout(timerLoop, 150);
+    }
+
+    function stopTimerLoop() {
+        timerRunning = false;
+        if (timerHandle) { clearTimeout(timerHandle); timerHandle = null; }
+    }
+
+    function toggleTimerRun() {
+        if (timerRunning) {
+            stopTimerLoop();
+            renderTimer();
+            return;
+        }
+        timerRunning = true;
+        timerLastBeep = -1;
+        if (timerUp) {
+            /* 멈춘 지점부터 이어서 잰다 */
+            timerStartAt = Date.now() - timerElapsed * 1000;
+        } else {
+            if (timerRemain <= 0) timerRemain = timerTotal;
+            timerEndAt = Date.now() + timerRemain * 1000;
+        }
+        timerLoop();
+    }
+
+    function resetTimer() {
+        stopTimerLoop();
+        timerLastBeep = -1;
+        timerLastMark = 0;
+        if (timerUp) timerElapsed = 0;
+        else timerRemain = timerTotal;
+        renderTimer();
+    }
+
+    function addTimerSeconds(delta) {
+        if (timerUp) return;
+        timerRemain = Math.max(0, timerRemain + delta);
+        timerTotal = Math.max(timerTotal, Math.ceil(timerRemain));
+        if (timerRunning) timerEndAt = Date.now() + timerRemain * 1000;
+        renderTimer();
+    }
+
+    /* 타이머를 열어 두었으면 패널을, 닫아 두었으면 버튼을 깜빡인다 */
+    function flashTimer() {
+        const panel = el('timer-panel');
+        const target = panel.classList.contains('hidden') ? el('timer-fab') : panel;
+        target.classList.remove('timer-flash');
+        void target.offsetWidth;         /* 애니메이션 다시 실행시키기 */
+        target.classList.add('timer-flash');
+    }
+
+    function onTimerEnd() {
+        beep(660, 0.18, 3);
+        flashTimer();
+        showToast(timerStage + ' 시간이 끝났습니다! ⏰', 'success');
+    }
+
+    /* 파일을 받아 오지 않고 그 자리에서 소리를 만든다 */
+    function beep(freq, dur, times) {
+        if (!timerSoundOn) return;
+        try {
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) return;
+            if (!audioCtx) audioCtx = new Ctx();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const n = times || 1;
+            for (let i = 0; i < n; i++) {
+                const at = audioCtx.currentTime + i * (dur + 0.12);
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.0001, at);
+                gain.gain.exponentialRampToValueAtTime(0.25, at + 0.01);
+                gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(at);
+                osc.stop(at + dur + 0.02);
+            }
+        } catch (err) {
+            /* 소리를 못 내는 브라우저에서는 조용히 넘어간다 */
+        }
+    }
+
+    function toggleTimerSound() {
+        timerSoundOn = !timerSoundOn;
+        const btn = el('timer-sound-btn');
+        btn.innerHTML = timerSoundOn
+            ? '<i class="fa-solid fa-volume-high"></i>'
+            : '<i class="fa-solid fa-volume-xmark"></i>';
+        btn.title = timerSoundOn ? '소리 끄기' : '소리 켜기';
+        showToast(timerSoundOn ? '타이머 소리를 켰습니다.' : '타이머 소리를 껐습니다.', 'success');
+    }
+
+    function openTimer() {
+        el('timer-fab').classList.add('hidden');
+        el('timer-panel').classList.remove('hidden');
+        renderTimer();
+    }
+
+    function closeTimer() {
+        el('timer-panel').classList.add('hidden');
+        el('timer-fab').classList.remove('hidden');
+        renderTimer();
+    }
+
+    /* =========================================================
+       11. 작성 중 실시간 검사
        ========================================================= */
     function updateCounters() {
         el('count-main-1').innerText = el('main-1').value.length;
@@ -1004,9 +2121,11 @@
     }
 
     function onWriting() {
+        startWritingTimerOnce();
         updateCounters();
         mildConfirmed = false;
         resetSubmitButton();
+        updateSelfCheck();
         const result = BadWordFilter.check(allText());
         if (result.clean) hideFilterPanel();
         else renderFilterPanel(result, false);
@@ -1087,7 +2206,7 @@
     }
 
     /* =========================================================
-       8. 등록
+       12. 등록
        ========================================================= */
     function submitOpinion() {
         if (!selectedStance) {
@@ -1161,6 +2280,7 @@
         el('result-main-2').innerText = el('main-2').value.trim();
         el('result-evidence-2').innerText = el('evidence-2').value.trim();
 
+        renderCrossQuestions(selectedStance);
         renderFriend('pro');
         renderFriend('con');
 
@@ -1189,8 +2309,30 @@
     }
 
     /* =========================================================
-       9. 보조 기능
+       13. 보조 기능
        ========================================================= */
+    /* 클립보드 복사. 성공하면 true */
+    function copyToClipboard(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        let ok = false;
+        try {
+            ok = document.execCommand('copy');
+        } catch (err) {
+            ok = false;
+        }
+
+        document.body.removeChild(textArea);
+        return ok;
+    }
+
     function copyMyText() {
         const fullText =
             '[나의 생각 - ' + currentTopic.title + ']\n' +
@@ -1202,23 +2344,8 @@
             '주장 ②: ' + el('result-main-2').innerText + '\n' +
             '근거 ②: ' + el('result-evidence-2').innerText;
 
-        const textArea = document.createElement("textarea");
-        textArea.value = fullText;
-        textArea.style.position = "fixed";
-        textArea.style.left = "-999999px";
-        textArea.style.top = "-999999px";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-
-        try {
-            const ok = document.execCommand('copy');
-            showToast(ok ? "내 글이 클립보드에 복사되었습니다! 📋" : "복사에 실패했습니다.", ok ? "success" : "error");
-        } catch (err) {
-            showToast("이 브라우저에서는 복사 기능을 지원하지 않습니다.", "error");
-        }
-
-        document.body.removeChild(textArea);
+        const ok = copyToClipboard(fullText);
+        showToast(ok ? "내 글이 클립보드에 복사되었습니다! 📋" : "복사에 실패했습니다.", ok ? "success" : "error");
     }
 
     function resetApp() {
@@ -1244,7 +2371,7 @@
     }
 
     /* =========================================================
-       10. 바탕화면 바로가기 추가 (PWA 설치)
+       14. 바탕화면 바로가기 추가 (PWA 설치)
        ========================================================= */
     let deferredPrompt = null;
     const installBtn = el('install-btn');
