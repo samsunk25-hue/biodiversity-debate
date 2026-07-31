@@ -122,9 +122,11 @@
         .drop-zone.over { background-color: #ffe9f0; border-color: #f088b0; }
         .sent-chip.ok { border-color: #6ee7b7 !important; background-color: #ecfdf5 !important; }
         .sent-chip.no { border-color: #fda4af !important; background-color: #fff1f2 !important; }
-        /* 읽기 자료 본문 */
-        .article-body p { margin-bottom: 0.9rem; line-height: 1.95; }
-        .article-body h4 { margin: 1.6rem 0 .6rem; }
+        /* 읽기 자료 본문 — 글씨를 키우고 줄 간격을 넉넉히 */
+        .article-body { font-size: 1.0625rem; }
+        .article-body p { margin-bottom: 1rem; line-height: 2.0; }
+        .article-body h4 { margin: 1.8rem 0 .7rem; }
+        @media (min-width: 768px) { .article-body { font-size: 1.125rem; } }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #fdf3f6; border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: #f7c9da; border-radius: 4px; }
@@ -264,13 +266,19 @@
                 <h2 class="text-xl md:text-2xl font-bold text-gray-800">개념 정리</h2>
                 <p class="text-gray-500 mt-2 text-sm">카드를 눌러 자세한 설명과 ‘조심할 점’을 확인하세요.</p>
             </div>
+            <div id="concept-progress" class="mb-4"></div>
             <div id="concept-tabs" class="flex flex-wrap gap-2 justify-center mb-5"></div>
             <div id="concept-body" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8"></div>
 
             <div class="bg-white rounded-2xl shadow-sm border-2 border-butter-200 p-6">
                 <h3 class="font-bold text-butter-700 mb-1"><i class="fa-solid fa-list-check mr-1"></i> 개념 확인 문제</h3>
-                <p class="text-xs text-gray-500 mb-4">한 문제씩 풀고 바로 채점합니다. 틀린 문제는 해설을 읽고 다시 풀어 보세요.</p>
-                <div id="quiz-body"></div>
+                <p class="text-xs text-gray-500 mb-4">틀린 보기를 고르면 답을 알려 주지 않고 <b>힌트를 준 뒤 다시 고르게</b> 합니다.</p>
+                <div id="quiz-lock" class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center">
+                    <i class="fa-solid fa-lock text-gray-400 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-600">개념 카드를 <b>모두 눌러 확인</b>하면 문제가 열립니다.</p>
+                    <p class="text-xs text-gray-400 mt-1">위쪽 진행 막대에서 남은 개수를 볼 수 있어요.</p>
+                </div>
+                <div id="quiz-body" class="hidden"></div>
             </div>
         </section>
 
@@ -351,28 +359,45 @@
                 <!-- 핵심 사실 -->
                 <div id="factbox" class="bg-butter-50 border border-butter-200 rounded-xl p-4 mb-6"></div>
 
-                <!-- 자료 정확성 확인 과제 -->
-                <div class="border-2 border-pinky-200 rounded-xl mb-6 overflow-hidden">
-                    <button onclick="toggleBox('check')" class="w-full flex items-center justify-between px-4 py-3 bg-pinky-50 hover:bg-pinky-100 transition-colors text-left">
-                        <span class="font-bold text-gray-700 text-sm">
-                            <i class="fa-solid fa-clipboard-check text-pinky-600 mr-1"></i>
-                            자료 확인 과제 — 이 수치가 맞는지 직접 확인하기
-                        </span>
-                        <i id="check-chevron" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+                <!-- 연습하기 : 셋 중 골라서 -->
+                <h3 class="text-sm font-bold text-gray-700 mb-1">
+                    <i class="fa-solid fa-dumbbell text-pinky-500 mr-1"></i> 개요서를 쓰기 전에 연습하기
+                </h3>
+                <p class="text-xs text-gray-500 mb-3">하나를 골라 눌러 보세요. 여기서 확인하고 찾은 내용은 개요서에 그대로 옮겨 쓸 수 있습니다.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                    <button id="practice-btn-check" onclick="openPractice('check')" class="text-left border-2 border-pinky-200 bg-white hover:border-pinky-400 rounded-xl p-4 transition-colors">
+                        <div class="w-10 h-10 bg-pinky-100 text-pinky-600 rounded-full flex items-center justify-center text-lg mb-2">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                        </div>
+                        <div class="font-bold text-gray-800">자료 확인 과제</div>
+                        <div class="text-xs text-gray-600 mt-1 leading-relaxed">이 수치가 맞는지 기관 자료에서 직접 확인합니다.</div>
                     </button>
-                    <div id="check-body" class="hidden px-4 py-4 bg-white"></div>
+                    <button id="practice-btn-hunt" onclick="openPractice('hunt')" class="text-left border-2 border-butter-200 bg-white hover:border-butter-400 rounded-xl p-4 transition-colors">
+                        <div class="w-10 h-10 bg-butter-100 text-butter-700 rounded-full flex items-center justify-center text-lg mb-2">
+                            <i class="fa-solid fa-compass"></i>
+                        </div>
+                        <div class="font-bold text-gray-800">근거 찾기 연습</div>
+                        <div class="text-xs text-gray-600 mt-1 leading-relaxed">주장을 뒷받침하려면 무엇을 찾아야 할지 정합니다.</div>
+                    </button>
+                    <button id="practice-btn-sim" onclick="openPractice('sim')" class="text-left border-2 border-gray-200 bg-white hover:border-pinky-400 rounded-xl p-4 transition-colors">
+                        <div class="w-10 h-10 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center text-lg mb-2">
+                            <i class="fa-solid fa-sliders"></i>
+                        </div>
+                        <div class="font-bold text-gray-800">정책 시뮬레이터</div>
+                        <div class="text-xs text-gray-600 mt-1 leading-relaxed">변수를 바꿔 결과가 어떻게 달라지는지 봅니다.</div>
+                    </button>
                 </div>
 
-                <!-- 근거 찾기 연습 -->
-                <div class="border-2 border-butter-200 rounded-xl mb-6 overflow-hidden">
-                    <button onclick="toggleBox('hunt')" class="w-full flex items-center justify-between px-4 py-3 bg-butter-50 hover:bg-butter-100 transition-colors text-left">
-                        <span class="font-bold text-gray-700 text-sm">
-                            <i class="fa-solid fa-compass text-butter-600 mr-1"></i>
-                            근거 찾기 연습 — 이 주장을 뒷받침하려면 무엇을 찾아야 할까?
-                        </span>
-                        <i id="hunt-chevron" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
-                    </button>
-                    <div id="hunt-body" class="hidden px-4 py-4 bg-white"></div>
+                <div id="practice-panel" class="hidden mb-6">
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <h4 id="practice-title" class="font-bold text-gray-800"></h4>
+                        <button onclick="closePractice()" class="text-xs font-bold text-gray-500 hover:text-gray-700 px-2 py-1">닫기</button>
+                    </div>
+                    <div class="border-2 border-gray-200 rounded-xl bg-white px-4 py-4">
+                        <div id="check-body" class="hidden"></div>
+                        <div id="hunt-body" class="hidden"></div>
+                        <div id="sim-body" class="hidden"></div>
+                    </div>
                 </div>
 
                 <!-- 자료 찾아보기 -->
@@ -380,38 +405,46 @@
                     <button onclick="toggleRefs()" class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors text-left">
                         <span class="font-bold text-gray-700 text-sm">
                             <i class="fa-solid fa-magnifying-glass-chart text-pinky-500 mr-1"></i>
-                            자료 찾아보기 — 관련 기사 · 통계 · 누리집
+                            자료 찾아보기 — 검색어 · 통계 · 누리집
                         </span>
                         <i id="refs-chevron" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
                     </button>
                     <div id="refs-body" class="hidden px-4 py-4 space-y-5 bg-white"></div>
                 </div>
 
-                <!-- 정책 시뮬레이터 -->
-                <div class="border-2 border-butter-200 rounded-xl mb-6 overflow-hidden">
-                    <button onclick="toggleSim()" class="w-full flex items-center justify-between px-4 py-3 bg-butter-50 hover:bg-butter-100 transition-colors text-left">
-                        <span class="font-bold text-gray-700 text-sm">
-                            <i class="fa-solid fa-sliders text-butter-600 mr-1"></i>
-                            정책 시뮬레이터 — 변수를 바꿔 결과를 확인하기
-                            <span class="hidden sm:inline text-xs font-normal text-gray-500 ml-1">과학적 근거를 그래프로 확인해요</span>
-                        </span>
-                        <i id="sim-chevron" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
-                    </button>
-                    <div id="sim-body" class="hidden px-4 py-4 bg-white"></div>
-                </div>
+                <button onclick="goToWriting()" class="w-full bg-pinky-500 hover:bg-pinky-600 text-white font-bold py-4 rounded-xl shadow-md transition-transform transform hover:-translate-y-0.5">
+                    준비를 마쳤어요. 개요서 작성하러 가기 <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </section>
 
-                <h3 class="text-lg font-bold mb-4">나의 입장은?</h3>
+        <!-- ===================== 2단계-2 : 개요서 작성 ===================== -->
+        <section id="step-2w" class="fade-in hidden">
+            <button onclick="backToPrepare()" class="text-pinky-600 hover:text-pinky-700 font-medium mb-4 flex items-center gap-1 transition-colors">
+                <i class="fa-solid fa-arrow-left"></i> 준비 화면으로 (자료 확인 · 근거 찾기)
+            </button>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-pinky-100 p-6 md:p-8 mb-6">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-1" id="writing-topic-title">주제</h2>
+                <p class="text-sm text-gray-500 mb-6 pb-6 border-b border-gray-100">먼저 입장을 고르고, 논점마다 주장과 근거를 씁니다.</p>
+
+                <h3 class="text-lg font-bold mb-1">1. 나의 입장 고르기</h3>
+                <p class="text-xs text-gray-500 mb-4">입장을 골라야 논점별 작성 칸이 열립니다.</p>
                 <div class="flex flex-col sm:flex-row gap-4 mb-6">
                     <button id="btn-pro" onclick="selectStance('pro')" class="flex-1 py-4 px-6 rounded-xl border-2 border-gray-200 hover:border-butter-400 hover:bg-butter-50 transition-all text-left group">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xl font-bold text-gray-700 group-hover:text-butter-700"><i class="fa-regular fa-thumbs-up mr-2 text-butter-500"></i>찬성합니다</span>
-                            <div class="w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-butter-400 flex items-center justify-center stance-radio"></div>
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-base md:text-lg font-bold text-gray-700 group-hover:text-butter-700">
+                                <i class="fa-regular fa-thumbs-up mr-2 text-butter-500"></i><span id="label-pro">찬성합니다</span>
+                            </span>
+                            <div class="w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-butter-400 flex items-center justify-center stance-radio shrink-0"></div>
                         </div>
                     </button>
                     <button id="btn-con" onclick="selectStance('con')" class="flex-1 py-4 px-6 rounded-xl border-2 border-gray-200 hover:border-pinky-400 hover:bg-pinky-50 transition-all text-left group">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xl font-bold text-gray-700 group-hover:text-pinky-700"><i class="fa-regular fa-thumbs-down mr-2 text-pinky-400"></i>반대합니다</span>
-                            <div class="w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-pinky-400 flex items-center justify-center stance-radio"></div>
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-base md:text-lg font-bold text-gray-700 group-hover:text-pinky-700">
+                                <i class="fa-regular fa-thumbs-down mr-2 text-pinky-400"></i><span id="label-con">반대합니다</span>
+                            </span>
+                            <div class="w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-pinky-400 flex items-center justify-center stance-radio shrink-0"></div>
                         </div>
                     </button>
                 </div>
@@ -421,72 +454,21 @@
                     <!-- 입장별 자료 탐색 안내 -->
                     <div id="stance-tips" class="rounded-xl p-4 mb-4"></div>
 
-
                     <!-- 정확한 작성 안내 -->
                     <div class="bg-white border-2 border-dashed border-pinky-200 rounded-xl p-4 mb-6">
                         <h4 class="font-bold text-pinky-700 text-sm mb-2"><i class="fa-solid fa-pen-ruler mr-1"></i> 정확하게 쓰는 방법</h4>
                         <ol class="text-xs md:text-sm text-gray-600 space-y-1.5 list-decimal list-inside leading-relaxed">
-                            <li><b>완성된 문장</b>으로 씁니다. 자음·모음만 반복하거나(예: ㅂㅂㅂ, ㅇㅇㅇ) 뜻이 없는 글자는 등록되지 않아요.</li>
+                            <li><b>논점마다</b> 주장 한 문장과 근거 한 단락을 씁니다. 세 논점을 모두 채워야 등록됩니다.</li>
                             <li><b>주장</b>은 “~해야 한다 / ~하면 안 된다”처럼 입장이 드러나는 <b>한 문장</b>으로 씁니다.</li>
-                            <li><b>근거</b>에는 <b>숫자·자료 이름·과학 개념</b>을 넣습니다. (예: “2019년 조사에서 79개 지점 중 12개 지점, 156개체만 확인되었다”)</li>
-                            <li>위의 <b>‘자료 찾아보기’</b>에 있는 기사와 통계에서 근거를 찾아 <b>출처와 함께</b> 인용하면 훨씬 설득력이 있어요.</li>
-                            <li><b>주장 2개</b>와 각각을 뒷받침하는 <b>근거 2개</b>를 모두 작성해야 등록됩니다.</li>
-                            <li>욕설·비속어와 개인정보(이름·학교·연락처)는 쓰지 않습니다.</li>
+                            <li><b>근거</b>에는 <b>숫자·자료 이름·기준 연도·과학 개념</b>을 넣습니다.</li>
+                            <li>준비 화면의 <b>자료 확인 과제</b>와 <b>근거 찾기 연습</b>에서 적어 둔 내용을 옮겨 쓰면 좋습니다.</li>
+                            <li>완성된 문장으로 쓰고, 욕설·비속어와 개인정보(이름·학교·연락처)는 쓰지 않습니다.</li>
                         </ol>
                     </div>
 
-                    <!-- 논거 1 -->
-                    <div class="border border-pinky-200 rounded-xl p-4 md:p-5 mb-4 bg-pinky-50/40">
-                        <div class="flex items-center gap-2 mb-3">
-                            <span class="w-6 h-6 rounded-full bg-pinky-500 text-white text-xs font-bold flex items-center justify-center">1</span>
-                            <h3 class="text-base font-bold text-gray-800">첫 번째 주장과 근거</h3>
-                        </div>
-                        <div class="mb-3">
-                            <div class="flex items-end justify-between mb-1.5">
-                                <label for="main-1" class="text-sm font-bold text-gray-700">주장 ①</label>
-                                <span class="text-xs text-gray-400"><span id="count-main-1">0</span>/100자</span>
-                            </div>
-                            <input type="text" id="main-1" maxlength="100"
-                                class="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pinky-300 focus:border-pinky-400 outline-none text-gray-700"
-                                placeholder="예) 백마강 강변 습지는 시설로 대체할 수 없는 기능을 하므로 생태공원으로 지켜야 한다.">
-                        </div>
-                        <div>
-                            <div class="flex items-end justify-between mb-1.5">
-                                <label for="evidence-1" class="text-sm font-bold text-gray-700">근거 ①</label>
-                                <span class="text-xs text-gray-400"><span id="count-evidence-1">0</span>/300자</span>
-                            </div>
-                            <textarea id="evidence-1" maxlength="300"
-                                class="w-full h-28 p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pinky-300 focus:border-pinky-400 outline-none resize-none text-gray-700 leading-relaxed"
-                                placeholder="주장 ①을 뒷받침하는 과학 개념·통계·기관 자료를 기준 연도와 출처와 함께 적어 보세요."></textarea>
-                        </div>
-                    </div>
-
-                    <!-- 논거 2 -->
-                    <div class="border border-butter-200 rounded-xl p-4 md:p-5 mb-4 bg-butter-50/50">
-                        <div class="flex items-center gap-2 mb-3">
-                            <span class="w-6 h-6 rounded-full bg-butter-500 text-white text-xs font-bold flex items-center justify-center">2</span>
-                            <h3 class="text-base font-bold text-gray-800">두 번째 주장과 근거</h3>
-                        </div>
-                        <div class="mb-3">
-                            <div class="flex items-end justify-between mb-1.5">
-                                <label for="main-2" class="text-sm font-bold text-gray-700">주장 ②</label>
-                                <span class="text-xs text-gray-400"><span id="count-main-2">0</span>/100자</span>
-                            </div>
-                            <input type="text" id="main-2" maxlength="100"
-                                class="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-butter-300 focus:border-butter-400 outline-none text-gray-700"
-                                placeholder="예) 생태공원은 방문 시기를 사계절로 분산시켜 지역 경제에도 도움이 된다.">
-                        </div>
-                        <div>
-                            <div class="flex items-end justify-between mb-1.5">
-                                <label for="evidence-2" class="text-sm font-bold text-gray-700">근거 ②</label>
-                                <span class="text-xs text-gray-400"><span id="count-evidence-2">0</span>/300자</span>
-                            </div>
-                            <textarea id="evidence-2" maxlength="300"
-                                class="w-full h-28 p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-butter-300 focus:border-butter-400 outline-none resize-none text-gray-700 leading-relaxed"
-                                placeholder="주장 ②를 뒷받침하는 과학 개념·통계·기관 자료를 기준 연도와 출처와 함께 적어 보세요."></textarea>
-                        </div>
-                    </div>
-
+                    <h3 class="text-lg font-bold mb-1">2. 논점별 주장과 근거</h3>
+                    <p class="text-xs text-gray-500 mb-4">논점마다 내 입장에서 할 말을 씁니다. 논점 설명은 각 칸 위에 함께 보여 줍니다.</p>
+                    <div id="argument-blocks" class="space-y-4 mb-4"></div>
                     <!-- 자기 점검 체크리스트 -->
                     <div class="border-2 border-pinky-200 rounded-xl p-4 mb-4 bg-white">
                         <div class="flex items-center justify-between gap-2 mb-1">
@@ -513,16 +495,12 @@
 
                     <!-- 맞춤법 · 띄어쓰기 도우미 -->
                     <div class="border border-gray-200 rounded-xl p-4 mb-4 bg-white">
-                        <div class="flex items-center justify-between gap-2 mb-2">
-                            <h4 class="font-bold text-gray-700 text-sm">
-                                <i class="fa-solid fa-spell-check text-butter-600 mr-1"></i> 맞춤법 · 띄어쓰기 도우미
-                            </h4>
-                            <button onclick="runSpellCheck('write')" class="bg-butter-500 hover:bg-butter-600 text-white font-bold text-xs px-3 py-2 rounded-lg transition-colors">
-                                검사하기
-                            </button>
-                        </div>
+                        <h4 class="font-bold text-gray-700 text-sm mb-2">
+                            <i class="fa-solid fa-spell-check text-butter-600 mr-1"></i> 맞춤법 · 띄어쓰기 도우미
+                            <span class="font-normal text-xs text-gray-400 ml-1">쓰는 동안 자동으로 검사해요</span>
+                        </h4>
                         <div id="spell-result" class="text-xs text-gray-500 leading-relaxed">
-                            자주 틀리는 표현을 규칙으로 찾아 줍니다. 등록할 때도 자동으로 한 번 더 검사합니다.
+                            글을 쓰기 시작하면 자주 틀리는 표현을 찾아 알려 줍니다.
                         </div>
                     </div>
 
@@ -572,20 +550,7 @@
                         <div class="w-10 h-10 bg-pinky-100 rounded-full flex items-center justify-center text-xl">🌱</div>
                     </div>
 
-                    <div class="space-y-3 flex-grow">
-                        <div class="bg-pinky-50 p-4 rounded-xl border border-pinky-100">
-                            <span class="text-xs font-bold text-pinky-600 mb-1 block">주장 ①</span>
-                            <p id="result-main-1" class="text-gray-800 font-bold leading-snug mb-2"></p>
-                            <span class="text-xs font-bold text-gray-500 mb-1 block">근거 ①</span>
-                            <p id="result-evidence-1" class="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap"></p>
-                        </div>
-                        <div class="bg-butter-50 p-4 rounded-xl border border-butter-100">
-                            <span class="text-xs font-bold text-butter-700 mb-1 block">주장 ②</span>
-                            <p id="result-main-2" class="text-gray-800 font-bold leading-snug mb-2"></p>
-                            <span class="text-xs font-bold text-gray-500 mb-1 block">근거 ②</span>
-                            <p id="result-evidence-2" class="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap"></p>
-                        </div>
-                    </div>
+                    <div id="result-arguments" class="space-y-3 flex-grow"></div>
 
                     <div class="mt-4 flex flex-wrap gap-2">
                         <button onclick="copyMyText()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
@@ -713,7 +678,7 @@
             <!-- 잠금 화면 -->
             <div id="admin-lock" class="p-5">
                 <label for="admin-pass" class="text-sm font-bold text-gray-700 block mb-2">관리자 암호</label>
-                <input type="password" id="admin-pass" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-pinky-300 mb-2" placeholder="처음 암호는 teacher 입니다">
+                <input type="password" id="admin-pass" autocomplete="off" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-pinky-300 mb-2" placeholder="암호를 입력하세요">
                 <button onclick="unlockAdmin()" class="w-full bg-pinky-500 hover:bg-pinky-600 text-white font-bold py-2.5 rounded-xl transition-colors">들어가기</button>
                 <p id="admin-lock-msg" class="text-xs text-pinky-600 mt-2 hidden">암호가 맞지 않습니다.</p>
                 <p class="text-[11px] text-gray-400 mt-3">이 암호는 학생의 접근을 잠깐 막는 용도이며 보안 기능이 아닙니다. 개인정보는 절대 입력하지 마세요.</p>
@@ -764,7 +729,8 @@
                     <h4 class="font-bold text-gray-800 text-sm mb-1"><i class="fa-solid fa-file-arrow-up text-pinky-500 mr-1"></i> 읽기 자료 추가</h4>
                     <p class="text-xs text-gray-500 mb-3">
                         기본 글 4편에 더해 <b id="adm-slot-text">최대 3편</b>까지 올릴 수 있습니다(모두 합쳐 7편).
-                        <b>.txt · .md</b> 파일을 올리거나 본문을 직접 붙여 넣으세요. 첫 줄이 제목이 됩니다.
+                        <b>.txt · .md · .docx · .pdf</b> 파일을 올리거나 본문을 직접 붙여 넣으세요. 첫 줄이 제목이 됩니다.
+                        올린 글은 <b>맞춤법과 바른 말을 자동으로 검사</b>합니다.
                     </p>
                     <div class="space-y-2">
                         <input type="text" id="adm-r-title" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="글 제목 (비우면 본문 첫 줄을 제목으로 씁니다)">
@@ -774,12 +740,49 @@
                         </div>
                         <textarea id="adm-r-body" rows="5" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200 leading-relaxed" placeholder="여기에 본문을 붙여 넣거나, 아래에서 파일을 고르세요."></textarea>
                         <div class="flex flex-col sm:flex-row gap-2">
-                            <input type="file" id="adm-r-file" accept=".txt,.md,text/plain,text/markdown" onchange="readUploadFile()" class="flex-1 text-xs text-gray-600 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700">
+                            <input type="file" id="adm-r-file" accept=".txt,.md,.docx,.pdf,text/plain,text/markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onchange="readUploadFile()" class="flex-1 text-xs text-gray-600 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700">
                             <button onclick="saveUploadedReading()" class="bg-pinky-500 hover:bg-pinky-600 text-white font-bold text-sm px-4 py-2.5 rounded-xl transition-colors">글 추가하기</button>
                         </div>
                         <p id="adm-r-msg" class="text-xs text-gray-500"></p>
                     </div>
                     <div id="adm-r-list" class="mt-3 space-y-2"></div>
+                </div>
+
+                <!-- 개념 추가 -->
+                <div class="border-t border-gray-100 pt-5">
+                    <h4 class="font-bold text-gray-800 text-sm mb-1"><i class="fa-solid fa-lightbulb text-pinky-500 mr-1"></i> 개념 추가</h4>
+                    <p class="text-xs text-gray-500 mb-3">수업에서 더 다룰 개념을 넣으면 학생의 개념 정리 화면에 함께 나오고, <b>‘모두 확인’ 조건에도 포함</b>됩니다.</p>
+                    <div class="space-y-2">
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="text" id="adm-c-term" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="개념 이름 (예: 남획)">
+                            <select id="adm-c-group" class="p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200">
+                                <option value="bio">생물다양성이란</option>
+                                <option value="eco">생태계는 어떻게 유지되나</option>
+                                <option value="threat">생물다양성이 줄어드는 까닭</option>
+                                <option value="data">자료를 바르게 읽기</option>
+                            </select>
+                        </div>
+                        <input type="text" id="adm-c-short" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="한 줄 설명 (카드 앞면에 보입니다)">
+                        <textarea id="adm-c-desc" rows="3" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200 leading-relaxed" placeholder="자세한 설명 (교과서 서술을 기준으로 써 주세요)"></textarea>
+                        <input type="text" id="adm-c-find" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="글에서 찾기 — 어느 글의 어느 대목에서 볼 수 있는지 (선택)">
+                        <input type="text" id="adm-c-check" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="이렇게 오해하기 쉬워요 — 오개념 바로잡기 (선택)">
+                        <button onclick="saveConcept()" class="w-full bg-pinky-500 hover:bg-pinky-600 text-white font-bold text-sm py-2.5 rounded-xl transition-colors">개념 추가하기</button>
+                    </div>
+                    <div id="adm-c-list" class="mt-3 space-y-2"></div>
+                </div>
+
+                <!-- 학습 기록 -->
+                <div class="border-t border-gray-100 pt-5">
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <h4 class="font-bold text-gray-800 text-sm"><i class="fa-solid fa-clipboard-list text-butter-600 mr-1"></i> 학생 학습 기록</h4>
+                        <div class="flex gap-2">
+                            <button onclick="renderRecords()" class="text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1.5 rounded-lg">새로 고침</button>
+                            <button onclick="exportRecords()" class="text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1.5 rounded-lg">CSV 내려받기</button>
+                            <button onclick="clearRecords()" class="text-xs font-bold bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 px-2.5 py-1.5 rounded-lg">기록 지우기</button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-3">개념 확인 문제는 <b>틀려서 다시 고른 것까지 모두</b> 남습니다. 문장 분석 연습의 채점 결과도 함께 쌓입니다.</p>
+                    <div id="adm-records"></div>
                 </div>
 
                 <!-- 저장 · 백업 -->
@@ -797,10 +800,11 @@
                         <input type="password" id="adm-newpass" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="새 관리자 암호 (바꾸려면 입력)">
                         <button onclick="changeAdminPass()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-semibold text-sm px-4 py-2.5 rounded-xl">암호 바꾸기</button>
                     </div>
-                    <button onclick="checkAllContentSpelling()" class="w-full mt-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-semibold text-sm py-2.5 rounded-xl">
-                        <i class="fa-solid fa-spell-check mr-1"></i> 앱에 실린 모든 글 맞춤법 점검
-                    </button>
-                    <div id="adm-spell-result" class="text-xs text-gray-600 mt-2 leading-relaxed"></div>
+                    <div class="mt-4 border-t border-gray-100 pt-4">
+                        <h4 class="font-bold text-gray-800 text-sm mb-1"><i class="fa-solid fa-spell-check text-butter-600 mr-1"></i> 맞춤법 자동 점검 결과</h4>
+                        <p class="text-xs text-gray-500 mb-2">앱에 실린 모든 글(개념·읽기 자료·토론 주제·올린 자료)을 <b>앱이 자동으로</b> 점검한 결과입니다.</p>
+                        <div id="adm-spell-result" class="text-xs text-gray-600 leading-relaxed"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1012,12 +1016,16 @@
     let mildConfirmed = false;
     let myNickname = '';
 
+    /* 논점 3개 × (주장 + 근거) */
     const FIELDS = [
-        { id: 'main-1', label: '주장 ①', min: 8 },
-        { id: 'evidence-1', label: '근거 ①', min: 20 },
-        { id: 'main-2', label: '주장 ②', min: 8 },
-        { id: 'evidence-2', label: '근거 ②', min: 20 }
+        { id: 'main-1', label: '논점 1 주장', min: 8 },
+        { id: 'evidence-1', label: '논점 1 근거', min: 20 },
+        { id: 'main-2', label: '논점 2 주장', min: 8 },
+        { id: 'evidence-2', label: '논점 2 근거', min: 20 },
+        { id: 'main-3', label: '논점 3 주장', min: 8 },
+        { id: 'evidence-3', label: '논점 3 근거', min: 20 }
     ];
+    const ISSUE_COUNT = 3;
 
     const step1 = document.getElementById('step-1');
     const step2 = document.getElementById('step-2');
@@ -1049,9 +1057,9 @@
         el('nickname-badge').innerText = myNickname;
 
         loadAdmin();
+        loadRecords();
         renderConceptTabs();
         renderConcepts(CONCEPT_GROUPS[0].key);
-        renderQuiz();
         renderReadingCards();
         renderSourceLibrary();
 
@@ -1071,10 +1079,6 @@
                     '토론 참여하기 <i class="fa-solid fa-arrow-right"></i>' +
                 '</div>';
             cardsContainer.appendChild(card);
-        });
-
-        FIELDS.forEach(function (f) {
-            el(f.id).addEventListener('input', onWriting);
         });
 
         renderTimerPresets();
@@ -1161,18 +1165,19 @@
         renderDataCheck(currentTopic);
         renderEvidenceHunt(currentTopic);
         renderRefs(currentTopic);
-        ['refs', 'check', 'hunt'].forEach(function (k) {
-            el(k + '-body').classList.add('hidden');
-            el(k + '-chevron').className = 'fa-solid fa-chevron-down text-gray-400 text-xs';
-        });
+        el('refs-body').classList.add('hidden');
+        el('refs-chevron').className = 'fa-solid fa-chevron-down text-gray-400 text-xs';
+        closePractice();
 
         renderSimulator(currentTopic);
-        el('sim-body').classList.add('hidden');
-        el('sim-chevron').className = 'fa-solid fa-chevron-down text-gray-400 text-xs';
+
+        el('writing-topic-title').innerText = currentTopic.title;
+        el('label-pro').innerText = currentTopic.proLabel || '찬성합니다';
+        el('label-con').innerText = currentTopic.conLabel || '반대합니다';
 
         selectedStance = null;
         mildConfirmed = false;
-        FIELDS.forEach(function (f) { el(f.id).value = ''; });
+        renderArgumentBlocks(null);
         el('sc-manual-1').checked = false;
         el('sc-manual-2').checked = false;
         writingTimerStarted = false;
@@ -1183,18 +1188,108 @@
         resetStanceButtons();
         el('writing-area').classList.add('hidden');
 
-        el('spell-result').innerHTML = '자주 틀리는 표현을 규칙으로 찾아 줍니다. 등록할 때도 자동으로 한 번 더 검사합니다.';
+        el('spell-result').innerHTML = '글을 쓰기 시작하면 자주 틀리는 표현을 찾아 알려 줍니다.';
         el('spell-result').className = 'text-xs text-gray-500 leading-relaxed';
 
-        step1.classList.add('hidden');
+        hideAllSections();
         step2.classList.remove('hidden');
         window.scrollTo(0, 0);
     }
 
     function goBackToStep1() {
-        step2.classList.add('hidden');
+        hideAllSections();
         step1.classList.remove('hidden');
         window.scrollTo(0, 0);
+    }
+
+    /* 준비 화면 ↔ 작성 화면 */
+    function goToWriting() {
+        hideAllSections();
+        el('step-2w').classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    function backToPrepare() {
+        hideAllSections();
+        step2.classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    /* 준비 화면의 연습 세 가지 */
+    const PRACTICE_TITLES = {
+        check: '자료 확인 과제 — 이 수치가 맞는지 직접 확인하기',
+        hunt: '근거 찾기 연습 — 이 주장을 뒷받침하려면 무엇을 찾아야 할까?',
+        sim: '정책 시뮬레이터 — 변수를 바꿔 결과를 확인하기'
+    };
+
+    function openPractice(which) {
+        ['check', 'hunt', 'sim'].forEach(function (k) {
+            el(k + '-body').classList.toggle('hidden', k !== which);
+            const btn = el('practice-btn-' + k);
+            if (btn) btn.classList.toggle('ring-2', k === which);
+            if (btn) btn.classList.toggle('ring-pinky-300', k === which);
+        });
+        el('practice-title').innerText = PRACTICE_TITLES[which];
+        el('practice-panel').classList.remove('hidden');
+        if (which === 'sim') runSim();
+        el('practice-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function closePractice() {
+        const panel = el('practice-panel');
+        if (panel) panel.classList.add('hidden');
+        ['check', 'hunt', 'sim'].forEach(function (k) {
+            const btn = el('practice-btn-' + k);
+            if (btn) { btn.classList.remove('ring-2'); btn.classList.remove('ring-pinky-300'); }
+        });
+    }
+
+    /* 논점별 주장·근거 입력 칸 */
+    function renderArgumentBlocks(stance) {
+        const box = el('argument-blocks');
+        if (!box) return;
+        const issues = (currentTopic && currentTopic.issues) || [];
+        const tone = stance === 'con' ? 'pinky' : 'butter';
+
+        box.innerHTML = issues.slice(0, ISSUE_COUNT).map(function (it, k) {
+            const n = k + 1;
+            const side = stance === 'con' ? it.con : it.pro;
+            const sideLabel = stance === 'con' ? (currentTopic.conLabel || '반대') : (currentTopic.proLabel || '찬성');
+            return '<div class="border border-' + tone + '-200 rounded-xl p-4 md:p-5 bg-' + tone + '-50/40">' +
+                '<div class="flex items-center gap-2 mb-1">' +
+                    '<span class="w-6 h-6 rounded-full bg-' + tone + '-500 text-white text-xs font-bold flex items-center justify-center">' + n + '</span>' +
+                    '<h4 class="text-base font-bold text-gray-800">' + escapeHtml(it.name) + '</h4>' +
+                '</div>' +
+                '<p class="text-xs text-gray-600 mb-2 leading-relaxed">' + escapeHtml(it.question) + '</p>' +
+                (side ? '<p class="text-[11px] text-gray-600 bg-white border border-gray-200 rounded-lg p-2 mb-3 leading-relaxed">' +
+                    '<b>' + escapeHtml(sideLabel) + ' 쪽 관점</b> — ' + escapeHtml(side) + '</p>' : '') +
+                '<div class="mb-3">' +
+                    '<div class="flex items-end justify-between mb-1.5">' +
+                        '<label for="main-' + n + '" class="text-sm font-bold text-gray-700">논점 ' + n + ' 주장</label>' +
+                        '<span class="text-xs text-gray-400"><span id="count-main-' + n + '">0</span>/100자</span>' +
+                    '</div>' +
+                    '<input type="text" id="main-' + n + '" maxlength="100" ' +
+                        'class="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pinky-300 focus:border-pinky-400 outline-none text-gray-700" ' +
+                        'placeholder="이 논점에서 내 입장을 한 문장으로 씁니다.">' +
+                '</div>' +
+                '<div>' +
+                    '<div class="flex items-end justify-between mb-1.5">' +
+                        '<label for="evidence-' + n + '" class="text-sm font-bold text-gray-700">논점 ' + n + ' 근거</label>' +
+                        '<span class="text-xs text-gray-400"><span id="count-evidence-' + n + '">0</span>/300자</span>' +
+                    '</div>' +
+                    '<textarea id="evidence-' + n + '" maxlength="300" ' +
+                        'class="w-full h-28 p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pinky-300 focus:border-pinky-400 outline-none resize-none text-gray-700 leading-relaxed" ' +
+                        'placeholder="확인한 자료의 이름·기관·기준 연도와 수치, 그리고 과학 개념을 넣어 씁니다."></textarea>' +
+                '</div>' +
+                '<div class="text-[11px] text-gray-500 mt-2">이 논점에서 확인할 자료: ' + escapeHtml((it.check || []).join(' · ')) + '</div>' +
+            '</div>';
+        }).join('');
+
+        FIELDS.forEach(function (f) {
+            const node = el(f.id);
+            if (node) node.addEventListener('input', onWriting);
+        });
+        updateCounters();
     }
 
     /* --- 논점 3분류 --- */
@@ -1333,17 +1428,30 @@
         pushToEvidence(text);
     }
 
-    /* 근거 칸에 문장을 넣는 공통 함수 */
+    /* 근거 칸에 문장을 넣는 공통 함수 — 비어 있는 첫 논점 칸에 들어간다 */
     function pushToEvidence(text) {
-        const target = el('evidence-1').value.trim() === '' ? el('evidence-1') : el('evidence-2');
+        if (!selectedStance) {
+            copyToClipboard(text);
+            showToast('복사했어요. 개요서 작성 화면에서 입장을 고르면 근거 칸에 바로 넣을 수 있어요.', 'success');
+            return;
+        }
+        let target = null, no = 0;
+        for (let i = 1; i <= ISSUE_COUNT; i++) {
+            const node = el('evidence-' + i);
+            if (node && node.value.trim() === '') { target = node; no = i; break; }
+        }
+        if (!target) { target = el('evidence-' + ISSUE_COUNT); no = ISSUE_COUNT; }
+        if (!target) { copyToClipboard(text); showToast('복사했어요.', 'success'); return; }
+
         const current = target.value.trim();
         let next = current === '' ? text : current + ' ' + text;
         if (next.length > 300) next = next.slice(0, 300);
         target.value = next;
         onWriting();
+        goToWriting();
         target.focus();
         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        showToast('근거 ' + (target.id === 'evidence-1' ? '①' : '②') + ' 칸에 넣었어요.', 'success');
+        showToast('논점 ' + no + ' 근거 칸에 넣었어요.', 'success');
     }
 
     /* 접었다 펴는 상자 (자료 확인 · 근거 찾기) */
@@ -1375,7 +1483,14 @@
             r.innerHTML = '<div class="w-2.5 h-2.5 bg-pinky-500 rounded-full"></div>';
         }
 
+        /* 입장을 바꿔도 이미 쓴 내용은 지키기 */
+        const kept = {};
+        FIELDS.forEach(function (f) { const n = el(f.id); if (n) kept[f.id] = n.value; });
+        renderArgumentBlocks(stance);
+        FIELDS.forEach(function (f) { const n = el(f.id); if (n && kept[f.id]) n.value = kept[f.id]; });
+
         renderStanceTips(stance);
+        updateCounters();
         updateSelfCheck();
 
         el('writing-area').classList.remove('hidden');
@@ -1890,23 +2005,7 @@
     /* 시뮬레이션 결과 문장을 근거 칸에 넣어 준다 */
     function useSimEvidence() {
         if (!simLast) return;
-        const text = simLast.evidence;
-
-        if (!selectedStance) {
-            copyToClipboard(text);
-            showToast('결과 문장을 복사했어요. 입장을 고르면 근거 칸에 바로 넣을 수 있어요.', 'info');
-            return;
-        }
-
-        const target = el('evidence-1').value.trim() === '' ? el('evidence-1') : el('evidence-2');
-        const current = target.value.trim();
-        let next = current === '' ? text : current + ' ' + text;
-        if (next.length > 300) next = next.slice(0, 300);
-        target.value = next;
-        onWriting();
-        target.focus();
-        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        showToast('근거 ' + (target.id === 'evidence-1' ? '①' : '②') + ' 칸에 넣었어요. 실제 통계·기사도 함께 인용하세요!', 'success');
+        pushToEvidence(simLast.evidence);
     }
 
     /* =========================================================
@@ -2011,11 +2110,15 @@
             '[토론 개요서 - ' + currentTopic.title + ']\n' +
             '지역/주제: ' + currentTopic.region + '\n' +
             '작성자 별명: ' + myNickname + '\n' +
-            '입장: ' + (selectedStance === 'pro' ? '찬성' : '반대') + '\n\n' +
-            '주장 ①: ' + el('result-main-1').innerText + '\n' +
-            '근거 ①: ' + el('result-evidence-1').innerText + '\n\n' +
-            '주장 ②: ' + el('result-main-2').innerText + '\n' +
-            '근거 ②: ' + el('result-evidence-2').innerText;
+            '입장: ' + (selectedStance === 'pro' ? currentTopic.proLabel : currentTopic.conLabel);
+
+        const issues = currentTopic.issues || [];
+        for (let i = 1; i <= ISSUE_COUNT; i++) {
+            const it = issues[i - 1] || { no: '논점 ' + i, name: '' };
+            text += '\n\n[' + (it.no || ('논점 ' + i)) + '. ' + (it.name || '') + ']\n' +
+                '주장: ' + el('main-' + i).value.trim() + '\n' +
+                '근거: ' + el('evidence-' + i).value.trim();
+        }
 
         const answered = crossList.filter(function (item, i) {
             return (crossAnswers[i] || '').trim() !== '';
@@ -2138,12 +2241,11 @@
         const box = el('selfcheck-auto');
         if (!box) return;
 
-        const m1 = el('main-1').value.trim();
-        const m2 = el('main-2').value.trim();
-        const e1 = el('evidence-1').value.trim();
-        const e2 = el('evidence-2').value.trim();
-        const ev = e1 + ' ' + e2;
-        const written = m1 || m2 || e1 || e2;
+        function val(id) { const n = el(id); return n ? n.value.trim() : ''; }
+        const claims = [], evids = [];
+        for (let i = 1; i <= ISSUE_COUNT; i++) { claims.push(val('main-' + i)); evids.push(val('evidence-' + i)); }
+        const ev = evids.join(' ');
+        const written = claims.join('') + ev !== '';
 
         /* 어느 칸이 비었는지 이름으로 알려 주기 위한 도우미 */
         function missing(pairs) {
@@ -2152,19 +2254,16 @@
             return out;
         }
 
-        const claimMiss = missing([
-            { ok: m1 && hasAny(m1, STANCE_MARKS), name: '주장 ①' },
-            { ok: m2 && hasAny(m2, STANCE_MARKS), name: '주장 ②' }
-        ]);
-        const numberMiss = missing([
-            { ok: /\d/.test(e1), name: '근거 ①' },
-            { ok: /\d/.test(e2), name: '근거 ②' }
-        ]);
+        const claimMiss = missing(claims.map(function (m, i) {
+            return { ok: m && hasAny(m, STANCE_MARKS), name: '논점 ' + (i + 1) + ' 주장' };
+        }));
+        const numberMiss = missing(evids.map(function (e, i) {
+            return { ok: /\d/.test(e), name: '논점 ' + (i + 1) + ' 근거' };
+        }));
         const srcList = sourceWords();
-        const sourceMiss = missing([
-            { ok: hasAny(e1, srcList), name: '근거 ①' },
-            { ok: hasAny(e2, srcList), name: '근거 ②' }
-        ]);
+        const sourceMiss = missing(evids.map(function (e, i) {
+            return { ok: hasAny(e, srcList), name: '논점 ' + (i + 1) + ' 근거' };
+        }));
         const terms = SCIENCE_TERMS[currentTopic.id] || [];
 
         const items = [
@@ -2178,13 +2277,13 @@
                 ok: numberMiss.length === 0,
                 label: '근거에 <b>숫자</b>가 들어 있다',
                 helpOk: '개체 수·연도·비율 같은 숫자가 들어갔어요.',
-                helpNo: numberMiss.join('·') + '에 숫자가 없어요. 위 ‘핵심 통계’의 개체 수나 연도를 넣어 보세요.'
+                helpNo: numberMiss.join('·') + '에 숫자가 없어요. 확인한 자료의 값이나 기준 연도를 넣어 보세요.'
             },
             {
                 ok: sourceMiss.length === 0,
                 label: '근거에 <b>자료 이름이나 출처</b>가 밝혀져 있다',
                 helpOk: '어디서 가져온 자료인지 읽는 사람이 알 수 있어요.',
-                helpNo: sourceMiss.join('·') + '에 출처가 없어요. ‘자료 찾아보기’의 매체 이름과 날짜를 함께 적으세요. ' +
+                helpNo: sourceMiss.join('·') + '에 출처가 없어요. 기관 이름과 기준 연도를 함께 적으세요. ' +
                         '시뮬레이터 결과만 적었다면 실제 기사·통계를 하나 더 붙여야 해요.'
             },
             {
@@ -2501,10 +2600,11 @@
        11. 작성 중 실시간 검사
        ========================================================= */
     function updateCounters() {
-        el('count-main-1').innerText = el('main-1').value.length;
-        el('count-evidence-1').innerText = el('evidence-1').value.length;
-        el('count-main-2').innerText = el('main-2').value.length;
-        el('count-evidence-2').innerText = el('evidence-2').value.length;
+        FIELDS.forEach(function (f) {
+            const node = el(f.id);
+            const counter = el('count-' + f.id);
+            if (node && counter) counter.innerText = node.value.length;
+        });
     }
 
     function allText() {
@@ -2520,7 +2620,12 @@
         const result = BadWordFilter.check(allText());
         if (result.clean) hideFilterPanel();
         else renderFilterPanel(result, false);
+
+        /* 맞춤법은 앱이 자동으로 검사한다 (타이핑이 멈춘 뒤) */
+        clearTimeout(spellTimer);
+        spellTimer = setTimeout(function () { runSpellCheck(); }, 700);
     }
+    let spellTimer = null;
 
     function hideFilterPanel() {
         filterPanel.classList.add('hidden');
@@ -2666,10 +2771,7 @@
 
         el('result-my-stance').innerHTML = stanceLabel;
         el('result-my-nickname').innerText = myNickname;
-        el('result-main-1').innerText = el('main-1').value.trim();
-        el('result-evidence-1').innerText = el('evidence-1').value.trim();
-        el('result-main-2').innerText = el('main-2').value.trim();
-        el('result-evidence-2').innerText = el('evidence-2').value.trim();
+        renderResultArguments();
 
         renderCrossQuestions(selectedStance);
         renderRubricForStudent();
@@ -2684,6 +2786,25 @@
         showToast(spell > 0
             ? '등록했습니다. 맞춤법에서 고칠 곳 ' + spell + '군데가 보여요.'
             : '성공적으로 등록되었습니다!', 'success');
+    }
+
+    /* 결과 화면의 논점별 주장·근거 */
+    function renderResultArguments() {
+        const issues = (currentTopic.issues || []);
+        let html = '';
+        for (let i = 1; i <= ISSUE_COUNT; i++) {
+            const it = issues[i - 1] || { name: '논점 ' + i };
+            const tone = i === 2 ? 'butter' : 'pinky';
+            html +=
+                '<div class="bg-' + tone + '-50 p-4 rounded-xl border border-' + tone + '-100">' +
+                    '<div class="text-[11px] font-bold text-' + tone + '-700 mb-1">' + escapeHtml(it.name) + '</div>' +
+                    '<span class="text-xs font-bold text-gray-500 mb-1 block">주장</span>' +
+                    '<p class="text-gray-800 font-bold leading-snug mb-2">' + escapeHtml(el('main-' + i).value.trim()) + '</p>' +
+                    '<span class="text-xs font-bold text-gray-500 mb-1 block">근거</span>' +
+                    '<p class="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">' + escapeHtml(el('evidence-' + i).value.trim()) + '</p>' +
+                '</div>';
+        }
+        el('result-arguments').innerHTML = html;
     }
 
     function renderFriend(side) {
@@ -2966,7 +3087,7 @@
     /* =========================================================
        15. 화면 이동 (개념 정리 · 글 읽기 · 토론 개요서)
        ========================================================= */
-    const SECTIONS = ['home', 'sec-concept', 'sec-read', 'step-1', 'step-2', 'step-3'];
+    const SECTIONS = ['home', 'sec-concept', 'sec-read', 'step-1', 'step-2', 'step-2w', 'step-3'];
 
     function hideAllSections() {
         SECTIONS.forEach(function (id) {
@@ -3011,10 +3132,11 @@
     ];
 
     let adminData = {
-        pass: 'teacher',
+        pass: '1111',
         standards: { all: '', concept: '', read: '', debate: '' },
         rubric: [],
-        readings: []
+        readings: [],
+        concepts: []
     };
 
     function loadAdmin() {
@@ -3026,6 +3148,7 @@
                 if (!adminData.standards) adminData.standards = { all: '', concept: '', read: '', debate: '' };
                 if (!Array.isArray(adminData.rubric)) adminData.rubric = [];
                 if (!Array.isArray(adminData.readings)) adminData.readings = [];
+                if (!Array.isArray(adminData.concepts)) adminData.concepts = [];
             }
         } catch (e) { /* 저장값이 깨졌으면 기본값으로 시작 */ }
         showStandard('all');
@@ -3098,6 +3221,185 @@
         el('adm-std-debate').value = s.debate || '';
         renderRubricRows();
         renderAdminReadings();
+        renderAdminConcepts();
+        renderRecords();
+        checkAllContentSpelling();
+    }
+
+    /* --- 개념 추가 --- */
+    function saveConcept() {
+        const term = el('adm-c-term').value.trim();
+        const desc = el('adm-c-desc').value.trim();
+        if (term === '' || desc.length < 10) {
+            showToast('개념 이름과 설명(10자 이상)을 입력하세요.', 'error');
+            return;
+        }
+        const bad = BadWordFilter.check(term + ' ' + desc);
+        if (bad.severe.length > 0 || bad.pii.length > 0) {
+            showToast('욕설 또는 개인정보로 보이는 표현이 있어 추가하지 않았습니다.', 'error');
+            return;
+        }
+        adminData.concepts = adminData.concepts || [];
+        adminData.concepts.push({
+            term: term,
+            group: el('adm-c-group').value,
+            short: el('adm-c-short').value.trim(),
+            desc: desc,
+            find: el('adm-c-find').value.trim(),
+            check: el('adm-c-check').value.trim()
+        });
+        if (persistAdmin()) {
+            ['adm-c-term', 'adm-c-short', 'adm-c-desc', 'adm-c-find', 'adm-c-check'].forEach(function (id) { el(id).value = ''; });
+            renderAdminConcepts();
+            renderConcepts(conceptGroup);
+            showToast('개념을 추가했습니다.', 'success');
+        }
+    }
+
+    function renderAdminConcepts() {
+        const box = el('adm-c-list');
+        const list = adminData.concepts || [];
+        if (list.length === 0) {
+            box.innerHTML = '<p class="text-xs text-gray-400">추가한 개념이 없습니다. (기본 개념 ' + CONCEPTS.length + '개 제공 중)</p>';
+            return;
+        }
+        box.innerHTML = list.map(function (c, i) {
+            return '<div class="flex items-center justify-between gap-2 border border-gray-200 rounded-lg px-3 py-2">' +
+                '<div class="min-w-0"><div class="text-sm font-bold text-gray-800 truncate">' + escapeHtml(c.term) + '</div>' +
+                '<div class="text-[11px] text-gray-500 truncate">' + escapeHtml(c.short || c.desc.slice(0, 40)) + '</div></div>' +
+                '<button onclick="removeConcept(' + i + ')" class="text-gray-400 hover:text-pinky-600 px-2" aria-label="삭제"><i class="fa-solid fa-trash"></i></button>' +
+            '</div>';
+        }).join('');
+    }
+
+    function removeConcept(i) {
+        adminData.concepts.splice(i, 1);
+        persistAdmin();
+        renderAdminConcepts();
+        renderConcepts(conceptGroup);
+    }
+
+    /* --- 학습 기록 보기 --- */
+    function renderRecords() {
+        const box = el('adm-records');
+        if (!box) return;
+        if (records.quiz.length === 0 && records.analysis.length === 0) {
+            box.innerHTML = '<p class="text-xs text-gray-400">아직 기록이 없습니다. 학생이 문제를 풀거나 문장 분석을 채점하면 여기에 쌓입니다.</p>';
+            return;
+        }
+
+        /* 별명별 요약 */
+        const byNick = {};
+        records.quiz.forEach(function (r) {
+            const k = r.nick || '(이름 없음)';
+            if (!byNick[k]) byNick[k] = { tries: 0, solved: 0, wrong: 0, first: 0 };
+            byNick[k].tries++;
+            if (r.correct) { byNick[k].solved++; if (r.attempt === 1) byNick[k].first++; }
+            else byNick[k].wrong++;
+        });
+
+        let html = '<div class="overflow-x-auto mb-3"><table class="w-full text-xs border-collapse">' +
+            '<thead><tr class="bg-gray-50">' +
+                '<th class="border border-gray-200 p-2 text-left">별명</th>' +
+                '<th class="border border-gray-200 p-2">시도</th>' +
+                '<th class="border border-gray-200 p-2">맞힘</th>' +
+                '<th class="border border-gray-200 p-2">틀림</th>' +
+                '<th class="border border-gray-200 p-2">한 번에 맞힘</th>' +
+            '</tr></thead><tbody>';
+        Object.keys(byNick).forEach(function (k) {
+            const v = byNick[k];
+            html += '<tr>' +
+                '<td class="border border-gray-200 p-2 font-bold text-gray-800">' + escapeHtml(k) + '</td>' +
+                '<td class="border border-gray-200 p-2 text-center">' + v.tries + '</td>' +
+                '<td class="border border-gray-200 p-2 text-center text-emerald-700">' + v.solved + '</td>' +
+                '<td class="border border-gray-200 p-2 text-center text-rose-700">' + v.wrong + '</td>' +
+                '<td class="border border-gray-200 p-2 text-center">' + v.first + '</td>' +
+            '</tr>';
+        });
+        html += '</tbody></table></div>';
+
+        /* 자주 틀린 개념 */
+        const wrongByConcept = {};
+        records.quiz.filter(function (r) { return !r.correct; }).forEach(function (r) {
+            const k = r.concept || ('문항 ' + r.no);
+            wrongByConcept[k] = (wrongByConcept[k] || 0) + 1;
+        });
+        const ranked = Object.keys(wrongByConcept).sort(function (a, b) { return wrongByConcept[b] - wrongByConcept[a]; }).slice(0, 5);
+        if (ranked.length) {
+            html += '<p class="text-xs font-bold text-gray-700 mb-1">자주 틀린 개념</p><ul class="text-xs text-gray-600 list-disc list-inside mb-3">' +
+                ranked.map(function (k) { return '<li>' + escapeHtml(k) + ' — ' + wrongByConcept[k] + '회</li>'; }).join('') + '</ul>';
+        }
+
+        /* 문장 분석 결과 */
+        if (records.analysis.length) {
+            html += '<p class="text-xs font-bold text-gray-700 mb-1">문장 분석 연습 결과</p>' +
+                '<div class="overflow-x-auto mb-3"><table class="w-full text-xs border-collapse">' +
+                '<thead><tr class="bg-gray-50">' +
+                    '<th class="border border-gray-200 p-2 text-left">시각</th>' +
+                    '<th class="border border-gray-200 p-2 text-left">별명</th>' +
+                    '<th class="border border-gray-200 p-2 text-left">글</th>' +
+                    '<th class="border border-gray-200 p-2">구분</th>' +
+                    '<th class="border border-gray-200 p-2">점수</th>' +
+                '</tr></thead><tbody>' +
+                records.analysis.slice(-20).reverse().map(function (r) {
+                    return '<tr>' +
+                        '<td class="border border-gray-200 p-2 whitespace-nowrap">' + escapeHtml(r.t) + '</td>' +
+                        '<td class="border border-gray-200 p-2">' + escapeHtml(r.nick) + '</td>' +
+                        '<td class="border border-gray-200 p-2">' + escapeHtml(String(r.reading).slice(0, 20)) + '</td>' +
+                        '<td class="border border-gray-200 p-2 text-center">' + escapeHtml(r.mode) + '</td>' +
+                        '<td class="border border-gray-200 p-2 text-center font-bold">' + r.right + '/' + r.total + '</td>' +
+                    '</tr>';
+                }).join('') + '</tbody></table></div>';
+        }
+
+        /* 문제 풀이 자세히 (최근 30건) */
+        html += '<p class="text-xs font-bold text-gray-700 mb-1">개념 문제 풀이 자세히 (최근 30건, 재시도 포함)</p>' +
+            '<div class="overflow-x-auto"><table class="w-full text-xs border-collapse">' +
+            '<thead><tr class="bg-gray-50">' +
+                '<th class="border border-gray-200 p-2 text-left">시각</th>' +
+                '<th class="border border-gray-200 p-2 text-left">별명</th>' +
+                '<th class="border border-gray-200 p-2">문항</th>' +
+                '<th class="border border-gray-200 p-2 text-left">개념</th>' +
+                '<th class="border border-gray-200 p-2">시도</th>' +
+                '<th class="border border-gray-200 p-2">결과</th>' +
+                '<th class="border border-gray-200 p-2 text-left">고른 보기</th>' +
+            '</tr></thead><tbody>' +
+            records.quiz.slice(-30).reverse().map(function (r) {
+                return '<tr>' +
+                    '<td class="border border-gray-200 p-2 whitespace-nowrap">' + escapeHtml(r.t) + '</td>' +
+                    '<td class="border border-gray-200 p-2">' + escapeHtml(r.nick) + '</td>' +
+                    '<td class="border border-gray-200 p-2 text-center">' + r.no + '</td>' +
+                    '<td class="border border-gray-200 p-2">' + escapeHtml(r.concept) + '</td>' +
+                    '<td class="border border-gray-200 p-2 text-center">' + r.attempt + '</td>' +
+                    '<td class="border border-gray-200 p-2 text-center ' + (r.correct ? 'text-emerald-700' : 'text-rose-700') + '">' + (r.correct ? '맞음' : '틀림') + '</td>' +
+                    '<td class="border border-gray-200 p-2">' + escapeHtml(String(r.choice).slice(0, 26)) + '</td>' +
+                '</tr>';
+            }).join('') + '</tbody></table></div>';
+
+        box.innerHTML = html;
+    }
+
+    function exportRecords() {
+        let csv = '﻿구분,시각,별명,문항/글,개념,시도,결과,고른 보기\n';
+        records.quiz.forEach(function (r) {
+            csv += ['개념문제', r.t, r.nick, r.no, r.concept, r.attempt, r.correct ? '맞음' : '틀림', String(r.choice).replace(/,/g, ' ')].join(',') + '\n';
+        });
+        records.analysis.forEach(function (r) {
+            csv += ['문장분석', r.t, r.nick, String(r.reading).replace(/,/g, ' '), r.mode, '', r.right + '/' + r.total, ''].join(',') + '\n';
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'biodiversity-records.csv';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+
+    function clearRecords() {
+        if (!confirm('쌓인 학습 기록을 모두 지울까요? 되돌릴 수 없습니다.')) return;
+        records = { quiz: [], analysis: [] };
+        persistRecords();
+        renderRecords();
     }
 
     function renderRubricRows() {
@@ -3182,19 +3484,152 @@
         reader.readAsText(file, 'utf-8');
     }
 
-    /* --- 읽기 자료 업로드 --- */
+    /* --- 읽기 자료 업로드 (.txt · .md · .docx · .pdf) --- */
     function readUploadFile() {
         const file = el('adm-r-file').files && el('adm-r-file').files[0];
         if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function () {
-            el('adm-r-body').value = String(reader.result);
+        const msg = el('adm-r-msg');
+        const ext = (file.name.split('.').pop() || '').toLowerCase();
+
+        function done(text) {
+            el('adm-r-body').value = text;
             if (!el('adm-r-title').value.trim()) {
-                el('adm-r-title').value = file.name.replace(/\.(txt|md)$/i, '');
+                el('adm-r-title').value = file.name.replace(/\.(txt|md|docx|pdf)$/i, '');
             }
-            el('adm-r-msg').innerText = '파일을 읽었습니다. 내용을 확인하고 ‘글 추가하기’를 누르세요.';
-        };
+            msg.innerText = '파일에서 ' + text.length + '자를 읽었습니다. 내용을 확인하고 ‘글 추가하기’를 누르세요.';
+        }
+
+        if (ext === 'docx') {
+            msg.innerText = '한글 문서(docx)를 여는 중입니다…';
+            file.arrayBuffer()
+                .then(readDocx)
+                .then(function (text) {
+                    if (!text || text.trim().length < 20) throw new Error('본문을 찾지 못했습니다.');
+                    done(text);
+                })
+                .catch(function (e) {
+                    msg.innerText = 'docx를 읽지 못했습니다(' + e.message + '). 문서를 열어 본문을 복사해 위 칸에 붙여 넣어 주세요.';
+                });
+            return;
+        }
+
+        if (ext === 'pdf') {
+            msg.innerText = 'PDF에서 글자를 뽑는 중입니다… (처음 한 번은 인터넷 연결이 필요합니다)';
+            readPdf(file)
+                .then(function (text) {
+                    if (!text || text.trim().length < 20) throw new Error('글자를 찾지 못했습니다. 그림으로 된 PDF일 수 있습니다.');
+                    done(text);
+                })
+                .catch(function (e) {
+                    msg.innerText = 'PDF를 읽지 못했습니다(' + e.message + '). PDF를 열어 본문을 복사해 위 칸에 붙여 넣거나, 원문 링크만 넣어 주세요.';
+                });
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function () { done(String(reader.result)); };
         reader.readAsText(file, 'utf-8');
+    }
+
+    /* docx : ZIP 안의 word/document.xml을 브라우저 내장 기능으로 풀어 읽는다 */
+    function readDocx(buffer) {
+        const view = new DataView(buffer);
+        const bytes = new Uint8Array(buffer);
+
+        /* 중앙 디렉터리 끝(EOCD) 찾기 */
+        let eocd = -1;
+        for (let i = bytes.length - 22; i >= 0 && i > bytes.length - 66000; i--) {
+            if (view.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+        }
+        if (eocd < 0) return Promise.reject(new Error('압축 구조를 읽지 못함'));
+
+        const count = view.getUint16(eocd + 10, true);
+        let offset = view.getUint32(eocd + 16, true);
+        let target = null;
+
+        for (let n = 0; n < count; n++) {
+            if (view.getUint32(offset, true) !== 0x02014b50) break;
+            const method = view.getUint16(offset + 10, true);
+            const compSize = view.getUint32(offset + 20, true);
+            const nameLen = view.getUint16(offset + 28, true);
+            const extraLen = view.getUint16(offset + 30, true);
+            const commentLen = view.getUint16(offset + 32, true);
+            const localOff = view.getUint32(offset + 42, true);
+            const name = new TextDecoder().decode(bytes.subarray(offset + 46, offset + 46 + nameLen));
+            if (name === 'word/document.xml') {
+                target = { method: method, compSize: compSize, localOff: localOff };
+                break;
+            }
+            offset += 46 + nameLen + extraLen + commentLen;
+        }
+        if (!target) return Promise.reject(new Error('문서 본문을 찾지 못함'));
+
+        /* 로컬 헤더를 지나 실제 데이터 시작 위치 계산 */
+        const lnLen = view.getUint16(target.localOff + 26, true);
+        const leLen = view.getUint16(target.localOff + 28, true);
+        const start = target.localOff + 30 + lnLen + leLen;
+        const data = bytes.subarray(start, start + target.compSize);
+
+        function toText(xmlBytes) {
+            const xml = new TextDecoder('utf-8').decode(xmlBytes);
+            return xml
+                .replace(/<w:p[ >][\s\S]*?<\/w:p>|<w:p\/>/g, function (m) { return m + '\n'; })
+                .replace(/<\/w:p>/g, '\n')
+                .replace(/<w:tab\/>/g, ' ')
+                .replace(/<w:br\/>/g, '\n')
+                .replace(/<[^>]+>/g, '')
+                .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+        }
+
+        if (target.method === 0) return Promise.resolve(toText(data));
+        if (typeof DecompressionStream === 'undefined') {
+            return Promise.reject(new Error('이 브라우저에서는 지원하지 않음'));
+        }
+        const stream = new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+        return new Response(stream).arrayBuffer().then(function (buf) { return toText(new Uint8Array(buf)); });
+    }
+
+    /* pdf : 필요할 때만 pdf.js를 불러와 글자를 뽑는다 */
+    let pdfLibPromise = null;
+    function loadPdfLib() {
+        if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+        if (pdfLibPromise) return pdfLibPromise;
+        pdfLibPromise = new Promise(function (resolve, reject) {
+            const s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+            s.onload = function () {
+                if (!window.pdfjsLib) { reject(new Error('불러오기 실패')); return; }
+                window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+                    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                resolve(window.pdfjsLib);
+            };
+            s.onerror = function () { reject(new Error('인터넷 연결을 확인하세요')); };
+            document.head.appendChild(s);
+        });
+        return pdfLibPromise;
+    }
+
+    function readPdf(file) {
+        return loadPdfLib()
+            .then(function (lib) { return file.arrayBuffer().then(function (buf) { return lib.getDocument({ data: buf }).promise; }); })
+            .then(function (pdf) {
+                const pages = [];
+                let chain = Promise.resolve();
+                const limit = Math.min(pdf.numPages, 30);
+                for (let p = 1; p <= limit; p++) {
+                    (function (n) {
+                        chain = chain
+                            .then(function () { return pdf.getPage(n); })
+                            .then(function (page) { return page.getTextContent(); })
+                            .then(function (tc) {
+                                pages.push(tc.items.map(function (it) { return it.str; }).join(' ').replace(/\s{2,}/g, ' ').trim());
+                            });
+                    })(p);
+                }
+                return chain.then(function () { return pages.filter(Boolean).join('\n\n'); });
+            });
     }
 
     function saveUploadedReading() {
@@ -3233,7 +3668,11 @@
             el('adm-r-msg').innerText = '';
             renderAdminReadings();
             renderReadingCards();
-            showToast('글을 추가했습니다. 학생 화면에 바로 나타납니다.', 'success');
+            checkAllContentSpelling();
+            const spell = findSpellIssues(body).length;
+            showToast(spell > 0
+                ? '글을 추가했습니다. 맞춤법에서 고칠 곳 ' + spell + '군데가 보여요(아래 자동 점검 결과 참고).'
+                : '글을 추가했습니다. 학생 화면에 바로 나타납니다.', 'success');
         }
     }
 
@@ -3265,83 +3704,227 @@
        17. 개념 정리
        ========================================================= */
     let conceptGroup = CONCEPT_GROUPS[0].key;
+    let viewedConcepts = {};
+
+    /* 교사가 추가한 개념까지 합친 목록 */
+    function allConcepts() {
+        const extra = (adminData.concepts || []).map(function (c, i) {
+            return {
+                group: c.group || 'bio', term: c.term, short: c.short || '',
+                desc: c.desc || '', where: '', find: c.find || '', check: c.check || '',
+                added: true, key: 'u' + i
+            };
+        });
+        return CONCEPTS.map(function (c, i) { return Object.assign({ key: 'c' + i }, c); }).concat(extra);
+    }
+
+    function readingTitle(id) {
+        const r = READINGS.find(function (x) { return x.id === id; });
+        return r ? r.title : '';
+    }
 
     function renderConceptTabs() {
         el('concept-tabs').innerHTML = CONCEPT_GROUPS.map(function (g) {
             const on = g.key === conceptGroup;
+            const list = allConcepts().filter(function (c) { return c.group === g.key; });
+            const seen = list.filter(function (c) { return viewedConcepts[c.key]; }).length;
             return '<button onclick="renderConcepts(\'' + g.key + '\')" class="text-xs md:text-sm font-bold px-3 py-2 rounded-xl border-2 transition-colors ' +
                 (on ? 'bg-pinky-500 border-pinky-500 text-white' : 'bg-white border-gray-200 text-gray-600 hover:border-pinky-300') + '">' +
-                '<i class="fa-solid ' + g.icon + ' mr-1"></i>' + escapeHtml(g.name) + '</button>';
+                '<i class="fa-solid ' + g.icon + ' mr-1"></i>' + escapeHtml(g.name) +
+                '<span class="ml-1 opacity-80">' + seen + '/' + list.length + '</span></button>';
         }).join('');
     }
 
     function renderConcepts(group) {
         conceptGroup = group;
         renderConceptTabs();
-        const list = CONCEPTS.filter(function (c) { return c.group === group; });
-        el('concept-body').innerHTML = list.map(function (c, i) {
-            return '<div class="bg-white border border-gray-200 rounded-2xl p-4">' +
-                '<button onclick="toggleConcept(' + i + ')" class="w-full text-left">' +
-                    '<div class="font-bold text-gray-800">' + escapeHtml(c.term) + '</div>' +
-                    '<div class="text-xs text-pinky-600 mt-0.5">' + escapeHtml(c.short) + '</div>' +
+        const list = allConcepts().filter(function (c) { return c.group === group; });
+        el('concept-body').innerHTML = list.map(function (c) {
+            const seen = !!viewedConcepts[c.key];
+            return '<div class="bg-white border-2 ' + (seen ? 'border-emerald-200' : 'border-gray-200') + ' rounded-2xl p-4">' +
+                '<button onclick="toggleConcept(\'' + c.key + '\')" class="w-full text-left flex items-start justify-between gap-2">' +
+                    '<span>' +
+                        '<span class="font-bold text-gray-800 text-base">' + escapeHtml(c.term) + '</span>' +
+                        '<span class="block text-xs text-pinky-600 mt-0.5">' + escapeHtml(c.short) + '</span>' +
+                    '</span>' +
+                    '<i class="fa-solid ' + (seen ? 'fa-circle-check text-emerald-500' : 'fa-circle-plus text-gray-300') + ' mt-1"></i>' +
                 '</button>' +
-                '<div id="concept-detail-' + i + '" class="hidden mt-3 pt-3 border-t border-gray-100 space-y-2">' +
+                '<div id="concept-detail-' + c.key + '" class="hidden mt-3 pt-3 border-t border-gray-100 space-y-2">' +
                     '<p class="text-sm text-gray-700 leading-relaxed">' + escapeHtml(c.desc) + '</p>' +
-                    '<p class="text-xs text-gray-600 leading-relaxed"><b class="text-gray-800">언제 쓰나</b> — ' + escapeHtml(c.use) + '</p>' +
-                    '<p class="text-xs text-gray-600 leading-relaxed bg-butter-50 border border-butter-200 rounded-lg p-2"><b class="text-butter-700">조심할 점</b> — ' + escapeHtml(c.careful) + '</p>' +
+                    (c.find ? '<p class="text-xs text-gray-600 leading-relaxed bg-pinky-50 border border-pinky-200 rounded-lg p-2">' +
+                        '<b class="text-pinky-700">글에서 찾기</b> — ' + escapeHtml(c.find) +
+                        (c.where ? ' <button onclick="openReadingFrom(\'' + c.where + '\')" class="underline font-bold text-pinky-700">「' + escapeHtml(readingTitle(c.where)) + '」 열기</button>' : '') +
+                        '</p>' : '') +
+                    (c.check ? '<p class="text-xs text-gray-600 leading-relaxed bg-butter-50 border border-butter-200 rounded-lg p-2">' +
+                        '<b class="text-butter-700">이렇게 오해하기 쉬워요</b> — ' + escapeHtml(c.check) + '</p>' : '') +
+                    (c.added ? '<p class="text-[11px] text-gray-400">선생님이 추가한 개념입니다.</p>' : '') +
                 '</div></div>';
         }).join('');
+        updateConceptProgress();
     }
 
-    function toggleConcept(i) { el('concept-detail-' + i).classList.toggle('hidden'); }
+    function toggleConcept(key) {
+        const box = el('concept-detail-' + key);
+        const opening = box.classList.contains('hidden');
+        box.classList.toggle('hidden');
+        if (opening && !viewedConcepts[key]) {
+            viewedConcepts[key] = true;
+            renderConcepts(conceptGroup);
+            el('concept-detail-' + key).classList.remove('hidden');
+        }
+    }
 
-    /* --- 개념 확인 문제 --- */
-    let quizAnswered = [];
+    function updateConceptProgress() {
+        const list = allConcepts();
+        const seen = list.filter(function (c) { return viewedConcepts[c.key]; }).length;
+        const done = seen >= list.length;
+
+        const bar = el('concept-progress');
+        if (bar) {
+            bar.innerHTML =
+                '<div class="flex items-center justify-between gap-2 mb-1">' +
+                    '<span class="text-xs font-bold text-gray-600">확인한 개념 ' + seen + ' / ' + list.length + '</span>' +
+                    '<span class="text-xs ' + (done ? 'text-emerald-600 font-bold' : 'text-gray-400') + '">' +
+                        (done ? '문제가 열렸습니다!' : '모두 확인하면 문제가 열립니다') + '</span>' +
+                '</div>' +
+                '<div class="h-2 rounded-full bg-gray-100 overflow-hidden">' +
+                    '<div class="h-full ' + (done ? 'bg-emerald-400' : 'bg-pinky-400') + ' rounded-full" style="width:' + Math.round(seen / list.length * 100) + '%"></div>' +
+                '</div>';
+        }
+
+        const lock = el('quiz-lock');
+        const body = el('quiz-body');
+        if (lock && body) {
+            lock.classList.toggle('hidden', done);
+            body.classList.toggle('hidden', !done);
+            if (done && !quizReady) { quizReady = true; renderQuiz(); }
+        }
+    }
+
+    /* --- 개념 확인 문제 : 틀리면 힌트를 주고 다시 고르게 한다 --- */
+    let quizReady = false;
+    let quizState = [];
 
     function renderQuiz() {
-        quizAnswered = CONCEPT_QUIZ.map(function () { return null; });
+        quizState = CONCEPT_QUIZ.map(function () { return { tries: 0, wrong: [], solved: false }; });
         el('quiz-body').innerHTML =
             CONCEPT_QUIZ.map(function (q, i) {
                 return '<div class="border border-gray-200 rounded-xl p-4 mb-3">' +
-                    '<p class="text-sm font-bold text-gray-800 mb-3 leading-snug"><span class="text-pinky-600 mr-1">' + (i + 1) + '.</span>' + escapeHtml(q.q) + '</p>' +
+                    '<div class="text-[11px] font-bold text-pinky-600 mb-1">' + escapeHtml(q.concept || '') + '</div>' +
+                    '<p class="text-base font-bold text-gray-800 mb-3 leading-snug"><span class="text-pinky-600 mr-1">' + (i + 1) + '.</span>' + escapeHtml(q.q) + '</p>' +
                     '<div class="space-y-1.5">' +
                         q.options.map(function (o, j) {
                             return '<button id="quiz-' + i + '-' + j + '" onclick="answerQuiz(' + i + ',' + j + ')" ' +
-                                'class="w-full text-left text-sm px-3 py-2 rounded-lg border border-gray-200 hover:border-pinky-300 hover:bg-pinky-50 transition-colors">' +
+                                'class="w-full text-left text-sm px-3 py-2.5 rounded-lg border border-gray-200 hover:border-pinky-300 hover:bg-pinky-50 transition-colors">' +
                                 escapeHtml(o) + '</button>';
                         }).join('') +
                     '</div>' +
-                    '<div id="quiz-why-' + i + '" class="hidden mt-3 text-xs leading-relaxed rounded-lg p-3"></div>' +
+                    '<div id="quiz-why-' + i + '" class="hidden mt-3 text-sm leading-relaxed rounded-lg p-3"></div>' +
                 '</div>';
             }).join('') +
             '<div class="flex flex-wrap items-center gap-3 mt-4">' +
                 '<span id="quiz-score" class="text-sm font-bold text-gray-700">푼 문제 0 / ' + CONCEPT_QUIZ.length + '</span>' +
-                '<button onclick="renderQuiz()" class="text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg">다시 풀기</button>' +
+                '<button onclick="renderQuiz()" class="text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg">처음부터 다시 풀기</button>' +
             '</div>';
     }
 
     function answerQuiz(i, j) {
-        if (quizAnswered[i] !== null) return;
-        quizAnswered[i] = j;
+        const st = quizState[i];
+        if (!st || st.solved) return;
         const q = CONCEPT_QUIZ[i];
         const correct = j === q.answer;
 
-        q.options.forEach(function (o, k) {
-            const btn = el('quiz-' + i + '-' + k);
-            if (k === q.answer) btn.className = 'w-full text-left text-sm px-3 py-2 rounded-lg border-2 border-emerald-300 bg-emerald-50 text-emerald-900';
-            else if (k === j) btn.className = 'w-full text-left text-sm px-3 py-2 rounded-lg border-2 border-rose-300 bg-rose-50 text-rose-900';
-            else btn.className = 'w-full text-left text-sm px-3 py-2 rounded-lg border border-gray-200 text-gray-400';
-        });
+        st.tries++;
+        saveQuizRecord(i, j, correct, st.tries);
 
         const why = el('quiz-why-' + i);
-        why.className = 'mt-3 text-xs leading-relaxed rounded-lg p-3 ' +
-            (correct ? 'bg-emerald-50 border border-emerald-200 text-emerald-900' : 'bg-rose-50 border border-rose-200 text-rose-900');
-        why.innerHTML = '<b>' + (correct ? '맞았어요. ' : '다시 볼까요. ') + '</b>' + escapeHtml(q.why);
-        why.classList.remove('hidden');
 
-        const done = quizAnswered.filter(function (a) { return a !== null; }).length;
-        const right = quizAnswered.filter(function (a, k) { return a === CONCEPT_QUIZ[k].answer; }).length;
-        el('quiz-score').innerText = '푼 문제 ' + done + ' / ' + CONCEPT_QUIZ.length + ' · 맞은 문제 ' + right + '개';
+        if (!correct) {
+            st.wrong.push(j);
+            const btn = el('quiz-' + i + '-' + j);
+            btn.className = 'w-full text-left text-sm px-3 py-2.5 rounded-lg border border-gray-200 text-gray-400 line-through';
+            btn.disabled = true;
+
+            const hints = q.hints || [];
+            const hint = hints[Math.min(st.wrong.length - 1, hints.length - 1)] || '다시 한번 개념 카드를 보고 생각해 보세요.';
+            const left = q.options.length - st.wrong.length;
+
+            why.className = 'mt-3 text-sm leading-relaxed rounded-lg p-3 bg-butter-50 border border-butter-200 text-gray-800';
+            why.innerHTML = '<b class="text-butter-700">다시 생각해 볼까요?</b><br>' + escapeHtml(hint) +
+                (left > 1 ? '<br><span class="text-xs text-gray-500">남은 보기 ' + left + '개 중에서 다시 골라 보세요.</span>'
+                          : '<br><span class="text-xs text-gray-500">이제 남은 보기는 하나입니다. 왜 그런지 생각하며 골라 보세요.</span>');
+            why.classList.remove('hidden');
+            updateQuizScore();
+            return;
+        }
+
+        st.solved = true;
+        q.options.forEach(function (o, k) {
+            const btn = el('quiz-' + i + '-' + k);
+            if (k === j) btn.className = 'w-full text-left text-sm px-3 py-2.5 rounded-lg border-2 border-emerald-300 bg-emerald-50 text-emerald-900 font-bold';
+            else if (st.wrong.indexOf(k) >= 0) btn.className = 'w-full text-left text-sm px-3 py-2.5 rounded-lg border border-gray-200 text-gray-400 line-through';
+            else btn.className = 'w-full text-left text-sm px-3 py-2.5 rounded-lg border border-gray-200 text-gray-400';
+            btn.disabled = true;
+        });
+
+        why.className = 'mt-3 text-sm leading-relaxed rounded-lg p-3 bg-emerald-50 border border-emerald-200 text-emerald-900';
+        why.innerHTML = '<b>맞았어요' + (st.tries > 1 ? ' (' + st.tries + '번째 시도)' : '') + '. </b>' + escapeHtml(q.why);
+        why.classList.remove('hidden');
+        updateQuizScore();
+    }
+
+    function updateQuizScore() {
+        const solved = quizState.filter(function (s) { return s.solved; }).length;
+        const once = quizState.filter(function (s) { return s.solved && s.tries === 1; }).length;
+        el('quiz-score').innerText = '푼 문제 ' + solved + ' / ' + CONCEPT_QUIZ.length + ' · 한 번에 맞힌 문제 ' + once + '개';
+    }
+
+    /* =========================================================
+       17-2. 학습 기록 (관리자 페이지에서 확인)
+       ========================================================= */
+    const RECORD_KEY = 'bio-debate-records-v1';
+    let records = { quiz: [], analysis: [] };
+
+    function loadRecords() {
+        try {
+            const raw = localStorage.getItem(RECORD_KEY);
+            if (raw) {
+                const r = JSON.parse(raw);
+                records.quiz = Array.isArray(r.quiz) ? r.quiz : [];
+                records.analysis = Array.isArray(r.analysis) ? r.analysis : [];
+            }
+        } catch (e) { /* 저장값이 깨졌으면 새로 시작 */ }
+    }
+
+    function persistRecords() {
+        try { localStorage.setItem(RECORD_KEY, JSON.stringify(records)); } catch (e) { /* 저장 불가 */ }
+    }
+
+    function nowText() {
+        const d = new Date();
+        function p(n) { return (n < 10 ? '0' : '') + n; }
+        return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+    }
+
+    function saveQuizRecord(qi, choice, correct, attempt) {
+        const q = CONCEPT_QUIZ[qi];
+        records.quiz.push({
+            t: nowText(), nick: myNickname, no: qi + 1,
+            concept: q.concept || '', attempt: attempt,
+            choice: q.options[choice], correct: correct
+        });
+        if (records.quiz.length > 2000) records.quiz = records.quiz.slice(-2000);
+        persistRecords();
+    }
+
+    function saveAnalysisRecord(readingTitleText, mode, right, total) {
+        records.analysis.push({
+            t: nowText(), nick: myNickname, reading: readingTitleText,
+            mode: mode === 'fo' ? '사실/의견' : '주장/근거',
+            right: right, total: total
+        });
+        if (records.analysis.length > 2000) records.analysis = records.analysis.slice(-2000);
+        persistRecords();
     }
 
     /* =========================================================
@@ -3380,29 +3963,56 @@
         }).join('');
     }
 
+    /* 자료실 : 분류를 눌러 들어가서 본다 */
+    const LIB_ICONS = ['fa-building-columns', 'fa-newspaper', 'fa-chart-column'];
+    let libOpen = -1;
+
     function renderSourceLibrary() {
         const box = el('source-library');
         if (!box) return;
-        box.innerHTML = SOURCE_LIBRARY.map(function (g) {
-            return '<div class="mb-4">' +
-                '<h4 class="text-xs font-bold text-gray-700 mb-2">' + escapeHtml(g.group) + '</h4>' +
-                '<ul class="space-y-2">' +
-                g.items.map(function (it) {
-                    const badge = it.kind === 'news' ? 'bg-butter-100 text-butter-700' : (it.kind === 'stat' ? 'bg-gray-100 text-gray-600' : 'bg-pinky-100 text-pinky-700');
-                    const kindText = it.kind === 'news' ? '기사' : (it.kind === 'stat' ? '통계' : '기관 원문');
-                    return '<li class="border border-gray-200 rounded-xl p-3">' +
-                        '<div class="flex items-start gap-2 mb-1">' +
-                            '<span class="text-[10px] font-bold ' + badge + ' px-2 py-0.5 rounded-full whitespace-nowrap mt-0.5">' + kindText + '</span>' +
-                            '<a href="' + it.url + '" target="_blank" rel="noopener noreferrer" class="font-bold text-sm text-pinky-700 hover:underline leading-snug">' +
-                                escapeHtml(it.name) + ' <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>' +
-                        '</div>' +
-                        '<div class="text-[11px] text-gray-500 mb-1">' + escapeHtml(it.org) + '</div>' +
-                        '<p class="text-xs text-gray-600 leading-relaxed">' + escapeHtml(it.desc) + '</p>' +
-                    '</li>';
-                }).join('') +
-                '</ul></div>';
-        }).join('') +
-        '<p class="text-[11px] text-gray-400 pt-2 border-t border-gray-100">주소가 바뀌어 열리지 않으면 기관 이름으로 검색해 보세요. 기관 누리집의 보도자료·소식지 게시판에 같은 자료가 있습니다.</p>';
+
+        if (libOpen < 0) {
+            box.innerHTML =
+                '<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">' +
+                SOURCE_LIBRARY.map(function (g, i) {
+                    const short = g.group.split(' — ')[0];
+                    return '<button onclick="openLibrary(' + i + ')" class="text-left border-2 border-gray-200 hover:border-pinky-400 rounded-xl p-4 transition-colors bg-white">' +
+                        '<div class="w-10 h-10 bg-pinky-50 text-pinky-600 rounded-full flex items-center justify-center text-lg mb-2">' +
+                            '<i class="fa-solid ' + LIB_ICONS[i] + '"></i></div>' +
+                        '<div class="font-bold text-gray-800 leading-snug">' + escapeHtml(short) + '</div>' +
+                        '<div class="text-xs text-gray-500 mt-1">' + g.items.length + '건 · 눌러서 보기</div>' +
+                    '</button>';
+                }).join('') + '</div>';
+            return;
+        }
+
+        const g = SOURCE_LIBRARY[libOpen];
+        box.innerHTML =
+            '<button onclick="openLibrary(-1)" class="text-pinky-600 hover:text-pinky-700 text-sm font-bold mb-3 flex items-center gap-1">' +
+                '<i class="fa-solid fa-arrow-left"></i> 자료실 분류로 돌아가기</button>' +
+            '<h4 class="text-sm font-bold text-gray-800 mb-3">' + escapeHtml(g.group) + '</h4>' +
+            '<ul class="space-y-2">' +
+            g.items.map(function (it) {
+                const badge = it.kind === 'news' ? 'bg-butter-100 text-butter-700' : (it.kind === 'stat' ? 'bg-gray-100 text-gray-600' : 'bg-pinky-100 text-pinky-700');
+                const kindText = it.kind === 'news' ? '기사' : (it.kind === 'stat' ? '통계' : '기관 원문');
+                return '<li class="border border-gray-200 rounded-xl p-3">' +
+                    '<div class="flex items-start gap-2 mb-1">' +
+                        '<span class="text-[10px] font-bold ' + badge + ' px-2 py-0.5 rounded-full whitespace-nowrap mt-1">' + kindText + '</span>' +
+                        '<a href="' + it.url + '" target="_blank" rel="noopener noreferrer" class="font-bold text-base text-pinky-700 hover:underline leading-snug">' +
+                            escapeHtml(it.name) + ' <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>' +
+                    '</div>' +
+                    '<div class="text-xs text-gray-500 mb-1">' + escapeHtml(it.org) + '</div>' +
+                    '<p class="text-sm text-gray-600 leading-relaxed">' + escapeHtml(it.desc) + '</p>' +
+                '</li>';
+            }).join('') +
+            '</ul>' +
+            '<p class="text-xs text-gray-400 pt-3 mt-3 border-t border-gray-100">주소가 바뀌어 열리지 않으면 기관 이름으로 검색해 보세요. 기관 누리집의 보도자료·소식지 게시판에 같은 자료가 있습니다.</p>';
+    }
+
+    function openLibrary(i) {
+        libOpen = i;
+        renderSourceLibrary();
+        el('source-library').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     let currentReading = null;
@@ -3430,7 +4040,8 @@
                     '<span class="text-[11px] font-bold bg-pinky-100 text-pinky-700 px-2 py-1 rounded-full">' + escapeHtml(r.genre) + '</span>' +
                     '<span class="text-[11px] text-gray-500">' + escapeHtml(r.region) + ' · 약 ' + r.minutes + '분</span>' +
                 '</div>' +
-                '<h2 class="text-2xl font-bold text-gray-900 leading-snug mb-3">' + escapeHtml(r.title) + '</h2>' +
+                '<h2 class="text-2xl md:text-3xl font-bold text-gray-900 leading-snug mb-3">' + escapeHtml(r.title) + '</h2>' +
+                '<p class="text-base text-gray-600 leading-relaxed border-l-4 border-pinky-200 pl-3 mb-4">' + escapeHtml(r.summary) + '</p>' +
                 (r.uploaded
                     ? '<p class="text-[11px] text-gray-500 bg-gray-50 border border-gray-200 rounded-lg p-2 mb-4">선생님이 올린 자료입니다.' +
                       (r.url ? ' <a href="' + r.url + '" target="_blank" rel="noopener noreferrer" class="text-pinky-600 underline">원문 보기</a>' : '') + '</p>'
@@ -3444,48 +4055,60 @@
         });
         html += '</div>';
 
-        if (r.numbers && r.numbers.length) {
-            html += '<div class="mt-6 bg-butter-50 border border-butter-200 rounded-xl p-4">' +
-                '<h4 class="text-sm font-bold text-butter-700 mb-2"><i class="fa-solid fa-chart-simple mr-1"></i> 이 글에 나온 수치 — 그대로 믿지 말고 확인하기</h4>' +
-                '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">' +
-                r.numbers.map(function (n) {
-                    return '<div class="bg-white rounded-lg border border-butter-200 px-3 py-2">' +
-                        '<div class="text-[11px] text-gray-500">' + escapeHtml(n.label) + '</div>' +
-                        '<div class="text-sm font-bold text-gray-800">' + escapeHtml(n.value) + '</div>' +
-                        (n.note ? '<div class="text-[11px] text-gray-500 mt-0.5">' + escapeHtml(n.note) + '</div>' : '') +
-                    '</div>';
-                }).join('') + '</div></div>';
-        }
-
-        if (r.sources && r.sources.length) {
-            html += '<div class="mt-4 border border-pinky-200 rounded-xl p-4">' +
-                '<h4 class="text-sm font-bold text-pinky-700 mb-2"><i class="fa-solid fa-building-columns mr-1"></i> 원문 바로가기</h4>' +
-                '<ul class="space-y-1.5">' +
-                r.sources.map(function (s) {
-                    return '<li><a href="' + s.url + '" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-pinky-700 hover:underline">' +
-                        escapeHtml(s.name) + ' <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>' +
-                        '<span class="text-[11px] text-gray-500 ml-1">' + escapeHtml(s.org) + '</span></li>';
-                }).join('') + '</ul></div>';
-        }
-
-        if (r.verify && r.verify.length) {
-            html += '<div class="mt-4 border border-gray-200 rounded-xl p-4">' +
-                '<h4 class="text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-clipboard-check text-pinky-500 mr-1"></i> 교차 검증 과제</h4>' +
-                '<ol class="space-y-2">' +
-                r.verify.map(function (v, i) {
-                    return '<li class="text-xs text-gray-700 leading-relaxed">' + (i + 1) + '. ' + escapeHtml(v.task) +
-                        '<div class="text-[11px] text-gray-500 mt-0.5">확인처: ' + escapeHtml(v.where) +
-                        (v.url ? ' <a href="' + v.url + '" target="_blank" rel="noopener noreferrer" class="text-pinky-600 underline">열기</a>' : '') + '</div></li>';
-                }).join('') + '</ol></div>';
-        }
-
         html += '</article>';
+
+        /* 부가 자료는 탭으로 묶어 한눈에 보이게 한다 */
+        const tabs = [];
+        if (r.numbers && r.numbers.length) tabs.push('num');
+        if (r.sources && r.sources.length) tabs.push('src');
+        if (r.verify && r.verify.length) tabs.push('ver');
+
+        if (tabs.length) {
+            const tabName = { num: '이 글의 수치', src: '원문 바로가기', ver: '교차 검증 과제' };
+            const tabIcon = { num: 'fa-chart-simple', src: 'fa-building-columns', ver: 'fa-clipboard-check' };
+
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 md:p-6 mb-6">' +
+                '<div class="flex flex-wrap gap-2 mb-4">' +
+                tabs.map(function (t) {
+                    return '<button id="rtab-' + t + '" onclick="showReadTab(\'' + t + '\')" ' +
+                        'class="text-sm font-bold px-3 py-2 rounded-xl border-2 transition-colors">' +
+                        '<i class="fa-solid ' + tabIcon[t] + ' mr-1"></i>' + tabName[t] + '</button>';
+                }).join('') + '</div>';
+
+            html += '<div id="rpane-num" class="hidden"><div class="grid grid-cols-1 sm:grid-cols-2 gap-2">' +
+                (r.numbers || []).map(function (n) {
+                    return '<div class="bg-butter-50 rounded-xl border border-butter-200 px-4 py-3">' +
+                        '<div class="text-xs text-gray-500">' + escapeHtml(n.label) + '</div>' +
+                        '<div class="text-base font-bold text-gray-800">' + escapeHtml(n.value) + '</div>' +
+                        (n.note ? '<div class="text-xs text-gray-500 mt-0.5">' + escapeHtml(n.note) + '</div>' : '') +
+                    '</div>';
+                }).join('') +
+                '</div><p class="text-xs text-gray-500 mt-3">그대로 인용하지 말고 <b>원문에서 확인</b>한 뒤 기준 연도와 함께 적으세요.</p></div>';
+
+            html += '<div id="rpane-src" class="hidden"><ul class="space-y-2">' +
+                (r.sources || []).map(function (s) {
+                    return '<li class="border border-gray-200 rounded-xl px-4 py-3">' +
+                        '<a href="' + s.url + '" target="_blank" rel="noopener noreferrer" class="text-base font-bold text-pinky-700 hover:underline">' +
+                        escapeHtml(s.name) + ' <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>' +
+                        '<div class="text-xs text-gray-500 mt-0.5">' + escapeHtml(s.org) + '</div></li>';
+                }).join('') + '</ul></div>';
+
+            html += '<div id="rpane-ver" class="hidden"><ol class="space-y-2">' +
+                (r.verify || []).map(function (v, i) {
+                    return '<li class="border border-gray-200 rounded-xl px-4 py-3">' +
+                        '<p class="text-sm text-gray-800 leading-relaxed font-bold">' + (i + 1) + '. ' + escapeHtml(v.task) + '</p>' +
+                        '<div class="text-xs text-gray-500 mt-1">확인처: ' + escapeHtml(v.where) +
+                        (v.url ? ' <a href="' + v.url + '" target="_blank" rel="noopener noreferrer" class="text-pinky-600 underline font-bold">열기</a>' : '') + '</div></li>';
+                }).join('') + '</ol></div>';
+
+            html += '</div>';
+        }
 
         if (r.analysis) {
             html +=
                 '<div class="bg-white rounded-2xl shadow-sm border-2 border-pinky-200 p-6">' +
-                    '<h3 class="font-bold text-pinky-700 mb-1"><i class="fa-solid fa-hand-pointer mr-1"></i> 문장 분석 연습</h3>' +
-                    '<p class="text-xs text-gray-500 mb-4">아래 문장을 <b>끌어다 놓거나</b>, 문장을 누른 뒤 칸을 눌러 옮기세요. 다 옮기면 채점할 수 있습니다.</p>' +
+                    '<h3 class="font-bold text-pinky-700 text-lg mb-1"><i class="fa-solid fa-hand-pointer mr-1"></i> 문장 분석 연습</h3>' +
+                    '<p class="text-sm text-gray-500 mb-4">아래 문장을 <b>끌어다 놓거나</b>, 문장을 누른 뒤 칸을 눌러 옮기세요. 다 옮기면 채점할 수 있습니다.</p>' +
                     '<div class="flex gap-2 mb-4">' +
                         '<button id="an-tab-fo" onclick="setAnalysisMode(\'fo\')" class="flex-1 text-sm font-bold py-2.5 rounded-xl border-2 transition-colors">사실 / 의견</button>' +
                         '<button id="an-tab-ce" onclick="setAnalysisMode(\'ce\')" class="flex-1 text-sm font-bold py-2.5 rounded-xl border-2 transition-colors">주장 / 근거</button>' +
@@ -3495,8 +4118,19 @@
         }
 
         view.innerHTML = html;
+        if (tabs.length) showReadTab(tabs[0]);
         if (r.analysis) setAnalysisMode('fo');
         window.scrollTo(0, 0);
+    }
+
+    function showReadTab(which) {
+        ['num', 'src', 'ver'].forEach(function (t) {
+            const pane = el('rpane-' + t);
+            const tab = el('rtab-' + t);
+            if (pane) pane.classList.toggle('hidden', t !== which);
+            if (tab) tab.className = 'text-sm font-bold px-3 py-2 rounded-xl border-2 transition-colors ' +
+                (t === which ? 'bg-pinky-500 border-pinky-500 text-white' : 'bg-white border-gray-200 text-gray-600 hover:border-pinky-300');
+        });
     }
 
     function closeReading() {
@@ -3544,7 +4178,7 @@
     }
 
     function chipHtml(it) {
-        return '<div id="chip-' + it.i + '" draggable="true" class="sent-chip bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-800 leading-snug" ' +
+        return '<div id="chip-' + it.i + '" draggable="true" class="sent-chip bg-white border border-gray-300 rounded-lg px-3 py-2.5 text-[15px] text-gray-800 leading-relaxed" ' +
             'ondragstart="onChipDragStart(event,' + it.i + ')" ondragend="onChipDragEnd(event)" onclick="pickChip(event,' + it.i + ')">' +
             escapeHtml(it.s) + '</div>';
     }
@@ -3558,8 +4192,8 @@
         el('analysis-area').innerHTML =
             '<div class="border-2 border-dashed border-gray-300 rounded-xl p-3 mb-4 drop-zone" ' +
                 'ondragover="onZoneOver(event)" ondragleave="onZoneLeave(event)" ondrop="onZoneDrop(event,\'pool\')" onclick="dropPicked(\'pool\')">' +
-                '<div class="text-xs font-bold text-gray-500 mb-2">옮길 문장 (' + pool.length + ')</div>' +
-                '<div class="space-y-2">' + (pool.length ? pool.map(chipHtml).join('') : '<p class="text-xs text-gray-400">모두 옮겼습니다.</p>') + '</div>' +
+                '<div class="text-sm font-bold text-gray-500 mb-2">옮길 문장 (' + pool.length + ')</div>' +
+                '<div class="grid grid-cols-1 md:grid-cols-2 gap-2">' + (pool.length ? pool.map(chipHtml).join('') : '<p class="text-sm text-gray-400">모두 옮겼습니다.</p>') + '</div>' +
             '</div>' +
             '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">' +
                 zoneHtml(cfg.a, inA, 'butter') +
@@ -3575,8 +4209,8 @@
     function zoneHtml(z, items, tone) {
         return '<div class="border-2 border-' + tone + '-200 bg-' + tone + '-50/50 rounded-xl p-3 drop-zone" ' +
             'ondragover="onZoneOver(event)" ondragleave="onZoneLeave(event)" ondrop="onZoneDrop(event,\'' + z.key + '\')" onclick="dropPicked(\'' + z.key + '\')">' +
-            '<div class="text-sm font-bold text-' + tone + '-700">' + escapeHtml(z.name) + ' (' + items.length + ')</div>' +
-            '<div class="text-[11px] text-gray-500 mb-2">' + escapeHtml(z.desc) + '</div>' +
+            '<div class="text-base font-bold text-' + tone + '-700">' + escapeHtml(z.name) + ' (' + items.length + ')</div>' +
+            '<div class="text-xs text-gray-500 mb-2">' + escapeHtml(z.desc) + '</div>' +
             '<div class="space-y-2 min-h-[3rem]">' + items.map(chipHtml).join('') + '</div>' +
         '</div>';
     }
@@ -3635,6 +4269,7 @@
             if (x.zone === x.a) { node.classList.add('ok'); right++; }
             else node.classList.add('no');
         });
+        saveAnalysisRecord(currentReading ? currentReading.title : '', analysisMode, right, analysisItems.length);
 
         el('analysis-result').innerHTML =
             '<div class="rounded-xl border-2 p-4 ' + (right === analysisItems.length ? 'border-emerald-200 bg-emerald-50' : 'border-butter-200 bg-butter-50') + '">' +
@@ -3663,12 +4298,13 @@
         return found;
     }
 
-    function runSpellCheck(where) {
-        const text = FIELDS.map(function (f) { return el(f.id).value; }).join('\n');
+    function runSpellCheck() {
         const box = el('spell-result');
+        if (!box) return 0;
+        const text = FIELDS.map(function (f) { const n = el(f.id); return n ? n.value : ''; }).join('\n');
         if (text.trim() === '') {
             box.className = 'text-xs text-gray-500 leading-relaxed';
-            box.innerHTML = '먼저 주장과 근거를 써 주세요.';
+            box.innerHTML = '글을 쓰기 시작하면 자주 틀리는 표현을 찾아 알려 줍니다.';
             return 0;
         }
         const issues = findSpellIssues(text);
