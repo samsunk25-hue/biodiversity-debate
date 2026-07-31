@@ -195,8 +195,7 @@
             <span class="text-gray-300">›</span>
             <button id="nav-concept" class="navbtn" onclick="showSection('concept')"><i class="fa-solid fa-lightbulb"></i> 개념 정리</button>
             <button id="nav-read" class="navbtn" onclick="showSection('read')"><i class="fa-solid fa-book-open-reader"></i> 글 읽기</button>
-            <button id="nav-check" class="navbtn" onclick="startPractice('check')"><i class="fa-solid fa-clipboard-check"></i> 자료 확인</button>
-            <button id="nav-hunt" class="navbtn" onclick="startPractice('hunt')"><i class="fa-solid fa-compass"></i> 근거 찾기</button>
+            <button id="nav-practice" class="navbtn" onclick="openPracticePicker()"><i class="fa-solid fa-dumbbell"></i> 연습</button>
             <button id="nav-debate" class="navbtn" onclick="showSection('debate')"><i class="fa-solid fa-pen-to-square"></i> 토론 개요서</button>
             <button id="nav-fallacy" class="navbtn" onclick="showSection('fallacy')"><i class="fa-solid fa-magnifying-glass-arrow-right"></i> 오류 찾기<span class="text-xs font-normal opacity-70">(선택)</span></button>
         </div>
@@ -207,13 +206,29 @@
         <!-- 교사가 입력한 성취수준 배너 -->
         <div id="standard-banner" class="hidden mb-6"></div>
 
-        <!-- 위쪽 탭에서 연습을 고르면 나오는 주제 선택 -->
+        <!-- 위쪽 '연습' 탭에서 여는 선택 카드 -->
         <div id="practice-topic-picker" class="hidden mb-6 bg-white border-2 border-pinky-200 rounded-2xl p-5">
             <div class="flex items-center justify-between gap-2 mb-3">
-                <p class="font-bold text-gray-800"><span id="practice-pick-title">연습</span> — 어느 주제로 할까요?</p>
-                <button onclick="cancelPracticePick()" class="text-sm font-bold text-gray-500 hover:text-gray-700 px-2 py-1">취소</button>
+                <p class="font-bold text-gray-800 text-lg">연습하기</p>
+                <button onclick="cancelPracticePick()" class="text-sm font-bold text-gray-500 hover:text-gray-700 px-2 py-1">닫기</button>
             </div>
-            <div id="practice-topic-list" class="grid grid-cols-1 sm:grid-cols-3 gap-2"></div>
+
+            <p class="text-sm text-gray-600 mb-2">1. 어떤 연습을 할까요?</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+                <button id="pick-kind-check" onclick="pickPracticeKind('check')" class="text-left border-2 border-gray-200 hover:border-pinky-400 rounded-xl px-4 py-3 transition-colors">
+                    <div class="font-bold text-gray-800"><i class="fa-solid fa-clipboard-check text-pinky-500 mr-1"></i> 자료 확인 과제</div>
+                    <div class="text-sm text-gray-600 mt-0.5">이 수치가 맞는지 기관 자료에서 직접 확인합니다.</div>
+                </button>
+                <button id="pick-kind-hunt" onclick="pickPracticeKind('hunt')" class="text-left border-2 border-gray-200 hover:border-butter-400 rounded-xl px-4 py-3 transition-colors">
+                    <div class="font-bold text-gray-800"><i class="fa-solid fa-compass text-butter-600 mr-1"></i> 근거 찾기 연습</div>
+                    <div class="text-sm text-gray-600 mt-0.5">주장을 뒷받침하려면 무엇을 찾아야 할지 정합니다.</div>
+                </button>
+            </div>
+
+            <div id="practice-topic-step" class="hidden">
+                <p class="text-sm text-gray-600 mb-2">2. 어느 주제로 할까요?</p>
+                <div id="practice-topic-list" class="grid grid-cols-1 sm:grid-cols-3 gap-2"></div>
+            </div>
         </div>
 
 
@@ -1406,18 +1421,38 @@
     /* 첫 화면에서 바로 연습하기 : 연습을 고른 뒤 주제를 고르면 그 연습이 열린다 */
     let pendingPractice = null;
 
-    function startPractice(kind) {
+    function openPracticePicker() {
+        pendingPractice = null;
+        el('practice-topic-step').classList.add('hidden');
+        ['check', 'hunt'].forEach(function (k) {
+            const b = el('pick-kind-' + k);
+            if (b) { b.classList.remove('ring-2', 'ring-pinky-300'); }
+        });
+        el('practice-topic-picker').classList.remove('hidden');
+        setActiveNav('practice');
+        el('practice-topic-picker').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function pickPracticeKind(kind) {
         pendingPractice = kind;
-        const label = kind === 'check' ? '자료 확인 과제' : '근거 찾기 연습';
-        el('practice-pick-title').innerText = label;
+        ['check', 'hunt'].forEach(function (k) {
+            const b = el('pick-kind-' + k);
+            if (b) b.classList.toggle('ring-2', k === kind);
+            if (b) b.classList.toggle('ring-pinky-300', k === kind);
+        });
         el('practice-topic-list').innerHTML = discussionData.map(function (t) {
             return '<button onclick="pickPracticeTopic(' + t.id + ')" class="text-left border border-gray-200 hover:border-pinky-400 rounded-xl px-3 py-2.5 transition-colors bg-white">' +
                 '<div class="text-[11px] font-bold text-gray-500">' + escapeHtml(t.region) + '</div>' +
                 '<div class="text-sm font-bold text-gray-800 leading-snug">' + escapeHtml(t.title) + '</div>' +
             '</button>';
         }).join('');
-        el('practice-topic-picker').classList.remove('hidden');
-        el('practice-topic-picker').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        el('practice-topic-step').classList.remove('hidden');
+    }
+
+    /* 다른 화면에서 부르는 경우 (연습 종류가 이미 정해진 경우) */
+    function startPractice(kind) {
+        openPracticePicker();
+        pickPracticeKind(kind);
     }
 
     function cancelPracticePick() {
@@ -1434,7 +1469,7 @@
 
     /* 연습만 하는 화면 : 관련 글에서 필요한 대목을 뽑아 함께 보여 준다 */
     function openPracticeAlone(kind) {
-        setActiveNav(kind);
+        setActiveNav('practice');
         el('practice-host').appendChild(el('practice-panel'));
         openPractice(kind);
         closePracticeButKeepPanel();
@@ -2639,6 +2674,8 @@
     }
 
     function hideAllSections() {
+        const picker = el('practice-topic-picker');
+        if (picker) picker.classList.add('hidden');
         SECTIONS.forEach(function (id) {
             const node = el(id);
             if (node) node.classList.add('hidden');
@@ -2647,7 +2684,7 @@
 
     /* 위쪽 이동 메뉴에서 지금 있는 곳을 표시한다 */
     function setActiveNav(which) {
-        ['home', 'concept', 'read', 'fallacy', 'debate', 'check', 'hunt'].forEach(function (k) {
+        ['home', 'concept', 'read', 'fallacy', 'debate', 'practice'].forEach(function (k) {
             const btn = el('nav-' + k);
             if (btn) btn.classList.toggle('on', k === which);
         });
@@ -2655,7 +2692,7 @@
 
     function showSection(which) {
         hideAllSections();
-        setActiveNav(which === 'practice' ? 'debate' : which);
+        setActiveNav(which);
         if (which === 'concept') {
             el('sec-concept').classList.remove('hidden');
             showStandard('concept');
