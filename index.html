@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>생물다양성 토론장 - 책으로 생각 넓히기</title>
-    <meta name="description" content="책으로 읽은 내용을 바탕으로 생물다양성 쟁점에 대해 주장과 근거를 쓰고 친구들과 비교해 보는 학습 앱입니다. 욕설 필터와 개인정보 차단 기능이 들어 있습니다.">
+    <title>생물다양성 탐구·토론 — 자료를 찾고 교차 검증하는 과학 활동</title>
+    <meta name="description" content="생물다양성 자료의 정확성을 확인하고, 과학 개념으로 보전 방안의 타당성을 따져 토론 개요서를 쓰는 중학교 과학 활동 도구입니다. 부여·서천·충남 내륙 주제를 다룹니다.">
 
     <!-- 앱 설치(바탕화면 바로가기) -->
     <link rel="manifest" href="manifest.webmanifest">
@@ -20,8 +20,8 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="생물다양성 토론장">
     <meta property="og:locale" content="ko_KR">
-    <meta property="og:title" content="생물다양성 토론장 - 책으로 생각 넓히기">
-    <meta property="og:description" content="책으로 읽고, 주장과 근거로 토론해요. 욕설 필터 · 개인정보 보호 · 익명 별명.">
+    <meta property="og:title" content="생물다양성 탐구·토론 — 자료를 찾고 교차 검증하기">
+    <meta property="og:description" content="개념 정리 · 글 읽기 · 토론 개요서 작성. 자료의 정확성을 확인하고 근거로 말하는 과학 활동 도구.">
     <meta property="og:url" content="https://samsunk25-hue.github.io/biodiversity-debate/">
     <meta property="og:image" content="https://samsunk25-hue.github.io/biodiversity-debate/icons/og-image.png">
     <meta property="og:image:secure_url" content="https://samsunk25-hue.github.io/biodiversity-debate/icons/og-image.png">
@@ -32,8 +32,8 @@
 
     <!-- 트위터 카드 -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="생물다양성 토론장 - 책으로 생각 넓히기">
-    <meta name="twitter:description" content="책으로 읽고, 주장과 근거로 토론해요. 욕설 필터 · 개인정보 보호 · 익명 별명.">
+    <meta name="twitter:title" content="생물다양성 탐구·토론 — 자료를 찾고 교차 검증하기">
+    <meta name="twitter:description" content="개념 정리 · 글 읽기 · 토론 개요서 작성. 자료의 정확성을 확인하고 근거로 말하는 과학 활동 도구.">
     <meta name="twitter:image" content="https://samsunk25-hue.github.io/biodiversity-debate/icons/og-image.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -111,6 +111,20 @@
             .fade-in { animation: none; }
             .shake { animation: none; }
         }
+        /* 문장 분석 연습 (드래그) */
+        .sent-chip {
+            cursor: grab; user-select: none;
+            transition: box-shadow .15s, transform .15s, opacity .15s;
+        }
+        .sent-chip:active { cursor: grabbing; }
+        .sent-chip.dragging { opacity: .45; }
+        .drop-zone { transition: background-color .15s, border-color .15s; }
+        .drop-zone.over { background-color: #ffe9f0; border-color: #f088b0; }
+        .sent-chip.ok { border-color: #6ee7b7 !important; background-color: #ecfdf5 !important; }
+        .sent-chip.no { border-color: #fda4af !important; background-color: #fff1f2 !important; }
+        /* 읽기 자료 본문 */
+        .article-body p { margin-bottom: 0.9rem; line-height: 1.95; }
+        .article-body h4 { margin: 1.6rem 0 .6rem; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #fdf3f6; border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: #f7c9da; border-radius: 4px; }
@@ -122,12 +136,17 @@
     <header class="header-gradient py-7 border-b border-pinky-200">
         <div class="max-w-4xl mx-auto px-4 flex items-center justify-between gap-4">
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold flex items-center gap-2 text-pinky-700">
-                    <i class="fa-solid fa-seedling text-butter-600"></i> 생물다양성 토론장
+                <h1 class="text-2xl md:text-3xl font-bold flex items-center gap-2 text-pinky-700 cursor-pointer" onclick="goHome()">
+                    <i class="fa-solid fa-seedling text-butter-600"></i> 생물다양성 탐구·토론
                 </h1>
-                <p class="text-gray-600 mt-1 text-sm md:text-base">책에서 읽은 주제로 내 생각을 정리하고 친구들과 비교해 봐요!</p>
+                <p class="text-gray-600 mt-1 text-sm md:text-base">자료를 찾고, 교차 검증하고, 과학 개념으로 따져 봅니다.</p>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+                <button onclick="openAdmin()" title="교사 관리자"
+                    class="bg-white/80 hover:bg-white border border-gray-300 text-gray-600 font-bold text-xs md:text-sm px-3 py-2.5 rounded-xl shadow-sm transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    <span class="hidden md:inline">교사</span>
+                </button>
                 <button id="install-btn" onclick="onInstallClick()"
                     class="bg-white/80 hover:bg-white border border-pinky-300 text-pinky-700 font-bold text-xs md:text-sm px-3 md:px-4 py-2.5 rounded-xl shadow-sm transition-all flex items-center gap-2">
                     <i class="fa-solid fa-download"></i>
@@ -173,12 +192,126 @@
 
     <main class="flex-grow max-w-4xl mx-auto w-full px-4 py-8 relative">
 
-        <!-- ===================== 1단계 : 주제 선택 ===================== -->
-        <section id="step-1" class="fade-in block">
+        <!-- 교사가 입력한 성취수준 배너 -->
+        <div id="standard-banner" class="hidden mb-6"></div>
+
+        <!-- ===================== 첫 화면 : 활동 고르기 ===================== -->
+        <section id="home" class="fade-in block">
             <div class="text-center mb-8">
-                <h2 class="text-xl md:text-2xl font-bold text-gray-800">1단계: 토론할 책과 주제를 선택하세요</h2>
-                <p class="text-gray-500 mt-2">최근에 읽었거나 관심 있는 주제의 카드를 클릭하세요.</p>
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800">어떤 활동부터 시작할까요?</h2>
+                <p class="text-gray-500 mt-2 text-sm md:text-base">
+                    개념을 정리하고 → 글을 읽고 자료를 확인한 뒤 → 토론 개요서를 쓰는 순서를 권합니다.
+                </p>
                 <p class="text-gray-400 text-sm mt-1">내 별명: <span id="nickname-badge" class="font-bold text-pinky-600"></span></p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <button onclick="showSection('concept')" class="text-left bg-white rounded-2xl shadow-sm border-2 border-pinky-100 p-6 hover:shadow-lg hover:border-pinky-300 transition-all flex flex-col h-full transform hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-pinky-100 text-pinky-600 rounded-full flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div class="text-xs font-bold text-gray-500 mb-1">활동 1</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">개념 정리</h3>
+                    <p class="text-sm text-gray-600 flex-grow">생물다양성·생태계 서비스·자료 읽는 법까지, 토론에 필요한 과학 개념을 카드로 정리하고 문제로 확인합니다.</p>
+                    <div class="mt-4 pt-4 border-t border-gray-100 text-pinky-600 font-bold text-sm flex items-center justify-between">
+                        개념 보러 가기 <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </button>
+
+                <button onclick="showSection('read')" class="text-left bg-white rounded-2xl shadow-sm border-2 border-butter-100 p-6 hover:shadow-lg hover:border-butter-300 transition-all flex flex-col h-full transform hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-butter-100 text-butter-700 rounded-full flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-book-open-reader"></i>
+                    </div>
+                    <div class="text-xs font-bold text-gray-500 mb-1">활동 2</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">글 읽기 · 분석</h3>
+                    <p class="text-sm text-gray-600 flex-grow">10분 안에 읽는 글을 읽고, 문장을 옮겨 사실과 의견·주장과 근거를 구분합니다. 기관 원문과 기사도 바로 열 수 있습니다.</p>
+                    <div class="mt-4 pt-4 border-t border-gray-100 text-butter-700 font-bold text-sm flex items-center justify-between">
+                        글 읽으러 가기 <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </button>
+
+                <button onclick="showSection('debate')" class="text-left bg-white rounded-2xl shadow-sm border-2 border-pinky-100 p-6 hover:shadow-lg hover:border-pinky-300 transition-all flex flex-col h-full transform hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-pinky-100 text-pinky-700 rounded-full flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+                    <div class="text-xs font-bold text-gray-500 mb-1">활동 3</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">토론 개요서 작성</h3>
+                    <p class="text-sm text-gray-600 flex-grow">부여·서천·충남 내륙 주제를 골라 논점 3가지를 확인하고, 근거를 찾아 주장과 근거를 씁니다.</p>
+                    <div class="mt-4 pt-4 border-t border-gray-100 text-pinky-600 font-bold text-sm flex items-center justify-between">
+                        개요서 쓰러 가기 <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </button>
+            </div>
+
+            <div class="mt-6 bg-white border border-gray-200 rounded-2xl p-5">
+                <h3 class="font-bold text-gray-700 text-sm mb-2">
+                    <i class="fa-solid fa-magnifying-glass-chart text-pinky-500 mr-1"></i> 이 활동에서 우리가 하는 일
+                </h3>
+                <ul class="text-xs md:text-sm text-gray-600 space-y-1.5 list-disc list-inside leading-relaxed">
+                    <li><b>자료의 정확성 확인</b> — 수치의 기준 연도·단위·조사 방법을 확인하고 두 기관 이상에서 교차 검증합니다.</li>
+                    <li><b>과학 개념 활용</b> — 수용력·파편화·생태계 서비스 같은 개념으로 현상을 설명합니다.</li>
+                    <li><b>보전 방안의 타당성 판단</b> — 회피–저감–상쇄, 기회비용, 되돌릴 수 있는지를 기준으로 방안을 따집니다.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ===================== 활동 1 : 개념 정리 ===================== -->
+        <section id="sec-concept" class="fade-in hidden">
+            <button onclick="goHome()" class="text-pinky-600 hover:text-pinky-700 font-medium mb-4 flex items-center gap-1 transition-colors">
+                <i class="fa-solid fa-arrow-left"></i> 처음 화면으로
+            </button>
+            <div class="text-center mb-6">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800">개념 정리</h2>
+                <p class="text-gray-500 mt-2 text-sm">카드를 눌러 자세한 설명과 ‘조심할 점’을 확인하세요.</p>
+            </div>
+            <div id="concept-tabs" class="flex flex-wrap gap-2 justify-center mb-5"></div>
+            <div id="concept-body" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8"></div>
+
+            <div class="bg-white rounded-2xl shadow-sm border-2 border-butter-200 p-6">
+                <h3 class="font-bold text-butter-700 mb-1"><i class="fa-solid fa-list-check mr-1"></i> 개념 확인 문제</h3>
+                <p class="text-xs text-gray-500 mb-4">한 문제씩 풀고 바로 채점합니다. 틀린 문제는 해설을 읽고 다시 풀어 보세요.</p>
+                <div id="quiz-body"></div>
+            </div>
+        </section>
+
+        <!-- ===================== 활동 2 : 글 읽기 ===================== -->
+        <section id="sec-read" class="fade-in hidden">
+            <button onclick="goHome()" class="text-pinky-600 hover:text-pinky-700 font-medium mb-4 flex items-center gap-1 transition-colors">
+                <i class="fa-solid fa-arrow-left"></i> 처음 화면으로
+            </button>
+
+            <!-- 글 목록 -->
+            <div id="read-list">
+                <div class="text-center mb-6">
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800">글 읽기 · 분석</h2>
+                    <p class="text-gray-500 mt-2 text-sm">읽을 글을 고르세요. 교사가 올린 글이 있으면 아래에 함께 나타납니다.</p>
+                </div>
+                <div id="reading-cards" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8"></div>
+
+                <div class="bg-white rounded-2xl shadow-sm border-2 border-pinky-200 p-6">
+                    <h3 class="font-bold text-pinky-700 mb-1">
+                        <i class="fa-solid fa-building-columns mr-1"></i> 기관 원문 · 기사 자료실
+                    </h3>
+                    <p class="text-xs text-gray-500 mb-4">
+                        국립생태원·기후에너지환경부·해양수산부·산림청 등 <b>기관이 직접 펴낸 원문</b>과 <b>신문 기사</b>로 바로 이동합니다(새 창).
+                        기사에서 본 숫자는 반드시 기관 원문과 대조하세요.
+                    </p>
+                    <div id="source-library"></div>
+                </div>
+            </div>
+
+            <!-- 글 본문 + 분석 -->
+            <div id="read-view" class="hidden"></div>
+        </section>
+
+        <!-- ===================== 1단계 : 주제 선택 ===================== -->
+        <section id="step-1" class="fade-in hidden">
+            <button onclick="goHome()" class="text-pinky-600 hover:text-pinky-700 font-medium mb-4 flex items-center gap-1 transition-colors">
+                <i class="fa-solid fa-arrow-left"></i> 처음 화면으로
+            </button>
+            <div class="text-center mb-8">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800">토론 주제를 선택하세요</h2>
+                <p class="text-gray-500 mt-2">모두 충남 부여와 충남 전역에서 실제로 논의되는 주제입니다.</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="topic-cards-container"></div>
         </section>
@@ -190,28 +323,57 @@
             </button>
 
             <div class="bg-white rounded-2xl shadow-sm border border-pinky-100 p-6 md:p-8 mb-6">
-                <div class="inline-block bg-pinky-100 text-pinky-700 px-3 py-1 rounded-full text-sm font-bold mb-3" id="current-book-label">도서명</div>
-
-                <!-- 도서 요약 (교보문고 책소개 기반) -->
-                <div class="bg-pinky-50 border border-pinky-200 rounded-xl p-4 mb-5">
-                    <h3 class="text-sm font-bold text-pinky-700 mb-1 flex items-center gap-1">
-                        <i class="fa-solid fa-book-open"></i> 책 내용 요약
-                    </h3>
-                    <p class="text-xs text-pinky-600 mb-2" id="current-book-meta">저자 · 출판사</p>
-                    <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line" id="current-book-summary">책 요약 내용</p>
-                    <p class="text-[11px] text-gray-500 mt-3 pt-3 border-t border-pinky-200">
-                        출처: 교보문고 책소개
-                        <a id="current-book-link" href="#" target="_blank" rel="noopener noreferrer" class="text-pinky-600 underline ml-1">
-                            교보문고에서 보기 <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                        </a>
-                    </p>
-                </div>
+                <div class="inline-block bg-pinky-100 text-pinky-700 px-3 py-1 rounded-full text-sm font-bold mb-3" id="current-region-label">지역</div>
 
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2" id="current-topic-title">주제 질문</h2>
                 <p class="text-gray-600 mb-6 pb-6 border-b border-gray-100" id="current-topic-desc">주제에 대한 부연 설명</p>
 
-                <!-- 핵심 통계 -->
+                <!-- 주제 배경 -->
+                <div class="bg-pinky-50 border border-pinky-200 rounded-xl p-4 mb-5">
+                    <h3 class="text-sm font-bold text-pinky-700 mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-info"></i> 주제 배경
+                    </h3>
+                    <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line" id="current-background"></p>
+                </div>
+
+                <!-- 논점 3분류 -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-bold text-gray-700 mb-1">
+                        <i class="fa-solid fa-diagram-project text-pinky-500 mr-1"></i> 이 주제의 논점 세 가지
+                    </h3>
+                    <p class="text-xs text-gray-500 mb-3">토론은 이 세 축에서 갈립니다. 내가 어느 논점에서 이길 수 있는지 정하고 자료를 찾으세요.</p>
+                    <div id="issue-body" class="space-y-3"></div>
+                </div>
+
+                <!-- 이 주제와 이어지는 읽기 자료 -->
+                <div id="topic-readings" class="mb-6"></div>
+
+                <!-- 핵심 사실 -->
                 <div id="factbox" class="bg-butter-50 border border-butter-200 rounded-xl p-4 mb-6"></div>
+
+                <!-- 자료 정확성 확인 과제 -->
+                <div class="border-2 border-pinky-200 rounded-xl mb-6 overflow-hidden">
+                    <button onclick="toggleBox('check')" class="w-full flex items-center justify-between px-4 py-3 bg-pinky-50 hover:bg-pinky-100 transition-colors text-left">
+                        <span class="font-bold text-gray-700 text-sm">
+                            <i class="fa-solid fa-clipboard-check text-pinky-600 mr-1"></i>
+                            자료 확인 과제 — 이 수치가 맞는지 직접 확인하기
+                        </span>
+                        <i id="check-chevron" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+                    </button>
+                    <div id="check-body" class="hidden px-4 py-4 bg-white"></div>
+                </div>
+
+                <!-- 근거 찾기 연습 -->
+                <div class="border-2 border-butter-200 rounded-xl mb-6 overflow-hidden">
+                    <button onclick="toggleBox('hunt')" class="w-full flex items-center justify-between px-4 py-3 bg-butter-50 hover:bg-butter-100 transition-colors text-left">
+                        <span class="font-bold text-gray-700 text-sm">
+                            <i class="fa-solid fa-compass text-butter-600 mr-1"></i>
+                            근거 찾기 연습 — 이 주장을 뒷받침하려면 무엇을 찾아야 할까?
+                        </span>
+                        <i id="hunt-chevron" class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+                    </button>
+                    <div id="hunt-body" class="hidden px-4 py-4 bg-white"></div>
+                </div>
 
                 <!-- 자료 찾아보기 -->
                 <div class="border border-gray-200 rounded-xl mb-6 overflow-hidden">
@@ -286,7 +448,7 @@
                             </div>
                             <input type="text" id="main-1" maxlength="100"
                                 class="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pinky-300 focus:border-pinky-400 outline-none text-gray-700"
-                                placeholder="예) 동물원은 멸종 위기종의 유전자 다양성을 지키기 위해 꼭 필요하다.">
+                                placeholder="예) 백마강 강변 습지는 시설로 대체할 수 없는 기능을 하므로 생태공원으로 지켜야 한다.">
                         </div>
                         <div>
                             <div class="flex items-end justify-between mb-1.5">
@@ -295,7 +457,7 @@
                             </div>
                             <textarea id="evidence-1" maxlength="300"
                                 class="w-full h-28 p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pinky-300 focus:border-pinky-400 outline-none resize-none text-gray-700 leading-relaxed"
-                                placeholder="주장 ①을 뒷받침하는 과학 원리·통계·기사 내용을 출처와 함께 적어보세요."></textarea>
+                                placeholder="주장 ①을 뒷받침하는 과학 개념·통계·기관 자료를 기준 연도와 출처와 함께 적어 보세요."></textarea>
                         </div>
                     </div>
 
@@ -312,7 +474,7 @@
                             </div>
                             <input type="text" id="main-2" maxlength="100"
                                 class="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-butter-300 focus:border-butter-400 outline-none text-gray-700"
-                                placeholder="예) 동물원은 시민에게 생물다양성 교육을 제공하는 공간이기도 하다.">
+                                placeholder="예) 생태공원은 방문 시기를 사계절로 분산시켜 지역 경제에도 도움이 된다.">
                         </div>
                         <div>
                             <div class="flex items-end justify-between mb-1.5">
@@ -321,7 +483,7 @@
                             </div>
                             <textarea id="evidence-2" maxlength="300"
                                 class="w-full h-28 p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-butter-300 focus:border-butter-400 outline-none resize-none text-gray-700 leading-relaxed"
-                                placeholder="주장 ②를 뒷받침하는 과학 원리·통계·기사 내용을 출처와 함께 적어보세요."></textarea>
+                                placeholder="주장 ②를 뒷받침하는 과학 개념·통계·기관 자료를 기준 연도와 출처와 함께 적어 보세요."></textarea>
                         </div>
                     </div>
 
@@ -346,6 +508,21 @@
                                 <input type="checkbox" id="sc-manual-2" onchange="updateSelfCheck()" class="mt-0.5 w-4 h-4 accent-pinky-500 shrink-0">
                                 <span class="text-xs text-gray-700 leading-snug">책이나 누리집에서 <b>내가 직접 확인한</b> 내용이다. (기억이나 짐작으로 쓰지 않았다)</span>
                             </label>
+                        </div>
+                    </div>
+
+                    <!-- 맞춤법 · 띄어쓰기 도우미 -->
+                    <div class="border border-gray-200 rounded-xl p-4 mb-4 bg-white">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <h4 class="font-bold text-gray-700 text-sm">
+                                <i class="fa-solid fa-spell-check text-butter-600 mr-1"></i> 맞춤법 · 띄어쓰기 도우미
+                            </h4>
+                            <button onclick="runSpellCheck('write')" class="bg-butter-500 hover:bg-butter-600 text-white font-bold text-xs px-3 py-2 rounded-lg transition-colors">
+                                검사하기
+                            </button>
+                        </div>
+                        <div id="spell-result" class="text-xs text-gray-500 leading-relaxed">
+                            자주 틀리는 표현을 규칙으로 찾아 줍니다. 등록할 때도 자동으로 한 번 더 검사합니다.
                         </div>
                     </div>
 
@@ -517,6 +694,115 @@
         </div>
     </footer>
 
+    <!-- ===================== 교사 관리자 ===================== -->
+    <div id="admin-modal" class="hidden fixed inset-0 z-50 items-center justify-center p-3 bg-gray-900/50">
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[92vh] overflow-y-auto">
+            <div class="flex items-start justify-between p-5 border-b border-gray-100 sticky top-0 bg-white">
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-chalkboard-user mr-1 text-pinky-600"></i> 교사 관리자</h3>
+                    <p class="text-xs text-gray-500 mt-1">여기서 설정한 내용은 <b>이 기기의 브라우저에만</b> 저장됩니다. 다른 기기로 옮기려면 아래 내려받기·불러오기를 쓰세요.</p>
+                </div>
+                <button onclick="closeAdmin()" class="text-gray-400 hover:text-gray-600 text-xl px-2" aria-label="닫기">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- 잠금 화면 -->
+            <div id="admin-lock" class="p-5">
+                <label for="admin-pass" class="text-sm font-bold text-gray-700 block mb-2">관리자 암호</label>
+                <input type="password" id="admin-pass" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-pinky-300 mb-2" placeholder="처음 암호는 teacher 입니다">
+                <button onclick="unlockAdmin()" class="w-full bg-pinky-500 hover:bg-pinky-600 text-white font-bold py-2.5 rounded-xl transition-colors">들어가기</button>
+                <p id="admin-lock-msg" class="text-xs text-pinky-600 mt-2 hidden">암호가 맞지 않습니다.</p>
+                <p class="text-[11px] text-gray-400 mt-3">이 암호는 학생의 접근을 잠깐 막는 용도이며 보안 기능이 아닙니다. 개인정보는 절대 입력하지 마세요.</p>
+            </div>
+
+            <!-- 관리 화면 -->
+            <div id="admin-panel" class="hidden p-5 space-y-6">
+
+                <!-- 성취수준 -->
+                <div>
+                    <h4 class="font-bold text-gray-800 text-sm mb-1"><i class="fa-solid fa-bullseye text-pinky-500 mr-1"></i> 성취수준 · 학습 목표</h4>
+                    <p class="text-xs text-gray-500 mb-2">입력하면 학생의 <b>해당 활동 화면 맨 위</b>에 바로 나타납니다.</p>
+                    <div class="space-y-2">
+                        <div>
+                            <label class="text-xs font-bold text-gray-600">모든 활동 공통</label>
+                            <textarea id="adm-std-all" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="예) [9과00-00] 생물다양성의 의미를 이해하고 보전 방안을 자료에 근거해 제안할 수 있다."></textarea>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-600">개념 정리 활동</label>
+                            <textarea id="adm-std-concept" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="예) 종·유전·생태계 다양성을 구분해 설명할 수 있다."></textarea>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-600">글 읽기 활동</label>
+                            <textarea id="adm-std-read" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="예) 글에서 사실과 의견, 주장과 근거를 구분할 수 있다."></textarea>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-600">토론 개요서 활동</label>
+                            <textarea id="adm-std-debate" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="예) 신뢰할 수 있는 자료를 인용해 주장과 근거를 작성할 수 있다."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 루브릭 -->
+                <div class="border-t border-gray-100 pt-5">
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <h4 class="font-bold text-gray-800 text-sm"><i class="fa-solid fa-table-list text-butter-600 mr-1"></i> 평가 기준(루브릭)</h4>
+                        <div class="flex gap-2">
+                            <button onclick="addRubricRow()" class="text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1.5 rounded-lg">항목 추가</button>
+                            <button onclick="loadDefaultRubric()" class="text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1.5 rounded-lg">기본 루브릭</button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-3">학생이 개요서를 <b>복사하거나 PDF로 저장할 때 함께 저장</b>됩니다. 학생 화면에서도 접어서 볼 수 있습니다.</p>
+                    <div id="rubric-rows" class="space-y-3"></div>
+                </div>
+
+                <!-- 읽기 자료 추가 -->
+                <div class="border-t border-gray-100 pt-5">
+                    <h4 class="font-bold text-gray-800 text-sm mb-1"><i class="fa-solid fa-file-arrow-up text-pinky-500 mr-1"></i> 읽기 자료 추가</h4>
+                    <p class="text-xs text-gray-500 mb-3">
+                        기본 글 4편에 더해 <b id="adm-slot-text">최대 3편</b>까지 올릴 수 있습니다(모두 합쳐 7편).
+                        <b>.txt · .md</b> 파일을 올리거나 본문을 직접 붙여 넣으세요. 첫 줄이 제목이 됩니다.
+                    </p>
+                    <div class="space-y-2">
+                        <input type="text" id="adm-r-title" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="글 제목 (비우면 본문 첫 줄을 제목으로 씁니다)">
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="text" id="adm-r-genre" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="갈래 (예: 기사, 보도자료, 칼럼)">
+                            <input type="url" id="adm-r-url" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="원문 링크 (있으면 학생에게 함께 보여 줍니다)">
+                        </div>
+                        <textarea id="adm-r-body" rows="5" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200 leading-relaxed" placeholder="여기에 본문을 붙여 넣거나, 아래에서 파일을 고르세요."></textarea>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="file" id="adm-r-file" accept=".txt,.md,text/plain,text/markdown" onchange="readUploadFile()" class="flex-1 text-xs text-gray-600 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700">
+                            <button onclick="saveUploadedReading()" class="bg-pinky-500 hover:bg-pinky-600 text-white font-bold text-sm px-4 py-2.5 rounded-xl transition-colors">글 추가하기</button>
+                        </div>
+                        <p id="adm-r-msg" class="text-xs text-gray-500"></p>
+                    </div>
+                    <div id="adm-r-list" class="mt-3 space-y-2"></div>
+                </div>
+
+                <!-- 저장 · 백업 -->
+                <div class="border-t border-gray-100 pt-5">
+                    <h4 class="font-bold text-gray-800 text-sm mb-2"><i class="fa-solid fa-floppy-disk text-gray-500 mr-1"></i> 저장과 백업</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="saveAdmin()" class="flex-1 min-w-[8rem] bg-pinky-500 hover:bg-pinky-600 text-white font-bold text-sm py-2.5 rounded-xl transition-colors">설정 저장</button>
+                        <button onclick="exportAdmin()" class="flex-1 min-w-[8rem] bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm py-2.5 rounded-xl transition-colors">설정 내려받기</button>
+                        <label class="flex-1 min-w-[8rem] bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm py-2.5 rounded-xl transition-colors text-center cursor-pointer">
+                            설정 불러오기
+                            <input type="file" accept=".json,application/json" onchange="importAdmin(event)" class="hidden">
+                        </label>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2 mt-3">
+                        <input type="password" id="adm-newpass" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="새 관리자 암호 (바꾸려면 입력)">
+                        <button onclick="changeAdminPass()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-semibold text-sm px-4 py-2.5 rounded-xl">암호 바꾸기</button>
+                    </div>
+                    <button onclick="checkAllContentSpelling()" class="w-full mt-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-semibold text-sm py-2.5 rounded-xl">
+                        <i class="fa-solid fa-spell-check mr-1"></i> 앱에 실린 모든 글 맞춤법 점검
+                    </button>
+                    <div id="adm-spell-result" class="text-xs text-gray-600 mt-2 leading-relaxed"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 토론 타이머 -->
     <button id="timer-fab" onclick="openTimer()"
         class="fixed bottom-5 right-5 z-40 bg-pinky-500 hover:bg-pinky-600 text-white font-bold text-sm pl-4 pr-5 py-3 rounded-full shadow-lg transition-transform transform hover:-translate-y-0.5 flex items-center gap-2">
@@ -572,259 +858,10 @@
         <span id="toast-text">메시지</span>
     </div>
 
-    <script>
-    /* =========================================================
-       1. 공통 누리집 (모든 주제에서 자료를 찾을 수 있는 곳)
-       ========================================================= */
-    const COMMON_SITES = [
-        { name: "국립생태원 – 멸종위기 야생생물 검색", url: "https://www.nie.re.kr/nie/pgm/edSearch/main.do?menuNo=200133", desc: "분류군·등급·이름으로 멸종위기종을 찾아 형태·서식지·위협요인을 볼 수 있어요." },
-        { name: "국립생태원 – 멸종위기 야생생물 지정현황", url: "https://www.nie.re.kr/nie/pgm/edSpecies/edSpeciesList.do?menuNo=200127", desc: "Ⅰ급·Ⅱ급 전체 목록과 분류군별 종 수를 확인할 수 있어요." },
-        { name: "국립생태원 – 멸종위기 야생생물 분포현황", url: "https://www.nie.re.kr/nie/pgm/edDistStat/list.do?menuNo=200128", desc: "지역(시·도)을 클릭해 우리 지역에 사는 멸종위기종을 찾아볼 수 있어요." },
-        { name: "e-나라지표 – 멸종위기 야생생물 지정 현황", url: "https://www.index.go.kr/unity/potal/main/EachDtlPageDetail.do?idx_cd=1463", desc: "연도별 지정 종 수 변화를 표와 그래프로 제공하는 국가 통계 지표예요." },
-        { name: "공공데이터포털 – 국가생물다양성 통계자료집", url: "https://www.data.go.kr/data/15069684/fileData.do", desc: "국립생물자원관이 해마다 펴내는 통계자료집(PDF)을 무료로 내려받을 수 있어요." },
-        { name: "찾기쉬운 생활법령정보 – 생태계교란 생물의 지정", url: "https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&csmSeq=1812&ccfNo=3&cciNo=2&cnpClsNo=1", desc: "생태계교란 생물을 어떤 기준으로 지정하는지 법령 내용을 쉽게 설명해 줘요." }
-    ];
+    <!-- 학습 콘텐츠(개념·읽기 자료·토론 주제·맞춤법 규칙) -->
+    <script src="./content.js"></script>
 
-    /* =========================================================
-       2. 토론 주제 데이터
-          - bookSummary : 교보문고 책소개 기반
-          - factbox     : 핵심 통계
-          - refs        : 관련 기사 / 통계·자료 / 누리집
-          - friends     : 별명 + 과학적 근거를 갖춘 주장 2개
-       ========================================================= */
-    const discussionData = [
-        {
-            id: 1,
-            book: "친절한 교과 씨 생물 다양성으로 수다 떨다",
-            bookMeta: "이고은 글 · 불곰 그림 | 데이스타 | 2026",
-            kyoboUrl: "https://product.kyobobook.co.kr/detail/S000219311332",
-            bookSummary: "“쇼츠보다 재미있고, 선생님만큼 친절하며, 교과서보다 유익하다!”\n교과서에는 미처 담을 수 없었던 잡다하고 흥미로운 이야기를 담은 시리즈입니다. 현직 생물 교사인 저자가 바나나의 멸종, 제주도의 아열대 기후화, 종자 사용료, 적응과 다양성의 반비례 관계처럼 교과 내용과 깊이 있게 연계된 주제로 생물 다양성의 중요성을 알려 줍니다. “멸종을 코앞에 둔 인류에게 남은 마지막 등불, 생물 다양성을 지켜라!” 흥미로운 이야기를 따라가다 보면 복잡한 생태계의 아름다움을 이해하고, 일상 속에서 지구를 위해 내디딜 첫걸음을 발견하게 됩니다.",
-            title: "종 보존을 위해 동물원을 계속 유지해야 할까?",
-            desc: "우리 지역의 대전 오월드나 야생동물 보호소로 변신 중인 청주동물원 사례를 생각해 봅시다. 멸종 위기 '종'을 보호하기 위해 동물원이 꼭 필요할까요?",
-            icon: "fa-hippo",
-            color: "text-butter-700",
-            bgColor: "bg-butter-100",
-            factbox: {
-                title: "우리나라 멸종위기 야생생물 지정 현황",
-                rows: [
-                    { label: "멸종위기 야생생물 Ⅰ급", value: "68종" },
-                    { label: "멸종위기 야생생물 Ⅱ급", value: "214종" },
-                    { label: "합계", value: "282종" },
-                    { label: "관찰종", value: "56종" }
-                ],
-                note: "2022년 12월 기준",
-                source: "e-나라지표 「멸종위기 야생생물 지정 현황」",
-                sourceUrl: "https://www.index.go.kr/unity/potal/main/EachDtlPageDetail.do?idx_cd=1463"
-            },
-            refs: {
-                news: [
-                    { title: "청주동물원, 토종 야생동물 보호하는 동물원 된다", media: "경향신문", date: "2023.4.27", url: "https://www.khan.co.kr/article/202304271123011", point: "천연기념물 동물 보존관 사업에 21억 원을 투입해 구조·치료·재활 후 자연 방사를 추진한다는 내용." },
-                    { title: "청주동물원, 천연기념물 동물보존관 개소…야생 복귀 돕는다", media: "중부매일", date: "2026.4.2", url: "https://www.jbnews.com/news/articleView.html?idxno=1501691", point: "총 20억 7천만 원을 들여 방사훈련장·이동진료차량을 갖췄고, 몽골에서 오는 어린 독수리 약 10%가 전선 충돌·농약 중독으로 다친다는 내용." }
-                ],
-                stats: [
-                    { title: "멸종위기 야생생물 지정 현황 (Ⅰ급 68종 / Ⅱ급 214종)", media: "e-나라지표", url: "https://www.index.go.kr/unity/potal/main/EachDtlPageDetail.do?idx_cd=1463" },
-                    { title: "멸종위기 야생생물 통계자료집 (PDF)", media: "국립생태원", url: "https://www.nie.re.kr/resources/nie/files/edSpeciesDataBook.pdf" }
-                ]
-            },
-            searchTips: {
-                pro: [
-                    "동물원이 <b>서식지 외 보전기관</b>으로 지정된 현황과, 증식·방사에 성공한 사례를 찾아보세요.",
-                    "e-나라지표에서 <b>멸종위기 야생생물 지정 종 수의 연도별 변화</b>를 확인하면 보호가 얼마나 시급한지 보여 줄 수 있어요.",
-                    "청주동물원 동물보존관의 <b>구조·치료·재활 실적</b>(중부매일 2026.4.2)을 근거로 쓰면 좋아요.",
-                    "‘유전자 병목 현상’, ‘근친교배’, ‘유전적 다양성’ 개념을 책이나 국립생태원 자료에서 확인하세요."
-                ],
-                con: [
-                    "사육 개체를 자연에 풀었을 때의 <b>야생 적응 실패·방사 성공률</b> 자료를 찾아보세요.",
-                    "좁은 사육 환경에서 나타나는 <b>정형행동</b>과 동물복지 관련 자료를 확인하세요.",
-                    "동물원 운영비와 <b>서식지 복원 사업 예산</b>을 비교해 어느 쪽이 더 많은 종을 지키는지 따져 보세요.",
-                    "청주동물원이 전시 중심에서 <b>구조·재활 중심으로 전환</b>한 배경(경향신문 2023.4.27)을 근거로 쓰면 좋아요."
-                ]
-            },
-            crossQuestions: {
-                pro: [
-                    { q: "동물원에서 태어난 동물이 야생에서 살아남지 못한다면, 종을 지켰다고 할 수 있나요?", hint: "청주동물원이 20억 7천만 원을 들여 방사훈련장을 갖춘 사례(중부매일 2026.4.2)를 드세요. ‘야생 개체군이 무너졌을 때를 대비한 보험’과 ‘당장 야생에 내보내는 일’은 다른 목표라는 점을 구분해 설명하면 좋아요." },
-                    { q: "좁은 사육 공간에서 정형행동을 보이는 동물의 복지는 어떻게 하실 건가요?", hint: "문제를 인정하되 ‘어떤 동물원이냐’로 논점을 옮기세요. 전시 중심에서 구조·재활 중심으로 바꾸고 있는 청주동물원 사례(경향신문 2023.4.27)가 근거가 됩니다." },
-                    { q: "동물원 운영비로 서식지를 복원하면 더 많은 종을 지킬 수 있지 않나요?", hint: "시뮬레이터에서 예산을 서식지에 100% 몰아 보세요. 야생 개체군은 늘지만 사육 상한이 10마리로 줄어 유전다양성 유지가 어려워집니다. ‘둘 중 하나’가 아니라 조합이 필요하다고 답하세요." }
-                ],
-                con: [
-                    { q: "야생 개체군이 이미 무너진 종은 동물원이 없으면 어디서 지키나요?", hint: "시뮬레이터에서 서식지 복원 예산을 0%로 두면 야생 개체군이 0에 가까워집니다. 서식지 복원이 효과를 내기까지 걸리는 시간 동안 개체군이 버틸 수 있는지를 따져 답하세요." },
-                    { q: "다쳐서 구조된 야생동물은 동물원이 없으면 어디서 치료하나요?", hint: "야생동물구조센터가 그 역할을 대신할 수 있는지 조사해 보세요. ‘전시 시설’과 ‘구조·치료 시설’을 나누자는 답이 가능합니다." },
-                    { q: "멸종위기 야생생물이 282종인데 서식지 복원만으로 모두 지킬 수 있나요?", hint: "e-나라지표 수치를 인정하고, 서식지 한 곳을 살리면 그 안의 여러 종이 함께 산다는 ‘효율’로 반박하세요. 종 하나씩 기르는 방식과 비교해 보세요." }
-                ]
-            },
-            friends: {
-                pro: {
-                    name: "보전연구하는 두루미",
-                    args: [
-                        { claim: "동물원은 멸종을 막는 마지막 유전자 저장고이므로 유지해야 한다.", evidence: "개체 수가 급격히 줄면 '유전자 병목 현상'이 일어나 집단의 유전적 다양성이 낮아지고, 근친교배로 열성 유전자가 드러나 질병 저항성이 떨어져. 동물원은 혈통을 기록해 계획적으로 교배하는 '서식지 외 보전기관' 역할을 하기 때문에 야생 개체군이 무너져도 종 자체를 남길 수 있어. 우리나라 멸종위기 야생생물이 282종(Ⅰ급 68종·Ⅱ급 214종, 2022년 12월 기준, e-나라지표)이나 되는 상황에서는 이런 보험이 꼭 필요해." },
-                        { claim: "동물원은 다친 야생동물을 치료해 자연으로 돌려보내는 구조·재활 거점이다.", evidence: "청주동물원은 20억 7천만 원을 들여 천연기념물 동물보존관과 방사훈련장을 열었어. 몽골에서 겨울을 나러 오는 어린 독수리 가운데 약 10%가 전선에 걸리거나 농약에 중독돼 죽거나 다치는데, 이런 개체를 치료하고 재활 훈련을 시켜 야생으로 돌려보내는 시설이 바로 동물원이야(중부매일, 2026.4.2). 치료 시설이 없으면 다친 개체는 그대로 죽고 개체군은 더 빨리 줄어들어." }
-                    ]
-                },
-                con: {
-                    name: "야생으로 가는 삵",
-                    args: [
-                        { claim: "좁은 사육 공간의 소수 개체군으로는 장기적인 종 보전이 어렵다.", evidence: "적은 수의 개체로 여러 세대를 이어 가면 '유전적 부동'과 근친교배 때문에 유전적 다양성이 오히려 빠르게 사라져. 또 행동권이 넓은 대형 동물은 좁은 공간에서 같은 동작을 반복하는 정형행동을 보이고, 야생에서 먹이를 찾고 포식자를 피하는 행동을 배우지 못해 방사해도 살아남기 어려워. 보전의 최종 목표가 '야생에서 스스로 유지되는 개체군'이라면 전시 중심 동물원은 목표에 닿지 못해." },
-                        { claim: "예산은 전시 시설보다 서식지 복원과 구조·재활에 써야 효율이 높다.", evidence: "청주동물원도 방향을 바꿔 토종 야생동물을 구조·치료해 자연으로 돌려보내는 곳으로 전환하고 있어(경향신문, 2023.4.27). 한 종을 동물원에서 기르는 비용으로 서식지의 물길과 숲을 복원하면 그 안에 사는 수많은 종이 함께 보호돼 비용 대비 효과가 훨씬 커. 종 하나가 아니라 생태계 전체를 지키는 방식이 생물다양성 보전의 본래 목적에 더 맞아." }
-                    ]
-                }
-            }
-        },
-        {
-            id: 2,
-            book: "생물다양성 쫌 아는 10대",
-            bookMeta: "김성호 글 · 도아마 그림 | 풀빛 | 2024",
-            kyoboUrl: "https://product.kyobobook.co.kr/detail/S000214555182",
-            bookSummary: "지구 생태계의 균형을 맞추는 다양성의 힘을 이야기하는 청소년 교양서입니다. 생물다양성은 종 다양성, 유전자 다양성, 생태계 다양성 세 가지로 확인되며, 지구가 생물학적으로 얼마나 건강한지를 가늠하는 잣대라고 설명합니다. 오늘날 멸종 속도는 원래의 자연적 빈도보다 100배에서 1,000배까지 빠르며, 기후 변화와 무분별한 개발, 외래종 도입, 지나친 채취와 남획이 그 원인으로 지목됩니다.\n산림청·환경부의 최신 통계 자료와 국립생태원의 사진 자료가 잘 정리되어 있어, 당장 실천할 수 있는 생활 방식부터 우리 사회가 나아가야 할 방향까지 자연스럽게 알게 됩니다.",
-            title: "천연기념물 '미호종개' 서식지 인근의 지역 개발을 허가해야 할까?",
-            desc: "충청 지역 미호강에만 사는 고유종 '미호종개'가 하천 개발로 멸종 위기입니다. 지역 경제 발전을 위한 개발과 고유종의 '종 다양성' 보호 중 무엇이 우선일까요?",
-            icon: "fa-fish",
-            color: "text-pinky-600",
-            bgColor: "bg-pinky-100",
-            factbox: {
-                title: "미호종개(Cobitis choii) 서식 개체수 조사 결과",
-                rows: [
-                    { label: "2015년 조사", value: "19개 지점 중 9개 지점 · 163개체" },
-                    { label: "2018년 조사", value: "22개 지점 중 5개 지점 · 39개체" },
-                    { label: "2019년 조사", value: "79개 지점 중 12개 지점 · 156개체" },
-                    { label: "멸종위협 등급", value: "위기(EN A2ac) — 개체수 50% 이상 감소" }
-                ],
-                note: "우리나라 고유종이며 멸종위기 야생생물 Ⅰ급·천연기념물",
-                source: "고명훈·한미숙(2024) 「멸종위기어류 미호종개의 분포양상과 멸종위협 평가」, 한국어류학회지",
-                sourceUrl: "https://www.koreascience.kr/article/JAKO202420059623142.page?lang=ko"
-            },
-            refs: {
-                news: [
-                    { title: "갑천에서 다시 만난 미호종개… ‘준설계획’ 멈춰야", media: "오마이뉴스", date: "2025.12.8", url: "https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003189437", point: "갑천에서 미호종개가 재확인됐는데도 하천기본계획 평가서에서 누락돼 부실 조사 논란이 일었다는 내용." },
-                    { title: "“미호강은 아직 살아 있었다”…멸종위기 ‘미호종개’, 중·하류서 첫 발견", media: "충청도민일보", date: "2026.5.19", url: "https://www.dominilbo.com/news/articleView.html?idxno=268521", point: "상류에서만 보이던 미호종개가 1984년 신종 발표 이후 처음으로 중·하류에서 확인됐다는 내용." },
-                    { title: "“잘 살아야 해”… 고향으로 돌아온 미호종개 4000마리", media: "뉴스펭귄", date: "2022.10.31", url: "https://www.newspenguin.com/news/articleView.html?idxno=12617", point: "금강유역환경청·국립문화재연구원·K-water가 미호강에 미호종개 4,000마리를 방류한 복원 사업 내용." }
-                ],
-                stats: [
-                    { title: "미호종개 분포양상과 멸종위협 평가 (2015·2018·2019년 개체수 조사)", media: "한국어류학회지 2024", url: "https://www.koreascience.kr/article/JAKO202420059623142.page?lang=ko" },
-                    { title: "멸종위기 야생생물 검색 — ‘어류’에서 미호종개 조회", media: "국립생태원", url: "https://www.nie.re.kr/nie/pgm/edSearch/main.do?menuNo=200133" },
-                    { title: "멸종위기 야생생물 분포현황 — 충청 지역 서식 종 확인", media: "국립생태원", url: "https://www.nie.re.kr/nie/pgm/edDistStat/list.do?menuNo=200128" },
-                    { title: "멸종위기 야생생물 통계자료집 (PDF)", media: "국립생태원", url: "https://www.nie.re.kr/resources/nie/files/edSpeciesDataBook.pdf" }
-                ]
-            },
-            searchTips: {
-                pro: [
-                    "<b>지역 인구·고용·지역내총생산</b> 같은 경제 통계를 국가통계포털(KOSIS)에서 찾아 개발의 필요성을 뒷받침하세요.",
-                    "미호종개 조사에서 <b>개체 수가 늘었거나 새로 서식이 확인된 지점</b>(초평천·금강 본류·갑천)을 근거로 공존 가능성을 보여 주세요.",
-                    "하천 개발에 쓰이는 <b>친환경 공법·저감 대책 사례</b>를 찾아보세요.",
-                    "복원 사업(방류·모니터링)에 <b>해마다 드는 예산과 재원</b>을 확인하면 설득력이 커져요."
-                ],
-                con: [
-                    "위 통계 상자의 <b>2015년 163개체 → 2018년 39개체</b> 급감 자료를 그대로 인용하세요.",
-                    "<b>준설·보 건설이 모래 하상에 미치는 영향</b>과 미호종개의 서식 조건(고운 모래·느린 유속)을 찾아보세요.",
-                    "갑천 하천기본계획에서 미호종개가 <b>누락된 부실 조사 논란</b>(오마이뉴스 2025.12.8)을 근거로 쓰세요.",
-                    "IUCN <b>위기(EN) 등급의 기준</b>과 ‘고유종’이 왜 대체 불가능한지 국립생태원 자료에서 확인하세요."
-                ]
-            },
-            crossQuestions: {
-                pro: [
-                    { q: "2015년 163개체에서 2018년 39개체로 줄었는데, 추가 개발을 감당할 여력이 있나요?", hint: "감소를 인정한 뒤 2019년 조사에서 79개 지점 중 12개 지점 156개체로 늘고 초평천·금강 본류에서 서식이 새로 확인된 점(한국어류학회지 2024)을 드세요. ‘조건만 지키면 하천 안에서도 유지된다’로 이어 가세요." },
-                    { q: "갑천에서는 미호종개가 평가서에서 아예 누락됐습니다. 그런 조사를 믿고 개발해도 되나요?", hint: "부실 조사(오마이뉴스 2025.12.8)를 인정하는 편이 낫습니다. 그다음 ‘충분한 사전 조사와 확인된 서식 구간 제외’를 허가 조건으로 붙이자는 쪽으로 논점을 옮기세요." },
-                    { q: "고유종은 한 번 사라지면 되돌릴 수 있나요?", hint: "되돌릴 수 없음을 인정하세요. 그 위험을 얼마나 줄일 수 있는지를 시뮬레이터 수치로 답하면 됩니다. 완충 거리 200m·준설 0%면 개발 구간이 100%여도 개체군이 유지되는 결과를 확인해 보세요." }
-                ],
-                con: [
-                    { q: "개발을 막으면 지역 주민의 일자리와 생존권은 어떻게 하나요?", hint: "‘개발 전면 금지’가 아니라 ‘서식 구간을 뺀 개발’이라고 범위를 좁히세요. 개발 이익의 일부를 서식지 관리 기금으로 돌리는 조건부 허가, 생태 관광 같은 대안을 미리 준비하면 좋아요." },
-                    { q: "미호종개 복원 사업에도 해마다 예산이 듭니다. 지역 경제가 없으면 그 돈은 어디서 나오나요?", hint: "4,000마리 방류가 금강유역환경청·국립문화재연구원·K-water의 국가 예산으로 이뤄진 점(뉴스펭귄 2022.10.31)을 드세요. 지역 개발 세수와는 별개 재원이라는 점이 반박이 됩니다." },
-                    { q: "완충 구간만 충분히 두면 개발과 보전을 함께 할 수 있지 않나요?", hint: "시뮬레이터에서 완충 거리 5m와 200m를 비교해 보세요. ‘완충을 두느냐’가 아니라 ‘얼마나 두느냐’가 쟁점임을 숫자로 보이면 강한 답이 됩니다." }
-                ]
-            },
-            friends: {
-                pro: {
-                    name: "마을살림 살피는 청설모",
-                    args: [
-                        { claim: "서식 구간을 피해 설계하면 개발과 보호를 함께 이룰 수 있다.", evidence: "2019년 조사에서 미호종개는 79개 지점 중 12개 지점에서 156개체가 확인됐는데, 초평천과 금강 본류에서는 서식이 새로 확인됐고 갑천에서는 개체 수가 늘었어(한국어류학회지, 2024). 즉 모래 하상과 느린 유속이라는 서식 조건만 지키면 하천 안에서도 개체군이 유지될 수 있다는 뜻이야. 확인된 서식 구간을 보전구역으로 지정해 공사에서 제외하고 나머지 구간만 개발하면 두 가지를 모두 얻을 수 있어." },
-                        { claim: "지역 경제가 무너지면 생태 보전을 이어 갈 사람과 예산도 사라진다.", evidence: "미호종개 복원은 금강유역환경청·국립문화재연구원·K-water가 함께 4,000마리를 방류하는 식으로 계속 예산과 인력이 들어가야 하는 사업이야(뉴스펭귄, 2022.10.31). 지역에 일자리와 세수가 있어야 이런 장기 모니터링과 복원 사업을 유지할 수 있어. 개발을 무조건 막기보다 개발 이익의 일부를 서식지 관리 기금으로 쓰도록 조건을 붙이는 방식이 현실적이야." }
-                    ]
-                },
-                con: {
-                    name: "모래강 지키는 미호종개",
-                    args: [
-                        { claim: "미호종개 개체수는 이미 위험한 수준으로 줄어 개발을 감당할 여력이 없다.", evidence: "같은 조사에서 미호종개는 2015년 163개체에서 2018년 39개체로 급감했고, 최종 멸종위협 등급은 위기(EN A2ac), 즉 '개체수 50% 이상 감소'로 평가됐어(한국어류학회지, 2024). 백곡천은 저수지 둑 높이기 사업으로, 유구천은 보 붕괴와 재건설로 서식지가 교란돼 개체 수가 줄었다고 분석됐어. 개발이 실제로 개체군을 줄인 원인으로 지목된 이상 추가 개발은 위험해." },
-                        { claim: "미호종개는 모래 속에 사는 종이라 준설을 하면 서식지 자체가 사라진다.", evidence: "미호종개는 고운 모래층에 몸을 묻고 사는 어류여서 준설로 모래가 걷히면 숨을 곳도 산란 장소도 없어져. 그런데 갑천 하천기본계획 평가서에서는 재확인된 미호종개가 아예 누락돼 부실 조사 논란이 일었고, 보호 대책도 '5m 이상 이격' 수준에 그쳤어(오마이뉴스, 2025.12.8). 고유종은 한 번 사라지면 지구 어디에서도 다시 데려올 수 없으니, 조사가 부실한 상태의 개발 허가는 되돌릴 수 없는 손실을 만들어." }
-                    ]
-                }
-            }
-        },
-        {
-            id: 3,
-            book: "여우와 토종 씨의 행방불명",
-            bookMeta: "박경화 지음 | 양철북 | 2021 개정판",
-            kyoboUrl: "https://product.kyobobook.co.kr/detail/S000000992688",
-            bookSummary: "십 대를 위한 한반도 생물 다양성 이야기입니다. 지은이는 최근 100년 사이 한반도에서 일어난 변화를 짚으며, 이 땅에서 사라졌거나 겨우 살아남았거나 변이된 생물종에 관해 이야기합니다.\n1부는 호랑이와 여우처럼 사라진 야생동물을, 2부는 멸종 위기의 식물과 토종 씨앗을, 3부는 인간 주변에서 살아가는 생명들이 겪는 문제를, 4부는 생수·쓰레기·감염병 같은 환경 이슈를 다룹니다. 2010년 초판 이후 나온 개정판에는 오버투어리즘, 유리창에 부딪혀 죽는 새, 코로나19 같은 최신 현안이 더해졌습니다. 기후 변화로 인한 기상 이변과 감염병으로 마비된 일상은 우리 삶의 방식에 근본적인 변화를 요구하고 있으며, 결국 인간과 자연, 생태계가 모두 연결되어 있음을 보여 줍니다.",
-            title: "금강 생태계를 위협하는 '미국가재'와 '배스'를 모두 포획해야 할까?",
-            desc: "충남, 대전, 충북을 흐르는 금강과 대청호에 미국가재, 배스 등 외래종이 급증하여 토종 생물이 위협받고 있습니다. 고유 종 다양성을 지키기 위해 외래종을 적극 제거해야 할까요?",
-            icon: "fa-frog",
-            color: "text-pinky-700",
-            bgColor: "bg-pinky-100",
-            factbox: {
-                title: "대청호 외래어종과 생태계교란 생물 현황",
-                rows: [
-                    { label: "대청호 그물 어획량 중 배스·블루길 비율", value: "60~70%" },
-                    { label: "보은군 2025년 유해 어종 수매량", value: "3톤" },
-                    { label: "수매 단가 / 사업비", value: "1kg당 3,200원 / 1,248만 원" },
-                    { label: "함께 방류한 뱀장어 치어", value: "1만 7천 마리" }
-                ],
-                note: "큰입배스·블루길(파랑볼우럭)은 1998년 2월 황소개구리와 함께 처음 생태계교란 생물로 지정되었습니다.",
-                source: "충청매일 「충북 보은군 대청호 유해 어류 퇴치 앞장」(2025.7.15)",
-                sourceUrl: "https://www.ccdn.co.kr/news/articleView.html?idxno=1030679"
-            },
-            refs: {
-                news: [
-                    { title: "충북 보은군 대청호 유해 어류 퇴치 앞장", media: "충청매일", date: "2025.7.15", url: "https://www.ccdn.co.kr/news/articleView.html?idxno=1030679", point: "배스·블루길 3톤을 kg당 3,200원에 수매하고 뱀장어 치어 1만 7천 마리를 방류했다는 내용. 그물에 잡히는 물고기의 60~70%가 배스·블루길." }
-                ],
-                stats: [
-                    { title: "생태계교란 생물의 지정 — 지정 기준과 피해 사례", media: "찾기쉬운 생활법령정보", url: "https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&csmSeq=1812&ccfNo=3&cciNo=2&cnpClsNo=1" },
-                    { title: "국가생물다양성 통계자료집 — 국내 생물종 현황", media: "공공데이터포털(국립생물자원관)", url: "https://www.data.go.kr/data/15069684/fileData.do" },
-                    { title: "멸종위기 야생생물 분포현황 — 충청 지역 토종 어류 확인", media: "국립생태원", url: "https://www.nie.re.kr/nie/pgm/edDistStat/list.do?menuNo=200128" }
-                ]
-            },
-            searchTips: {
-                pro: [
-                    "대청호 <b>어획량 중 배스·블루길 비율(60~70%)</b>과 수매 실적을 근거로 피해 규모를 보여 주세요.",
-                    "배스·블루길의 <b>먹이 습성과 포식량</b>에 관한 연구 자료를 찾아보세요.",
-                    "<b>생태계교란 생물 지정 기준과 피해 사례</b>를 생활법령정보에서 확인하세요.",
-                    "‘회복 탄력성(resilience)’, ‘먹이사슬’ 개념을 책에서 찾아 종 다양성이 왜 중요한지 설명하세요."
-                ],
-                con: [
-                    "<b>연도별 수매량과 개체 수 변화</b>를 비교해 퇴치 사업이 실제로 효과가 있었는지 따져 보세요.",
-                    "지금까지 외래종 퇴치에 <b>투입된 예산 총액</b>을 찾아 비용 대비 효과를 계산해 보세요.",
-                    "<b>산란장 제거, 수변 식생 복원</b> 같은 대체 관리 방법의 사례를 찾아보세요.",
-                    "‘보상 반응’, ‘풍선 효과’처럼 <b>일부만 제거했을 때 생기는 부작용</b> 개념을 확인하세요."
-                ]
-            },
-            crossQuestions: {
-                pro: [
-                    { q: "10년 넘게 해마다 수매했는데도 개체 수가 줄지 않았다면 실패한 정책 아닌가요?", hint: "시뮬레이터에서 포획률 20%로 두면 배스 번식률 55%를 넘지 못해 개체 수가 평형에서 멈춥니다. ‘포획을 그만두자’가 아니라 ‘포획률을 올리거나 산란장 제거를 함께 하자’로 답을 바꾸세요." },
-                    { q: "잡는 데 쓴 돈으로 서식지를 복원하는 게 낫지 않나요?", hint: "시뮬레이터에서 포획만·복원만·둘 다 한 경우의 토종 개체 수를 비교해 보세요. 둘 다 했을 때 토종이 가장 많이 남는 결과를 숫자로 제시하면 됩니다." },
-                    { q: "‘모두 포획한다’는 목표가 현실적으로 가능한가요?", hint: "‘완전 제거’와 ‘밀도 조절’을 구분하세요. 목표를 밀도 조절로 다시 정의하면, 60~70%인 어획 비율을 얼마까지 낮출 것인지로 논의를 옮길 수 있어요." }
-                ],
-                con: [
-                    { q: "그물에 잡히는 물고기의 60~70%가 배스·블루길인데 그냥 두자는 건가요?", hint: "‘방치’가 아니라 ‘방법을 바꾸자’임을 먼저 분명히 하세요. 그다음 산란장 제거와 수변 식생 복원의 효과를 시뮬레이터 수치로 제시하면 설득력이 생깁니다." },
-                    { q: "산란장 제거나 식생 복원도 사람이 해야 하는 일인데, 그것도 비용 아닌가요?", hint: "비용이 든다는 점은 인정하세요. 시뮬레이터의 누적 수매 비용과 비교해 ‘같은 돈으로 어느 쪽 효과가 큰지’로 답하면 됩니다." },
-                    { q: "토종 어류가 사라지고 나면 되돌릴 수 있나요?", hint: "되돌리기 어렵다는 점을 인정하고, 그래서 효과가 확실한 방법에 예산을 써야 한다고 연결하세요. 뱀장어 치어 1만 7천 마리 방류처럼 토종을 보충하는 방법도 함께 들 수 있어요." }
-                ]
-            },
-            friends: {
-                pro: {
-                    name: "토종을 지키는 쉬리",
-                    args: [
-                        { claim: "최상위 포식자가 된 외래종을 줄이지 않으면 토종 어류의 재생산이 끊긴다.", evidence: "대청호에서 그물에 잡히는 물고기의 60~70%가 배스와 블루길이야(충청매일, 2025.7.15). 이 두 종은 육식성이라 토종 물고기의 알과 치어를 잡아먹는데, 먹이 피라미드의 중간 단계가 사라지면 위아래가 모두 무너져. 종 구성이 단순해지면 환경 변화나 질병이 닥쳤을 때 생태계가 스스로 회복하는 힘인 '회복 탄력성(resilience)'이 떨어지기 때문에 밀도를 낮추는 관리가 필요해." },
-                        { claim: "수매를 통한 밀도 조절과 토종 방류를 함께 하면 실제로 효과가 있다.", evidence: "보은군은 2025년에 kg당 3,200원, 사업비 1,248만 원으로 배스·블루길 3톤을 수매해 잡은 개체가 다시 호수로 돌아가지 못하게 했고, 같은 시기에 뱀장어 치어 1만 7천 마리를 방류했어(충청매일, 2025.7.15). 포식자를 줄이면서 동시에 토종 개체군을 보충하는 두 가지를 함께 해야 먹이사슬이 회복돼. 큰입배스와 블루길이 1998년부터 생태계교란 생물로 지정된 것도 그만큼 피해가 확실하기 때문이야." }
-                    ]
-                },
-                con: {
-                    name: "물길을 살피는 왜가리",
-                    args: [
-                        { claim: "포획만으로는 이미 정착한 외래종을 없앨 수 없다.", evidence: "충북은 10년 넘게 해마다 예산을 들여 외래어종을 수매해 왔지만 어민들은 오히려 개체 수가 늘었다고 말해. 배스·블루길처럼 번식력이 강한 종은 일부만 제거하면 남은 개체들이 먹이와 공간을 더 많이 차지해 생존율과 번식률이 높아지는 '보상 반응'이 나타나기 때문이야. 잡는 속도가 번식 속도를 넘지 못하면 예산만 계속 들어가고 밀도는 제자리로 돌아와." },
-                        { claim: "포획보다 서식 환경을 토종에게 유리하게 바꾸는 방법이 더 효과적이다.", evidence: "배스는 자갈 바닥의 얕은 곳에 산란장을 만들고 수컷이 알을 지키는 습성이 있어서, 산란기에 산란장을 제거하면 잡는 것보다 적은 비용으로 개체 수 증가를 막을 수 있어. 또 수변 식생과 여울·웅덩이를 복원하면 토종 어류의 치어가 숨을 곳이 늘어나 포식 압력을 견딜 수 있어. 생태계교란 생물은 전국적으로 관리 대상이 계속 늘고 있어서, 모두 잡아내겠다는 목표보다 토종이 버틸 수 있는 서식지를 만드는 전략이 현실적이야." }
-                    ]
-                }
-            }
-        }
-    ];
+    <script>
 
     /* =========================================================
        3. 바른 말 필터 (욕설·비속어) + 개인정보 검사
@@ -1008,6 +1045,13 @@
         myNickname = makeNickname();
         el('nickname-badge').innerText = myNickname;
 
+        loadAdmin();
+        renderConceptTabs();
+        renderConcepts(CONCEPT_GROUPS[0].key);
+        renderQuiz();
+        renderReadingCards();
+        renderSourceLibrary();
+
         cardsContainer.innerHTML = '';
         discussionData.forEach(function (topic) {
             const card = document.createElement('div');
@@ -1017,7 +1061,7 @@
                 '<div class="w-12 h-12 ' + topic.bgColor + ' ' + topic.color + ' rounded-full flex items-center justify-center text-2xl mb-4">' +
                     '<i class="fa-solid ' + topic.icon + '"></i>' +
                 '</div>' +
-                '<div class="text-xs font-bold text-gray-500 mb-2 truncate">' + escapeHtml(topic.book) + '</div>' +
+                '<div class="text-xs font-bold text-gray-500 mb-2 truncate">' + escapeHtml(topic.region) + '</div>' +
                 '<h3 class="text-xl font-bold text-gray-800 mb-3 leading-tight">' + escapeHtml(topic.title) + '</h3>' +
                 '<p class="text-sm text-gray-600 flex-grow">' + escapeHtml(topic.desc) + '</p>' +
                 '<div class="mt-4 pt-4 border-t border-gray-100 text-pinky-600 font-bold text-sm flex items-center justify-between">' +
@@ -1066,11 +1110,13 @@
     function renderRefs(topic) {
         let html = '';
 
-        html += '<div><h5 class="text-sm font-bold text-gray-700 mb-2"><i class="fa-regular fa-newspaper text-pinky-500 mr-1"></i> 관련 기사</h5><ul class="space-y-3">';
-        topic.refs.news.forEach(function (n) {
-            html += linkItem(n.title, n.media, n.date, n.url, n.point);
-        });
-        html += '</ul></div>';
+        html += '<div><h5 class="text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-keyboard text-pinky-500 mr-1"></i> 이렇게 검색해 보세요</h5>' +
+            '<div class="flex flex-wrap gap-1.5">' +
+            (topic.refs.searchWords || []).map(function (w) {
+                return '<span class="text-[11px] font-bold bg-pinky-50 border border-pinky-200 text-pinky-700 px-2.5 py-1.5 rounded-lg">' + escapeHtml(w) + '</span>';
+            }).join('') +
+            '</div>' +
+            '<p class="text-[11px] text-gray-500 mt-2">검색으로 기사를 먼저 찾았다면, 반드시 <b>기관 원문</b>까지 따라가 숫자를 대조하세요.</p></div>';
 
         html += '<div><h5 class="text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-chart-column text-butter-600 mr-1"></i> 통계·연구 자료</h5><ul class="space-y-3">';
         topic.refs.stats.forEach(function (s) {
@@ -1101,17 +1147,21 @@
     function selectTopic(id) {
         currentTopic = discussionData.find(function (t) { return t.id === id; });
 
-        el('current-book-label').innerText = currentTopic.book;
-        el('current-book-meta').innerText = currentTopic.bookMeta;
-        el('current-book-summary').innerText = currentTopic.bookSummary;
-        el('current-book-link').href = currentTopic.kyoboUrl;
+        el('current-region-label').innerText = currentTopic.region;
         el('current-topic-title').innerText = currentTopic.title;
         el('current-topic-desc').innerText = currentTopic.desc;
+        el('current-background').innerText = currentTopic.background;
 
+        renderIssues(currentTopic);
+        renderTopicReadings(currentTopic);
         renderFactbox(currentTopic);
+        renderDataCheck(currentTopic);
+        renderEvidenceHunt(currentTopic);
         renderRefs(currentTopic);
-        el('refs-body').classList.add('hidden');
-        el('refs-chevron').className = 'fa-solid fa-chevron-down text-gray-400 text-xs';
+        ['refs', 'check', 'hunt'].forEach(function (k) {
+            el(k + '-body').classList.add('hidden');
+            el(k + '-chevron').className = 'fa-solid fa-chevron-down text-gray-400 text-xs';
+        });
 
         renderSimulator(currentTopic);
         el('sim-body').classList.add('hidden');
@@ -1130,6 +1180,9 @@
         resetStanceButtons();
         el('writing-area').classList.add('hidden');
 
+        el('spell-result').innerHTML = '자주 틀리는 표현을 규칙으로 찾아 줍니다. 등록할 때도 자동으로 한 번 더 검사합니다.';
+        el('spell-result').className = 'text-xs text-gray-500 leading-relaxed';
+
         step1.classList.add('hidden');
         step2.classList.remove('hidden');
         window.scrollTo(0, 0);
@@ -1139,6 +1192,163 @@
         step2.classList.add('hidden');
         step1.classList.remove('hidden');
         window.scrollTo(0, 0);
+    }
+
+    /* --- 논점 3분류 --- */
+    function renderIssues(topic) {
+        let html = '';
+        (topic.issues || []).forEach(function (it, i) {
+            html +=
+                '<div class="border border-gray-200 rounded-xl overflow-hidden">' +
+                    '<button onclick="toggleIssue(' + i + ')" class="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors flex items-start justify-between gap-2">' +
+                        '<span>' +
+                            '<span class="inline-block text-[11px] font-bold text-white bg-pinky-500 rounded-full px-2 py-0.5 mr-2">' + escapeHtml(it.no) + '</span>' +
+                            '<b class="text-sm text-gray-800">' + escapeHtml(it.name) + '</b>' +
+                        '</span>' +
+                        '<i id="issue-chevron-' + i + '" class="fa-solid fa-chevron-down text-gray-400 text-xs mt-1"></i>' +
+                    '</button>' +
+                    '<div id="issue-detail-' + i + '" class="hidden px-4 py-4 bg-white">' +
+                        '<p class="text-sm font-bold text-gray-800 mb-3">' + escapeHtml(it.question) + '</p>' +
+                        '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">' +
+                            '<div class="bg-butter-50 border border-butter-200 rounded-lg p-3">' +
+                                '<div class="text-[11px] font-bold text-butter-700 mb-1">' + escapeHtml(topic.proLabel) + ' 쪽</div>' +
+                                '<p class="text-xs text-gray-700 leading-relaxed">' + escapeHtml(it.pro) + '</p>' +
+                            '</div>' +
+                            '<div class="bg-pinky-50 border border-pinky-200 rounded-lg p-3">' +
+                                '<div class="text-[11px] font-bold text-pinky-700 mb-1">' + escapeHtml(topic.conLabel) + ' 쪽</div>' +
+                                '<p class="text-xs text-gray-700 leading-relaxed">' + escapeHtml(it.con) + '</p>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="text-[11px] font-bold text-gray-600 mb-1">이 논점에서 확인할 자료</div>' +
+                        '<ul class="text-xs text-gray-600 list-disc list-inside space-y-1">' +
+                            it.check.map(function (c) { return '<li>' + escapeHtml(c) + '</li>'; }).join('') +
+                        '</ul>' +
+                    '</div>' +
+                '</div>';
+        });
+        el('issue-body').innerHTML = html;
+    }
+
+    function toggleIssue(i) {
+        const d = el('issue-detail-' + i);
+        d.classList.toggle('hidden');
+        el('issue-chevron-' + i).className =
+            'fa-solid fa-chevron-' + (d.classList.contains('hidden') ? 'down' : 'up') + ' text-gray-400 text-xs mt-1';
+    }
+
+    /* --- 주제와 이어지는 읽기 자료 --- */
+    function renderTopicReadings(topic) {
+        const list = allReadings().filter(function (r) {
+            return (topic.readings || []).indexOf(r.id) >= 0 || r.topicId === topic.id;
+        });
+        if (list.length === 0) { el('topic-readings').innerHTML = ''; return; }
+
+        let html =
+            '<div class="bg-white border border-butter-200 rounded-xl p-4">' +
+                '<h3 class="text-sm font-bold text-butter-700 mb-2"><i class="fa-solid fa-book-open-reader mr-1"></i> 이 주제를 위해 먼저 읽을 글</h3>' +
+                '<div class="space-y-2">';
+        list.forEach(function (r) {
+            html +=
+                '<button onclick="openReadingFrom(\'' + r.id + '\')" class="w-full text-left bg-butter-50 hover:bg-butter-100 border border-butter-200 rounded-lg px-3 py-2 transition-colors">' +
+                    '<div class="text-sm font-bold text-gray-800">' + escapeHtml(r.title) + '</div>' +
+                    '<div class="text-[11px] text-gray-500 mt-0.5">' + escapeHtml(r.genre) + ' · 약 ' + (r.minutes || 8) + '분</div>' +
+                '</button>';
+        });
+        html += '</div></div>';
+        el('topic-readings').innerHTML = html;
+    }
+
+    /* --- 자료 확인 과제 --- */
+    function renderDataCheck(topic) {
+        let html =
+            '<p class="text-xs text-gray-600 mb-3 leading-relaxed">' +
+                '이 앱에 적힌 수치를 그대로 인용하지 말고 <b>원자료에서 직접 확인</b>하세요. ' +
+                '확인한 값과 <b>기준 연도</b>를 적어 두면 그대로 근거가 됩니다.' +
+            '</p><ol class="space-y-3">';
+        (topic.dataCheck || []).forEach(function (c, i) {
+            html +=
+                '<li class="border border-gray-200 rounded-xl p-3">' +
+                    '<p class="text-sm font-bold text-gray-800 mb-1">' + (i + 1) + '. ' + escapeHtml(c.task) + '</p>' +
+                    '<p class="text-[11px] text-gray-500 mb-2">확인처: ' + escapeHtml(c.where) +
+                        (c.url ? ' <a href="' + c.url + '" target="_blank" rel="noopener noreferrer" class="text-pinky-600 underline ml-1">열기 <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>' : '') +
+                    '</p>' +
+                    '<textarea id="dc-' + i + '" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-pinky-200 leading-relaxed" ' +
+                        'placeholder="확인한 값과 기준 연도, 자료 이름을 적으세요. 예) 2024년 기준 ○○, 국립생태원 자료"></textarea>' +
+                '</li>';
+        });
+        html += '</ol>';
+        el('check-body').innerHTML = html;
+    }
+
+    /* --- 근거 찾기 연습 --- */
+    function renderEvidenceHunt(topic) {
+        let html =
+            '<p class="text-xs text-gray-600 mb-3 leading-relaxed">' +
+                '주장 하나를 놓고 <b>“무엇을 찾아야 이 말이 근거가 될까?”</b>를 먼저 정하는 연습입니다. ' +
+                '질문에 답한 뒤 아래 링크에서 실제 자료를 찾아 적어 보세요.' +
+            '</p>';
+        (topic.evidenceHunt || []).forEach(function (h, i) {
+            html +=
+                '<div class="border-2 border-butter-200 rounded-xl p-4 mb-3">' +
+                    '<div class="text-[11px] font-bold text-butter-700 mb-1">주장 ' + (i + 1) + '</div>' +
+                    '<p class="text-sm font-bold text-gray-800 mb-3 leading-snug">“' + escapeHtml(h.claim) + '”</p>' +
+
+                    '<div class="text-xs font-bold text-gray-700 mb-1"><i class="fa-solid fa-circle-question text-pinky-500 mr-1"></i>스스로 물어보기</div>' +
+                    '<ul class="text-xs text-gray-600 list-disc list-inside space-y-1 mb-3">' +
+                        h.questions.map(function (q) { return '<li>' + escapeHtml(q) + '</li>'; }).join('') +
+                    '</ul>' +
+
+                    '<div class="text-xs font-bold text-gray-700 mb-1"><i class="fa-solid fa-box-archive text-butter-600 mr-1"></i>그래서 찾아야 할 자료</div>' +
+                    '<ul class="text-xs text-gray-600 list-disc list-inside space-y-1 mb-3">' +
+                        h.need.map(function (n) { return '<li>' + escapeHtml(n) + '</li>'; }).join('') +
+                    '</ul>' +
+
+                    '<div class="text-xs font-bold text-gray-700 mb-1"><i class="fa-solid fa-link text-pinky-500 mr-1"></i>여기서 찾아보세요</div>' +
+                    '<div class="flex flex-wrap gap-1.5 mb-3">' +
+                        h.links.map(function (l) {
+                            return '<a href="' + l.url + '" target="_blank" rel="noopener noreferrer" ' +
+                                'class="text-[11px] font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1.5 rounded-lg transition-colors">' +
+                                escapeHtml(l.name) + ' <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i></a>';
+                        }).join('') +
+                    '</div>' +
+
+                    '<label class="text-xs font-bold text-gray-700 block mb-1">내가 찾은 근거</label>' +
+                    '<textarea id="eh-' + i + '" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-butter-200 leading-relaxed mb-2" ' +
+                        'placeholder="자료 이름 · 기관 · 기준 연도 · 확인한 값을 적으세요."></textarea>' +
+                    '<button onclick="useHuntEvidence(' + i + ')" class="text-xs font-bold bg-butter-500 hover:bg-butter-600 text-white px-3 py-2 rounded-lg transition-colors">' +
+                        '<i class="fa-solid fa-arrow-down-long mr-1"></i> 근거 칸에 옮겨 적기</button>' +
+                '</div>';
+        });
+        el('hunt-body').innerHTML = html;
+    }
+
+    function useHuntEvidence(i) {
+        const box = el('eh-' + i);
+        const text = box ? box.value.trim() : '';
+        if (text === '') { showToast('먼저 찾은 근거를 적어 주세요.', 'error'); return; }
+        if (!selectedStance) { showToast('입장을 먼저 고르면 근거 칸이 열립니다.', 'error'); return; }
+        pushToEvidence(text);
+    }
+
+    /* 근거 칸에 문장을 넣는 공통 함수 */
+    function pushToEvidence(text) {
+        const target = el('evidence-1').value.trim() === '' ? el('evidence-1') : el('evidence-2');
+        const current = target.value.trim();
+        let next = current === '' ? text : current + ' ' + text;
+        if (next.length > 300) next = next.slice(0, 300);
+        target.value = next;
+        onWriting();
+        target.focus();
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showToast('근거 ' + (target.id === 'evidence-1' ? '①' : '②') + ' 칸에 넣었어요.', 'success');
+    }
+
+    /* 접었다 펴는 상자 (자료 확인 · 근거 찾기) */
+    function toggleBox(key) {
+        const body = el(key + '-body');
+        body.classList.toggle('hidden');
+        el(key + '-chevron').className =
+            'fa-solid fa-chevron-' + (body.classList.contains('hidden') ? 'down' : 'up') + ' text-gray-400 text-xs';
     }
 
     function selectStance(stance) {
@@ -1223,235 +1433,228 @@
 
     function simNum(n) { return Math.round(n).toLocaleString('ko-KR'); }
 
-    /* --- 주제 1 : 동물원 유지와 서식지 복원의 예산 배분 --- */
-    function simZoo(v) {
-        const K = Math.round(300 * (0.4 + 0.012 * v.budget));   /* 야생 서식지 수용력 120~480마리 */
-        const rWild = -0.06 + 0.0022 * v.budget;                /* 서식지가 나빠지면 야생 개체군은 그냥 두어도 줄어든다 */
-        const surv = 0.10 + 0.004 * v.budget;                   /* 방사 개체의 정착 성공률 10~50% */
-        const capLimit = Math.round(10 + (100 - v.budget) * 1.9); /* 동물원 몫 예산이 줄면 기를 수 있는 상한도 준다 */
-        const target = Math.min(v.cap, capLimit);
-        const neRate = v.plan ? 0.7 : 0.2;                      /* 계획 교배를 하면 유효 집단 크기가 커진다 */
+    /* --- 주제 1 : 부여 백마강 강변 공간 배분 --- */
+    function simRiverPark(v) {
+        /* 서식지 질 : 습지로 남긴 비율이 높고 완충 폭이 넓을수록, 탐방로가 성길수록 좋아진다 */
+        const bufFactor = Math.min(1, v.buffer / 100);                 /* 완충 폭 100m에서 최대 효과 */
+        const pathHarm  = (v.path / 100) * 0.45;                       /* 탐방로·데크 밀도의 부담 */
+        const builtHarm = (1 - v.wet / 100) * 0.8;                     /* 시설로 쓰는 면적의 부담 */
+        const visitPress = Math.max(0, (v.visitor - 20) / 100) * 0.5;  /* 방문객 압력(만 명 단위) */
+        let quality = (1 - builtHarm) * (1 - pathHarm) * (1 - visitPress * (1 - 0.6 * bufFactor));
+        quality = Math.max(0.02, Math.min(1, quality));
 
-        let cap = target, wild = 60, gene = 1;
-        const xs = [0], capL = [cap], wildL = [wild], geneL = [100];
+        const K = Math.max(1, Math.round(1200 * quality));             /* 겨울 물새 수용력 */
+        let birds = 500;
+        /* 지역 편익 : 방문객이 많을수록 늘지만, 시설(주차·상업)이 없으면 체류·소비가 줄고
+           반대로 자연이 나빠지면 재방문이 줄어든다 */
+        const facility = 1 - v.wet / 100;
+        const xs = [0], bL = [birds], qL = [quality * 100], eL = [];
 
+        let benefit = 0;
         for (let t = 1; t <= v.years; t++) {
-            /* 사육 집단 : 방사한 만큼 줄고, 해마다 최대 12%까지 번식으로 회복한다 */
-            cap = Math.min(target, (cap - v.release) * 1.12);
-            if (cap < 2) cap = 0;
-            /* 야생 집단 : 로지스틱 성장 + 방사 개체의 정착 */
-            wild = wild + rWild * wild * (1 - wild / K) + (cap > 0 ? v.release * surv : 0);
-            if (wild < 1) wild = 0;
-            /* 유전다양성 : 유효 집단 크기가 작을수록 유전자 부동으로 빠르게 사라진다.
-               이형접합도는 한 세대에 1/(2Ne)씩 줄어들므로 세대 길이(5년)마다 계산한다. */
-            if (t % 5 === 0) {
-                const ne = cap * neRate + wild * 0.25;
-                gene = ne >= 1 ? gene * (1 - 1 / (2 * ne)) : gene * 0.5;
-            }
-
-            xs.push(t); capL.push(cap); wildL.push(wild); geneL.push(gene * 100);
+            birds = birds + 0.30 * birds * (1 - birds / K);
+            if (birds < 5) birds = 0;
+            const charm = 0.5 + 0.5 * quality;                          /* 자연이 좋을수록 재방문 */
+            benefit = v.visitor * (0.45 + 0.55 * facility) * charm;     /* 상대 지수 */
+            xs.push(t); bL.push(birds); qL.push(quality * 100); eL.push(benefit);
         }
+        eL.unshift(v.visitor * (0.45 + 0.55 * facility) * (0.5 + 0.5 * quality));
 
-        const g = gene * 100;
-        const tone = g >= 90 ? 'good' : (g >= 70 ? 'warn' : 'bad');
         let verdict;
-        if (wild < 20) {
-            verdict = { tone: 'bad', title: '야생 개체군이 무너집니다', text: '동물원 안에 개체가 남아 있어도 야생에서는 사라지는 상태입니다. 서식지 복원 예산 비중을 올려 수용력(K)과 방사 개체의 정착 성공률을 함께 높여 보세요.' };
-        } else if (g < 70) {
-            verdict = { tone: 'bad', title: '유전다양성이 절반 가까이 사라집니다', text: '유효 집단 크기(Ne)가 작으면 개체 수가 유지돼도 유전자 병목·근친교배로 질병 저항성이 떨어집니다. 사육 개체 수를 늘리거나 계획 교배를 켜 보세요.' };
-        } else if (g < 90) {
-            verdict = { tone: 'warn', title: '‘100년 동안 90% 유지’ 목표에 못 미칩니다', text: '보전 유전학에서는 100년 뒤에도 유전다양성의 90%가 남는 것을 목표로 삼습니다. 지금은 ' + g.toFixed(0) + '%입니다. 사육 개체 수·계획 교배·서식지 복원을 조합해 90%를 넘겨 보세요.' };
+        if (quality < 0.35) {
+            verdict = { tone: 'bad', title: '습지 기능이 무너지는 구성입니다', text: '시설 면적과 탐방로 밀도가 높아 서식지 질이 ' + (quality * 100).toFixed(0) + '%까지 떨어졌습니다. 습지로 남기는 비율을 높이거나 완충 폭을 넓혀 보세요.' };
+        } else if (birds < 500) {
+            verdict = { tone: 'warn', title: '물새 개체군이 처음보다 줄었습니다', text: '수용력(K)이 ' + simNum(K) + '마리로 낮아졌습니다. 방문객 압력은 완충 폭을 넓히면 상당 부분 줄어듭니다.' };
+        } else if (facility < 0.15) {
+            verdict = { tone: 'warn', title: '생태는 좋지만 지역 편익이 낮습니다', text: '시설 면적이 거의 없어 체류와 소비가 줄어듭니다. 습지 바깥에 최소한의 편의시설을 두는 조합을 시험해 보세요.' };
         } else {
-            verdict = { tone: 'good', title: '종을 남기면서 야생 개체군도 늘어납니다', text: '유전다양성이 ‘100년간 90% 유지’ 목표를 지켰고 야생 개체군도 늘었습니다. 사육 집단이 유전자를 지키고 복원된 서식지가 방사 개체를 받아 주는 조합입니다. 어느 한쪽만으로는 이 결과가 나오지 않는다는 점을 그래프로 확인해 보세요.' };
+            verdict = { tone: 'good', title: '두 가지가 함께 유지되는 조합입니다', text: '서식지 질 ' + (quality * 100).toFixed(0) + '%를 지키면서 지역 편익도 유지됩니다. 완충 폭이 방문객 압력을 얼마나 줄이는지 그래프에서 확인해 보세요.' };
         }
 
         return {
             xs: xs, xLabel: '경과 연수(년)',
             rightMax: 100,
             series: [
-                { name: '야생 개체군(마리)', color: SIM_C.pink, values: wildL, axis: 'left' },
-                { name: '동물원 사육 개체(마리)', color: SIM_C.teal, values: capL, axis: 'left' },
-                { name: '유전다양성 유지율(%)', color: SIM_C.gold, values: geneL, axis: 'right' }
-            ],
-            metrics: [
-                { label: v.years + '년 뒤 야생 개체군', value: simNum(wild) + '마리', tone: wild >= 60 ? 'good' : (wild >= 20 ? 'warn' : 'bad') },
-                { label: '사육 개체(예산 상한 ' + simNum(capLimit) + '마리)', value: simNum(cap) + '마리', tone: cap > 0 ? 'none' : 'bad' },
-                { label: '유전다양성 유지율', value: g.toFixed(0) + '%', tone: tone },
-                { label: '서식지 수용력(K)', value: simNum(K) + '마리', tone: 'none' }
-            ],
-            verdict: verdict,
-            evidence: '정책 시뮬레이터로 계산하면, 사육 개체 ' + simNum(target) + '마리·' + (v.plan ? '계획 교배 적용' : '무작위 교배') +
-                '·서식지 복원 예산 ' + v.budget + '% 조건에서 ' + v.years + '년 뒤 유전다양성은 처음의 ' + g.toFixed(0) +
-                '%가 남고 야생 개체군은 60마리에서 ' + simNum(wild) + '마리가 된다. 유효 집단 크기가 작을수록 유전자 부동으로 다양성이 빨리 사라진다는 뜻이다.'
-        };
-    }
-
-    /* --- 주제 2 : 미호종개 서식지 인근 개발 --- */
-    function simFish(v) {
-        const mitig = Math.min(1, v.buffer / 150) * 0.7;        /* 완충 거리가 넓을수록 개발 피해를 최대 70%까지 줄인다 */
-        const devLoss = (v.dev / 100) * (1 - mitig);
-        const dredgeLoss = (v.dredge / 100) * 0.8;              /* 준설은 미호종개가 몸을 묻는 고운 모래층을 걷어 낸다 */
-        const quality = Math.max(0, (1 - devLoss) * (1 - dredgeLoss));
-        const K = Math.max(1, Math.round(260 * quality));       /* 서식지가 온전할 때 이 구간이 먹여 살릴 수 있는 최대 개체 수 */
-        const A = 30;                                           /* 이보다 적어지면 짝을 만나기 어려워 스스로 줄어든다 (알리 효과) */
-
-        let n = 156;                                            /* 2019년 조사 : 12개 지점 156개체 */
-        const xs = [0], nL = [n], qL = [quality * 100];
-
-        for (let t = 1; t <= v.years; t++) {
-            if (n > 0) {
-                const allee = (n - A) / (n + A);
-                n = n + 0.35 * n * (1 - n / K) * allee;
-            }
-            n += v.stock * 0.02 * quality;                      /* 방류한 치어 중 살아남아 정착하는 비율 */
-            if (n > K * 1.2) n = K * 1.2;
-            if (n < 5) n = 0;                                   /* 지역 절멸 */
-            xs.push(t); nL.push(n); qL.push(quality * 100);
-        }
-
-        const change = (n - 156) / 156 * 100;
-        let verdict;
-        if (n <= 0) {
-            verdict = { tone: 'bad', title: '미호종개가 이 구간에서 사라집니다', text: '고유종은 한 번 사라지면 지구 어디에서도 다시 데려올 수 없습니다. 개발 구간을 줄이거나 완충 거리를 넓혀 서식지 질을 되살려 보세요.' };
-        } else if (change <= -50) {
-            verdict = { tone: 'bad', title: 'IUCN ‘위기(EN)’ 기준을 넘는 감소입니다', text: '개체 수가 ' + Math.abs(change).toFixed(0) + '% 줄었습니다. 미호종개의 실제 멸종위협 등급 EN A2ac는 바로 ‘개체수 50% 이상 감소’를 뜻합니다.' };
-        } else if (change < 0) {
-            verdict = { tone: 'warn', title: '줄기는 하지만 버티는 수준입니다', text: '개체 수가 ' + Math.abs(change).toFixed(0) + '% 줄었습니다. 방류만으로 수를 채우면 수용력(K)이 낮아 다시 줄어듭니다. 서식지 질 자체를 올려야 합니다.' };
-        } else {
-            verdict = { tone: 'good', title: '개체군이 유지·회복됩니다', text: '서식지 질이 ' + (quality * 100).toFixed(0) + '%로 남아 수용력이 충분합니다. 개발과 보전을 함께 이루려면 확인된 서식 구간을 공사에서 제외하는 설계가 핵심입니다.' };
-        }
-
-        return {
-            xs: xs, xLabel: '경과 연수(년)',
-            rightMax: 100,
-            series: [
-                { name: '미호종개 개체 수(마리)', color: SIM_C.pink, values: nL, axis: 'left' },
-                { name: '서식지 질(%)', color: SIM_C.teal, values: qL, axis: 'right' }
+                { name: '겨울 물새(마리)', color: SIM_C.pink, values: bL, axis: 'left' },
+                { name: '서식지 질(%)', color: SIM_C.teal, values: qL, axis: 'right' },
+                { name: '지역 편익 지수', color: SIM_C.gold, values: eL, axis: 'left' }
             ],
             metrics: [
                 { label: '서식지 질', value: (quality * 100).toFixed(0) + '%', tone: quality >= 0.7 ? 'good' : (quality >= 0.4 ? 'warn' : 'bad') },
-                { label: '서식지 수용력(K)', value: quality <= 0.02 ? '거의 없음' : simNum(K) + '마리', tone: 'none' },
-                { label: v.years + '년 뒤 개체 수', value: n <= 0 ? '지역 절멸' : simNum(n) + '마리', tone: n <= 0 ? 'bad' : 'none' },
-                { label: '2019년(156마리) 대비', value: (change >= 0 ? '+' : '') + change.toFixed(0) + '%', tone: change >= 0 ? 'good' : (change > -50 ? 'warn' : 'bad') }
+                { label: '물새 수용력(K)', value: simNum(K) + '마리', tone: 'none' },
+                { label: v.years + '년 뒤 물새', value: birds <= 0 ? '거의 없음' : simNum(birds) + '마리', tone: birds >= 500 ? 'good' : (birds > 0 ? 'warn' : 'bad') },
+                { label: '지역 편익 지수', value: benefit.toFixed(0), tone: benefit >= 25 ? 'good' : (benefit >= 12 ? 'warn' : 'bad') }
             ],
             verdict: verdict,
-            evidence: '정책 시뮬레이터로 계산하면, 하천의 ' + v.dev + '%를 개발하고 완충 거리를 ' + v.buffer + 'm 두며 준설 강도가 ' + v.dredge +
-                '%일 때 서식지 질은 ' + (quality * 100).toFixed(0) + '%로 떨어지고, 2019년 조사값 156개체에서 ' + v.years + '년 뒤 ' +
-                (n <= 0 ? '지역 절멸' : simNum(n) + '개체(' + (change >= 0 ? '+' : '') + change.toFixed(0) + '%)') +
-                '가 된다. 미호종개의 멸종위협 등급 EN A2ac는 개체수 50% 이상 감소를 뜻한다.'
+            evidence: '정책 시뮬레이터로 계산하면, 강변의 ' + v.wet + '%를 습지로 남기고 완충 폭 ' + v.buffer + 'm, 탐방로 밀도 ' + v.path +
+                '%, 축제 방문객 ' + v.visitor + '만 명 조건에서 서식지 질은 ' + (quality * 100).toFixed(0) + '%가 되고 ' + v.years +
+                '년 뒤 겨울 물새는 500마리에서 ' + (birds <= 0 ? '거의 사라진다' : simNum(birds) + '마리가 된다') +
+                '. 완충 폭을 넓히면 같은 방문객 수에서도 서식지 질이 덜 떨어진다.'
         };
     }
 
-    /* --- 주제 3 : 금강·대청호 외래종 관리 --- */
-    function simBass(v) {
-        const KB = 12000;
-        const KN = 10000 * (0.6 + 0.004 * v.veg);               /* 수변 식생·여울을 되살리면 토종이 살 수 있는 공간이 늘어난다 */
-        const rB = 0.55 * (1 - 0.7 * v.nest / 100);             /* 산란장을 없애면 배스의 번식률 자체가 낮아진다 */
-        const attack = 0.38 * (1 - 0.6 * v.veg / 100);          /* 치어가 숨을 곳이 늘면 잡아먹히는 비율이 준다 */
+    /* --- 주제 2 : 서천 갯벌의 도로·양식 확대 --- */
+    function simTidalFlat(v) {
+        const roadHarm = Math.min(1, v.road / 20) * 0.5 * (1 - Math.min(1, v.core / 100) * 0.4); /* 도로 길이(km) */
+        const farmHarm = (v.farm / 100) * 0.6;                       /* 양식 확대 비율 */
+        const coreGain = (v.core / 100) * 0.35;                      /* 핵심 보전구역 비율 */
+        let health = Math.max(0.03, Math.min(1, (1 - roadHarm) * (1 - farmHarm) + coreGain * 0.5));
 
-        let bass = 10000, native = 4000, cost = 0, caughtTotal = 0;
-        const xs = [0], bL = [bass], nL = [native], rL = [bass / (bass + native) * 100];
+        const benthos = 100 * health;                                 /* 저서생물 밀도 지수 */
+        const KB = Math.max(1, Math.round(20000 * health));           /* 도래 물새 수용력 */
+        let birds = 12000;
+        let carbon = 0;                                               /* 누적 탄소 저장 지수 */
+        const xs = [0], bL = [birds], hL = [health * 100], cL = [0];
 
         for (let t = 1; t <= v.years; t++) {
-            const caught = bass * v.harvest / 100;
-            caughtTotal += caught;
-            cost += caught * 0.7 * 3200;                        /* 평균 0.7kg · 수매 단가 1kg당 3,200원(보은군 2025년) */
-            /* 로지스틱 항 자체가 ‘보상 반응’이다 : 밀도가 낮아지면 남은 개체의 번식·생존이 좋아진다 */
-            bass = bass + rB * bass * (1 - bass / KB) - caught;
-            if (bass < 1) bass = 0;
-            native = native + 0.30 * native * (1 - native / KN) - attack * native * (bass / KB);
-            if (native < 1) native = 0;
-            xs.push(t); bL.push(bass); nL.push(native);
-            rL.push(bass + native > 0 ? bass / (bass + native) * 100 : 0);
+            birds = birds + 0.25 * birds * (1 - birds / KB);
+            if (birds < 100) birds = 0;
+            carbon += health * 10;                                    /* 갯벌이 온전할수록 해마다 더 쌓인다 */
+            xs.push(t); bL.push(birds); hL.push(health * 100); cL.push(carbon);
         }
 
-        const ratio = bass + native > 0 ? bass / (bass + native) * 100 : 0;
-        const rate = '번식률 ' + (rB * 100).toFixed(0) + '% vs 포획률 ' + v.harvest + '%';
+        /* 지역 소득 : 양식·도로는 단기 소득을 늘리지만 갯벌이 나빠지면 관광·어획이 함께 준다 */
+        const income = (30 + v.farm * 0.5 + v.road * 1.2) * (0.4 + 0.6 * health);
+
         let verdict;
-        if (bass <= 0) {
-            verdict = { tone: 'good', title: '포획이 번식을 앞질러 개체군이 사라졌습니다', text: rate + '. 잡는 속도가 번식 속도를 넘으면 개체군은 사라집니다. 다만 실제 호수에는 그물에 걸리지 않는 개체와 다른 수역에서 들어오는 개체가 있어 이만큼 되기는 어렵습니다.' };
-        } else if (ratio >= 60) {
-            verdict = { tone: 'bad', title: '배스·블루길이 여전히 우점합니다', text: rate + '. 어획 중 배스·블루길이 ' + ratio.toFixed(0) + '%로, 대청호 조사값(60~70%)과 비슷하거나 더 나쁜 상태입니다. 토종 어류가 ' + simNum(native) + '까지 줄었습니다.' };
-        } else if (v.harvest <= rB * 100) {
-            verdict = { tone: 'warn', title: '줄어들다가 새 평형에서 멈췄습니다', text: rate + '. 잡는 비율이 번식률보다 낮으면 남은 개체가 먹이와 공간을 더 차지해 번식·생존이 좋아지는 ‘보상 반응’ 때문에 개체 수가 어느 선에서 멈춥니다. 산란장 제거를 올려 번식률 자체를 낮춰 보세요.' };
+        if (health < 0.4) {
+            verdict = { tone: 'bad', title: '갯벌 기능이 크게 떨어집니다', text: '저서생물 밀도가 처음의 ' + benthos.toFixed(0) + '% 수준이 되면 먹이가 줄어 물새가 머물지 못합니다. 핵심 보전구역 비율을 높이거나 양식 확대 폭을 줄여 보세요.' };
+        } else if (birds < 12000) {
+            verdict = { tone: 'warn', title: '도래하는 물새가 줄어듭니다', text: '수용력이 ' + simNum(KB) + '마리로 낮아졌습니다. 도로는 길이보다 노선이 중요합니다. 핵심 구역을 지정하면 같은 길이에서도 피해가 줄어드는 것을 확인해 보세요.' };
+        } else if (income < 45) {
+            verdict = { tone: 'warn', title: '생태는 지켰지만 소득이 낮습니다', text: '제한이 강해 단기 소득이 줄어듭니다. 구역을 나누어 이용 구역에서 생업을 이어 가는 조합을 시험해 보세요.' };
         } else {
-            verdict = { tone: 'good', title: '밀도가 크게 낮아졌습니다', text: rate + '. 배스·블루길 비율이 ' + ratio.toFixed(0) + '%까지 내려갔고 토종은 ' + simNum(native) + '입니다. 포획·산란장 제거·서식지 복원을 함께 썼을 때 같은 비용으로 효과가 더 크다는 점을 확인해 보세요.' };
+            verdict = { tone: 'good', title: '보전과 생업이 함께 가는 조합입니다', text: '갯벌 건강도 ' + (health * 100).toFixed(0) + '%를 유지하면서 소득 지수도 낮지 않습니다. 핵심 구역 지정이 도로 피해를 얼마나 줄이는지 확인해 보세요.' };
         }
-        const costText = cost >= 100000000 ? (cost / 100000000).toFixed(1) + '억 원' : simNum(cost / 10000) + '만 원';
 
         return {
             xs: xs, xLabel: '경과 연수(년)',
             rightMax: 100,
             series: [
-                { name: '토종 어류(상대 개체 수)', color: SIM_C.pink, values: nL, axis: 'left' },
-                { name: '배스·블루길(상대 개체 수)', color: SIM_C.teal, values: bL, axis: 'left' },
-                { name: '어획 중 배스·블루길 비율(%)', color: SIM_C.gold, values: rL, axis: 'right' }
+                { name: '도래 물새(마리)', color: SIM_C.pink, values: bL, axis: 'left' },
+                { name: '갯벌 건강도(%)', color: SIM_C.teal, values: hL, axis: 'right' },
+                { name: '누적 탄소 저장 지수', color: SIM_C.gold, values: cL, axis: 'left' }
             ],
             metrics: [
-                { label: '배스·블루길 비율', value: ratio.toFixed(0) + '%', tone: ratio <= 30 ? 'good' : (ratio <= 55 ? 'warn' : 'bad') },
-                { label: v.years + '년 뒤 토종(처음 4,000)', value: simNum(native), tone: native >= 4000 ? 'good' : (native >= 2000 ? 'warn' : 'bad') },
-                { label: '배스 번식률 / 포획률', value: (rB * 100).toFixed(0) + '% / ' + v.harvest + '%', tone: v.harvest > rB * 100 ? 'good' : 'warn' },
-                { label: '누적 수매 비용', value: costText, tone: 'none' }
+                { label: '갯벌 건강도', value: (health * 100).toFixed(0) + '%', tone: health >= 0.7 ? 'good' : (health >= 0.4 ? 'warn' : 'bad') },
+                { label: '저서생물 밀도', value: benthos.toFixed(0) + '%', tone: benthos >= 70 ? 'good' : (benthos >= 40 ? 'warn' : 'bad') },
+                { label: v.years + '년 뒤 물새', value: birds <= 0 ? '거의 없음' : simNum(birds) + '마리', tone: birds >= 12000 ? 'good' : (birds > 0 ? 'warn' : 'bad') },
+                { label: '지역 소득 지수', value: income.toFixed(0), tone: income >= 60 ? 'good' : (income >= 45 ? 'warn' : 'bad') }
             ],
             verdict: verdict,
-            evidence: '정책 시뮬레이터로 계산하면, 해마다 ' + v.harvest + '%를 잡고 산란장 제거 ' + v.nest + '%·수변 식생 복원 ' + v.veg +
-                '% 조건에서 ' + v.years + '년 뒤 어획 중 배스·블루길 비율은 71%에서 ' + ratio.toFixed(0) + '%가 되고 수매 비용은 약 ' +
-                costText + '이 든다. 포획률이 번식률(' + (rB * 100).toFixed(0) + '%)을 넘지 못하면 보상 반응 때문에 개체 수가 어느 선에서 멈춘다.'
+            evidence: '정책 시뮬레이터로 계산하면, 해안도로 ' + v.road + 'km·양식 확대 ' + v.farm + '%·핵심 보전구역 ' + v.core +
+                '% 조건에서 갯벌 건강도는 ' + (health * 100).toFixed(0) + '%가 되고 ' + v.years + '년 뒤 도래 물새는 12,000마리에서 ' +
+                (birds <= 0 ? '거의 사라진다' : simNum(birds) + '마리가 된다') +
+                '. 같은 도로 길이에서도 핵심 구역을 지정하면 피해가 줄어든다는 점이 계산에 들어 있다.'
+        };
+    }
+
+    /* --- 주제 3 : 충남 내륙 태양광 입지 --- */
+    function simSolar(v) {
+        const forestShare = v.forest / 100;                            /* 산지에 놓는 비율 */
+        const roofShare = 1 - forestShare;                             /* 지붕·유휴부지 비율 */
+        const landPerMW = 1.3;                                         /* 1MW당 필요한 땅(ha) — 교육용 가정 */
+        const forestLoss = v.mw * landPerMW * forestShare * (1 - v.avoid / 100 * 0.6);
+
+        /* 발전량(GWh) : 지붕은 그늘·각도 때문에 조금 낮게 잡는다 */
+        const gen = v.mw * (1.25 * forestShare + 1.10 * roofShare);
+        const cutCO2 = gen * 0.45;                                     /* 발전으로 줄이는 CO2(천 톤) */
+        const lostSink = forestLoss * 0.0065;                          /* 사라진 숲이 흡수하던 CO2(천 톤/년) */
+        const netCO2 = cutCO2 - lostSink;
+
+        /* 생물다양성 지수 : 생태축을 끊는 정도 */
+        const cutAxis = forestShare * (1 - v.avoid / 100);
+        let bio = Math.max(0, 100 - cutAxis * 90 - (v.mw / 200) * 10);
+
+        const xs = [0], nL = [0], bL = [bio];
+        let cum = 0;
+        for (let t = 1; t <= v.years; t++) {
+            cum += netCO2;
+            /* 회피 설계를 잘하면 시간이 지나며 식생이 일부 회복된다 */
+            bio = Math.min(100, bio + (v.avoid / 100) * 0.6);
+            xs.push(t); nL.push(cum); bL.push(bio);
+        }
+
+        let verdict;
+        if (netCO2 <= 0) {
+            verdict = { tone: 'bad', title: '탄소를 줄이지 못하는 조합입니다', text: '사라진 산림이 흡수하던 양이 발전으로 줄이는 양보다 큽니다. 산지 비율을 낮추거나 생태축 회피 설계를 강화해야 합니다.' };
+        } else if (bio < 50) {
+            verdict = { tone: 'bad', title: '생태축이 끊깁니다', text: '생물다양성 지수가 ' + bio.toFixed(0) + '까지 떨어졌습니다. 같은 용량을 지붕·유휴부지로 옮기면 지수가 어떻게 달라지는지 확인해 보세요.' };
+        } else if (forestShare > 0.3) {
+            verdict = { tone: 'warn', title: '감축은 되지만 산림 손실이 큽니다', text: '훼손 면적이 약 ' + forestLoss.toFixed(1) + 'ha입니다. 회피–저감–상쇄 원칙의 첫 단계는 회피입니다. 지붕 비율을 올려 보세요.' };
+        } else {
+            verdict = { tone: 'good', title: '두 목표를 함께 이루는 조합입니다', text: '연간 순감축 약 ' + netCO2.toFixed(1) + '천 톤을 얻으면서 생물다양성 지수 ' + bio.toFixed(0) + '을 지켰습니다. 입지가 용량보다 중요하다는 점을 보여 주는 결과입니다.' };
+        }
+
+        return {
+            xs: xs, xLabel: '경과 연수(년)',
+            rightMax: 100,
+            series: [
+                { name: '누적 순감축(천 톤 CO₂)', color: SIM_C.gold, values: nL, axis: 'left' },
+                { name: '생물다양성 지수', color: SIM_C.teal, values: bL, axis: 'right' }
+            ],
+            metrics: [
+                { label: '연간 발전량', value: gen.toFixed(0) + 'GWh', tone: 'none' },
+                { label: '산림 훼손 면적', value: forestLoss.toFixed(1) + 'ha', tone: forestLoss <= 5 ? 'good' : (forestLoss <= 30 ? 'warn' : 'bad') },
+                { label: '연간 순감축', value: netCO2.toFixed(1) + '천 톤', tone: netCO2 > 20 ? 'good' : (netCO2 > 0 ? 'warn' : 'bad') },
+                { label: '생물다양성 지수', value: bio.toFixed(0), tone: bio >= 70 ? 'good' : (bio >= 50 ? 'warn' : 'bad') }
+            ],
+            verdict: verdict,
+            evidence: '정책 시뮬레이터로 계산하면, 설비 ' + v.mw + 'MW 가운데 ' + v.forest + '%를 산지에 놓고 생태축 회피 설계를 ' + v.avoid +
+                '% 적용할 때 산림 훼손은 약 ' + forestLoss.toFixed(1) + 'ha, 연간 순감축은 약 ' + netCO2.toFixed(1) +
+                '천 톤이 된다. 같은 용량이라도 산지 비율을 낮추면 순감축이 커지는데, 이는 사라진 숲이 흡수하던 탄소를 빼고 계산했기 때문이다.'
         };
     }
 
     const SIM_MODELS = {
         1: {
-            title: '동물원과 서식지, 예산을 어떻게 나눌까?',
-            intro: '동물원이 지키는 것은 <b>유전다양성</b>이고, 서식지 복원이 지키는 것은 <b>야생 개체군</b>입니다. 두 값이 함께 움직이는지 확인해 보세요.',
+            title: '강변 공간을 어떻게 나눌까?',
+            intro: '강변을 <b>습지로 남기는 비율</b>과 <b>완충 폭</b>을 바꾸면 물새 개체군과 지역 편익이 어떻게 달라지는지 계산합니다.',
             controls: [
-                { key: 'cap', label: '동물원 사육 개체 수', min: 10, max: 200, step: 5, value: 50, unit: '마리', help: '서식지 외 보전기관이 관리하는 개체 수' },
-                { key: 'budget', label: '서식지 복원에 쓰는 예산', min: 0, max: 100, step: 5, value: 40, unit: '%', help: '나머지는 동물원 사육·전시 시설에 씁니다' },
-                { key: 'release', label: '해마다 자연으로 방사', min: 0, max: 20, step: 1, value: 4, unit: '마리', help: '너무 많이 내보내면 사육 집단이 유지되지 않습니다' },
-                { key: 'years', label: '계산 기간', min: 20, max: 120, step: 10, value: 100, unit: '년', help: '보전 유전학의 목표는 ‘100년 뒤에도 유전다양성 90% 유지’입니다' }
-            ],
-            toggles: [
-                { key: 'plan', label: '혈통 기록에 따른 계획 교배를 한다', value: true, help: '혈연이 먼 개체끼리 짝지어 유효 집단 크기(Ne)를 키웁니다' }
+                { key: 'wet', label: '습지로 남기는 비율', min: 0, max: 100, step: 5, value: 60, unit: '%', help: '나머지는 주차장·상업시설로 씁니다' },
+                { key: 'buffer', label: '완충 폭(핵심 구역과 이용 구역 사이)', min: 0, max: 200, step: 10, value: 30, unit: 'm', help: '폭을 밝히지 않은 대책은 검증할 수 없습니다' },
+                { key: 'path', label: '탐방로·데크 밀도', min: 0, max: 100, step: 5, value: 30, unit: '%' },
+                { key: 'visitor', label: '축제 기간 방문객', min: 5, max: 120, step: 5, value: 40, unit: '만 명' },
+                { key: 'years', label: '계산 기간', min: 5, max: 40, step: 5, value: 15, unit: '년' }
             ],
             concepts: [
-                { term: '유효 집단 크기(Ne)', desc: '실제로 자손을 남기는 개체 수. 이 값이 작을수록 유전다양성이 빨리 사라집니다.' },
-                { term: '유전자 부동 · 병목', desc: '집단이 작아지면 유전자가 우연히 사라져, 이형접합도가 한 세대에 1/(2Ne)씩 줄어듭니다. (세대 길이 5년으로 계산)' },
-                { term: '수용력(K)', desc: '그 서식지가 먹여 살릴 수 있는 최대 개체 수. 복원 예산이 커지면 K도 커집니다.' }
+                { term: '수용력(K)', desc: '습지가 좁아지면 먹여 살릴 수 있는 물새 수 자체가 줄어듭니다.' },
+                { term: '완충구역', desc: '완충 폭이 넓을수록 같은 방문객 수에서도 핵심 구역이 받는 영향이 줄어듭니다.' },
+                { term: '생태계 서비스', desc: '습지 면적이 줄면 물 정화·홍수 조절 기능도 함께 줄어듭니다.' }
             ],
-            run: simZoo
+            run: simRiverPark
         },
         2: {
-            title: '개발과 미호종개, 어디까지 함께 갈 수 있을까?',
-            intro: '2019년 조사에서 확인된 <b>156개체</b>를 출발점으로, 개발 방식에 따라 개체군이 어떻게 달라지는지 계산합니다.',
+            title: '도로와 양식을 어디까지 허용할까?',
+            intro: '<b>도로 길이</b>, <b>양식 확대</b>, <b>핵심 보전구역</b>을 바꾸어 갯벌 건강도와 지역 소득이 어떻게 달라지는지 봅니다.',
             controls: [
-                { key: 'dev', label: '개발하는 하천 구간 비율', min: 0, max: 100, step: 5, value: 30, unit: '%' },
-                { key: 'buffer', label: '서식 구간과의 완충(이격) 거리', min: 0, max: 200, step: 5, value: 5, unit: 'm', help: '갑천 하천기본계획의 보호 대책은 ‘5m 이상 이격’ 수준이었습니다' },
-                { key: 'dredge', label: '모래 하상 준설 강도', min: 0, max: 100, step: 5, value: 50, unit: '%', help: '미호종개는 고운 모래에 몸을 묻고 삽니다' },
-                { key: 'stock', label: '해마다 방류하는 치어', min: 0, max: 5000, step: 250, value: 0, unit: '마리', help: '2022년 미호강에 4,000마리를 방류했습니다' },
-                { key: 'years', label: '계산 기간', min: 5, max: 50, step: 5, value: 20, unit: '년' }
+                { key: 'road', label: '새로 놓는 해안도로', min: 0, max: 20, step: 1, value: 6, unit: 'km' },
+                { key: 'farm', label: '양식장 확대 비율', min: 0, max: 100, step: 5, value: 30, unit: '%' },
+                { key: 'core', label: '핵심 보전구역 비율', min: 0, max: 100, step: 5, value: 30, unit: '%', help: '핵심 구역을 정하면 같은 도로 길이에서도 피해가 줄어듭니다' },
+                { key: 'years', label: '계산 기간', min: 5, max: 40, step: 5, value: 15, unit: '년' }
             ],
             concepts: [
-                { term: '서식지 질 · 수용력(K)', desc: '개발과 준설로 모래 하상이 줄면 살 수 있는 최대 개체 수 자체가 줄어듭니다.' },
-                { term: '알리 효과', desc: '개체 수가 너무 적어지면 짝을 만나기 어려워, 서식지가 남아 있어도 스스로 줄어듭니다.' },
-                { term: '고유종', desc: '미호종개는 우리나라에만 사는 종이라 사라지면 다른 곳에서 데려올 수 없습니다.' }
+                { term: '저서생물', desc: '갯지렁이·조개가 줄면 도요·물떼새의 먹이가 사라집니다.' },
+                { term: '블루카본', desc: '갯벌이 온전할수록 해마다 쌓이는 탄소가 많아집니다. 그래프의 누적 곡선이 저장량입니다.' },
+                { term: '서식지 파편화', desc: '도로는 길이보다 어디를 가르느냐가 더 중요합니다.' }
             ],
-            run: simFish
+            run: simTidalFlat
         },
         3: {
-            title: '외래종을 잡을까, 서식지를 바꿀까?',
-            intro: '대청호에서 그물에 잡히는 물고기의 <b>60~70%</b>가 배스·블루길이라는 조사에 맞춰 출발값을 정했습니다(배스 10,000 : 토종 4,000 = 71%).',
+            title: '같은 용량, 어디에 놓을까?',
+            intro: '설비 용량은 그대로 두고 <b>산지 비율</b>과 <b>생태축 회피 설계</b>만 바꿔 보세요. 순감축량과 생물다양성 지수가 함께 달라집니다.',
             controls: [
-                { key: 'harvest', label: '해마다 잡는 비율(수매)', min: 0, max: 80, step: 5, value: 20, unit: '%' },
-                { key: 'nest', label: '산란기 산란장 제거', min: 0, max: 100, step: 5, value: 0, unit: '%', help: '배스는 얕은 자갈 바닥에 산란장을 만들고 수컷이 알을 지킵니다' },
-                { key: 'veg', label: '수변 식생 · 여울 복원', min: 0, max: 100, step: 5, value: 0, unit: '%', help: '토종 치어가 숨을 곳이 늘어납니다' },
-                { key: 'years', label: '계산 기간', min: 1, max: 30, step: 1, value: 10, unit: '년' }
+                { key: 'mw', label: '설비 용량', min: 5, max: 200, step: 5, value: 50, unit: 'MW' },
+                { key: 'forest', label: '산지에 놓는 비율', min: 0, max: 100, step: 5, value: 60, unit: '%', help: '나머지는 건물 지붕·유휴부지에 놓습니다' },
+                { key: 'avoid', label: '생태축 회피 설계 적용', min: 0, max: 100, step: 5, value: 20, unit: '%', help: '민감 구간을 피하고 절토를 최소화하는 정도' },
+                { key: 'years', label: '계산 기간', min: 5, max: 30, step: 5, value: 20, unit: '년' }
             ],
             concepts: [
-                { term: '보상 반응', desc: '일부만 잡으면 남은 개체가 먹이와 공간을 더 차지해 번식·생존이 좋아집니다. 그래프의 로지스틱 곡선에 이 효과가 들어 있습니다.' },
-                { term: '포획률 vs 번식률', desc: '해마다 잡는 비율이 번식률을 넘지 못하면 개체 수는 줄다가 새 평형에서 멈춥니다.' },
-                { term: '회복 탄력성', desc: '종 구성이 단순해지면 환경이 바뀌었을 때 생태계가 스스로 되돌아오는 힘이 약해집니다.' }
+                { term: '생태축 · 연결성', desc: '산지 비율이 높고 회피 설계가 약할수록 통로가 끊깁니다.' },
+                { term: '기회비용', desc: '같은 용량을 지붕에 놓았을 때와 비교하는 것이 이 계산의 핵심입니다.' },
+                { term: '순감축량', desc: '발전으로 줄인 양에서 사라진 숲이 흡수하던 양을 뺀 값입니다.' }
             ],
-            run: simBass
+            run: simSolar
         }
     };
 
@@ -1771,6 +1974,34 @@
             : '<i class="fa-regular fa-lightbulb mr-1"></i> 힌트 접기';
     }
 
+    /* 반박 답변도 등록 글과 같은 기준으로 검사한다.
+       합치기·복사·PDF로 글이 밖으로 나가기 전에 한 번 막아 준다.
+       문제가 있으면 해당 칸으로 데려가고 false를 돌려준다. */
+    function guardCrossAnswers() {
+        for (let i = 0; i < crossAnswers.length; i++) {
+            const v = (crossAnswers[i] || '').trim();
+            if (v === '') continue;
+
+            const r = BadWordFilter.check(v);
+            const kind = r.pii.length > 0 ? 'pii' : (r.severe.length > 0 ? 'severe' : '');
+            if (kind === '') continue;
+
+            const box = el('cross-answer-' + i);
+            if (box) {
+                box.focus();
+                box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            showToast(
+                kind === 'pii'
+                    ? '‘나의 답변 ' + (i + 1) + '’에 개인정보가 있어요. 지우고 다시 눌러 주세요.'
+                    : '‘나의 답변 ' + (i + 1) + '’에 욕설·비속어가 있어요. 고치고 다시 눌러 주세요.',
+                'error'
+            );
+            return false;
+        }
+        return true;
+    }
+
     /* 처음 쓴 글 + 반박 답변을 하나의 글로 합친다 */
     function buildMergedText() {
         let text =
@@ -1800,6 +2031,8 @@
     }
 
     function mergeIntoPolish() {
+        if (!guardCrossAnswers()) return;
+
         const box = el('polish-text');
         const merged = buildMergedText();
 
@@ -1814,12 +2047,14 @@
         box.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
         const answered = crossAnswers.filter(function (a) { return (a || '').trim() !== ''; }).length;
+        const cut = merged.length > 3000;
+
         showToast(
             (answered === 0
                 ? '반박 답변이 아직 비어 있어 주장·근거만 합쳤어요.'
                 : '주장·근거와 반박 답변 ' + answered + '개를 합쳤어요.') +
-            (copied ? ' 복사도 해 두었습니다! 📋' : ''),
-            'success'
+            (cut ? ' 글이 3000자를 넘어 뒷부분이 잘렸어요.' : (copied ? ' 복사도 해 두었습니다! 📋' : '')),
+            cut ? 'error' : 'success'
         );
     }
 
@@ -2478,12 +2713,15 @@
     }
 
     function copyMyText() {
+        if (!guardCrossAnswers()) return;
         const ok = copyToClipboard(buildMergedText());
         showToast(ok ? "내 글과 반박 답변을 함께 복사했습니다! 📋" : "복사에 실패했습니다.", ok ? "success" : "error");
     }
 
     /* PDF 저장. 인쇄 창에서 '대상: PDF로 저장'을 고르면 파일로 남는다. */
     function savePdf() {
+        if (!guardCrossAnswers()) return;
+
         const polish = el('polish-text').value.trim();
         const body = polish !== '' ? polish : buildMergedText();
 

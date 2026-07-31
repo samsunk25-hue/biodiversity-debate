@@ -3,7 +3,13 @@
     "allow": [
       "WebSearch",
       "WebFetch(domain:product.kyobobook.co.kr)",
-      "WebFetch(domain:search.kyobobook.co.kr)"
+      "WebFetch(domain:search.kyobobook.co.kr)",
+      "Bash(node -e \"require.resolve\\('jsdom'\\); console.log\\('jsdom ok'\\)\")",
+      "Bash(npm ls *)",
+      "Bash(git -C c:/project/a260729bio status --short)",
+      "Bash(git -C c:/project/a260729bio diff --stat)",
+      "Bash(node -e ' *)",
+      "WebFetch(domain:www.mcee.go.kr)"
     ]
   }
 }
