@@ -352,6 +352,30 @@
             <div id="read-view" class="hidden"></div>
         </section>
 
+        <!-- ===================== 바로 연습하기 화면 ===================== -->
+        <section id="sec-practice" class="fade-in hidden">
+            <div class="flex flex-wrap items-center gap-2 mb-4">
+                <button onclick="goHome()" class="text-pinky-600 hover:text-pinky-700 font-medium flex items-center gap-1 transition-colors">
+                    <i class="fa-solid fa-arrow-left"></i> 첫 화면으로
+                </button>
+                <span class="text-gray-300">|</span>
+                <button onclick="goToPrepareFromPractice()" class="text-gray-500 hover:text-gray-700 text-sm font-medium">
+                    이 주제로 개요서 쓰러 가기 <i class="fa-solid fa-arrow-right ml-0.5"></i>
+                </button>
+            </div>
+
+            <div class="mb-5">
+                <p class="text-xs font-bold text-gray-500" id="practice-topic-label"></p>
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800" id="practice-head"></h2>
+            </div>
+
+            <!-- 관련 글 발췌 -->
+            <div id="practice-excerpt" class="mb-6"></div>
+
+            <!-- 연습 패널이 여기로 옮겨 온다 -->
+            <div id="practice-host"></div>
+        </section>
+
         <!-- ===================== 1단계 : 주제 선택 ===================== -->
         <section id="step-1" class="fade-in hidden">
             <button onclick="goHome()" class="text-pinky-600 hover:text-pinky-700 font-medium mb-4 flex items-center gap-1 transition-colors">
@@ -428,10 +452,11 @@
                     </button>
                 </div>
 
+                <div id="practice-slot"></div>
                 <div id="practice-panel" class="hidden mb-6">
                     <div class="flex items-center justify-between gap-2 mb-2">
                         <h4 id="practice-title" class="font-bold text-gray-800"></h4>
-                        <button onclick="closePractice()" class="text-xs font-bold text-gray-500 hover:text-gray-700 px-2 py-1">닫기</button>
+                        <button id="practice-close" onclick="closePractice()" class="text-xs font-bold text-gray-500 hover:text-gray-700 px-2 py-1">닫기</button>
                     </div>
                     <div class="border-2 border-gray-200 rounded-xl bg-white px-4 py-4">
                         <div id="check-body" class="hidden"></div>
@@ -1191,8 +1216,10 @@
             : 'fa-solid fa-chevron-up text-gray-400 text-xs';
     }
 
-    function selectTopic(id) {
+    /* stay = true 이면 자료만 준비하고 화면은 바꾸지 않는다 (바로 연습하기에서 사용) */
+    function selectTopic(id, stay) {
         currentTopic = discussionData.find(function (t) { return t.id === id; });
+        if (!stay) restorePracticePanel();
 
         el('current-region-label').innerText = currentTopic.region;
         el('current-topic-title').innerText = currentTopic.title;
@@ -1231,6 +1258,7 @@
         el('spell-result').innerHTML = '글을 쓰기 시작하면 자주 틀리는 표현을 찾아 알려 줍니다.';
         el('spell-result').className = 'text-xs text-gray-500 leading-relaxed';
 
+        if (stay) return;
         hideAllSections();
         step2.classList.remove('hidden');
         window.scrollTo(0, 0);
@@ -1270,6 +1298,7 @@
             if (btn) btn.classList.toggle('ring-pinky-300', k === which);
         });
         el('practice-title').innerText = PRACTICE_TITLES[which];
+        el('practice-close').classList.remove('hidden');
         el('practice-panel').classList.remove('hidden');
         if (which === 'sim') runSim();
         el('practice-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1298,8 +1327,127 @@
     function pickPracticeTopic(id) {
         const kind = pendingPractice || 'check';
         cancelPracticePick();
-        selectTopic(id);
+        selectTopic(id, true);        /* 자료만 준비하고 화면은 넘기지 않는다 */
+        openPracticeAlone(kind);
+    }
+
+    /* 연습만 하는 화면 : 관련 글에서 필요한 대목을 뽑아 함께 보여 준다 */
+    function openPracticeAlone(kind) {
+        el('practice-host').appendChild(el('practice-panel'));
         openPractice(kind);
+        closePracticeButKeepPanel();
+
+        el('practice-topic-label').innerText = currentTopic.region + ' · ' + currentTopic.title;
+        el('practice-head').innerText = PRACTICE_TITLES[kind].split(' — ')[0];
+        renderExcerpt(currentTopic, kind);
+
+        hideAllSections();
+        el('sec-practice').classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    /* 연습만 하는 화면에서는 패널을 닫을 일이 없으므로 '닫기'를 감춘다 */
+    function closePracticeButKeepPanel() {
+        el('practice-panel').classList.remove('hidden');
+        el('practice-close').classList.add('hidden');
+    }
+
+    function goToPrepareFromPractice() {
+        restorePracticePanel();
+        hideAllSections();
+        step2.classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    /* 연습 패널을 준비 화면 자리로 되돌린다 */
+    function restorePracticePanel() {
+        const slot = el('practice-slot');
+        const panel = el('practice-panel');
+        if (slot && panel && panel.parentNode !== slot.parentNode) {
+            slot.parentNode.insertBefore(panel, slot.nextSibling);
+        }
+    }
+
+    /* --- 연습과 관련된 글의 대목 뽑기 --- */
+    const EXCERPT_STOP = ['그리고', '하지만', '그러나', '때문에', '있습니다', '합니다', '수', '것', '등', '및', '이런', '그런', '어떤', '무엇', '확인', '자료', '있는', '한다', '되는'];
+
+    function excerptKeywords(topic, kind) {
+        let text = '';
+        if (kind === 'check') {
+            text = (topic.dataCheck || []).map(function (c) { return c.task + ' ' + c.where; }).join(' ') +
+                   ' ' + (topic.factbox.rows || []).map(function (r) { return r.label + ' ' + r.value; }).join(' ');
+        } else if (kind === 'hunt') {
+            text = (topic.evidenceHunt || []).map(function (h) {
+                return h.claim + ' ' + h.questions.join(' ') + ' ' + h.need.join(' ');
+            }).join(' ');
+        } else {
+            const model = SIM_MODELS[topic.id];
+            text = model ? (model.title + ' ' + model.concepts.map(function (c) { return c.term + ' ' + c.desc; }).join(' ') +
+                   ' ' + model.controls.map(function (c) { return c.label; }).join(' ')) : '';
+        }
+        const words = (text.match(/[가-힣]{2,}/g) || []).filter(function (w) { return EXCERPT_STOP.indexOf(w) < 0; });
+        /* 자주 나온 낱말일수록 중요하게 본다 */
+        const freq = {};
+        words.forEach(function (w) { freq[w] = (freq[w] || 0) + 1; });
+        return Object.keys(freq).sort(function (a, b) { return freq[b] - freq[a]; }).slice(0, 40);
+    }
+
+    function renderExcerpt(topic, kind) {
+        const box = el('practice-excerpt');
+        const ids = (topic.readings || []).slice();
+        const list = READINGS.filter(function (r) { return ids.indexOf(r.id) >= 0 || r.topicId === topic.id; });
+        if (list.length === 0) { box.innerHTML = ''; return; }
+
+        const keys = excerptKeywords(topic, kind);
+        const scored = [];
+        list.forEach(function (r) {
+            r.body.forEach(function (sec) {
+                sec.p.forEach(function (p) {
+                    let score = 0;
+                    keys.forEach(function (k) { if (p.indexOf(k) >= 0) score += k.length >= 3 ? 2 : 1; });
+                    if (score > 0) scored.push({ r: r, h: sec.h, p: p, score: score });
+                });
+            });
+        });
+        scored.sort(function (a, b) { return b.score - a.score; });
+        const picked = scored.slice(0, 3);
+
+        if (picked.length === 0) {
+            box.innerHTML =
+                '<div class="bg-white border border-gray-200 rounded-2xl p-5">' +
+                    '<p class="text-sm text-gray-600">이 연습과 이어지는 글을 먼저 읽어 보세요.</p>' +
+                    '<button onclick="openReadingFromPractice(\'' + list[0].id + '\')" class="mt-2 text-sm font-bold text-pinky-700 hover:underline">' +
+                        '「' + escapeHtml(list[0].title) + '」 읽기 <i class="fa-solid fa-arrow-right text-[10px]"></i></button>' +
+                '</div>';
+            return;
+        }
+
+        const from = picked[0].r;
+        box.innerHTML =
+            '<div class="bg-white border-2 border-pinky-100 rounded-2xl p-5 md:p-6">' +
+                '<div class="flex flex-wrap items-center justify-between gap-2 mb-3">' +
+                    '<h3 class="font-bold text-pinky-700">' +
+                        '<i class="fa-solid fa-quote-left mr-1"></i> 이 연습과 이어지는 글의 대목' +
+                    '</h3>' +
+                    '<span class="text-xs text-gray-500">「' + escapeHtml(from.title) + '」 중에서</span>' +
+                '</div>' +
+                picked.map(function (s) {
+                    return '<blockquote class="border-l-4 border-pinky-200 pl-4 mb-4">' +
+                        (s.h ? '<div class="text-xs font-bold text-gray-500 mb-1">' + escapeHtml(s.h) + '</div>' : '') +
+                        '<p class="text-[15px] md:text-base text-gray-800 leading-relaxed">' + escapeHtml(s.p) + '</p>' +
+                    '</blockquote>';
+                }).join('') +
+                '<button onclick="openReadingFromPractice(\'' + from.id + '\')" class="text-sm font-bold text-pinky-700 hover:underline">' +
+                    '글 전체 읽기 <i class="fa-solid fa-arrow-right text-[10px]"></i></button>' +
+                '<p class="text-xs text-gray-400 mt-2">여기 실린 수치도 <b>원문에서 직접 확인</b>해야 합니다.</p>' +
+            '</div>';
+    }
+
+    function openReadingFromPractice(id) {
+        readingReturnTo = 'practice';
+        hideAllSections();
+        el('sec-read').classList.remove('hidden');
+        openReading(id);
     }
 
     function closePractice() {
@@ -3154,7 +3302,7 @@
     /* =========================================================
        15. 화면 이동 (개념 정리 · 글 읽기 · 토론 개요서)
        ========================================================= */
-    const SECTIONS = ['home', 'sec-concept', 'sec-read', 'step-1', 'step-2', 'step-2w', 'step-3'];
+    const SECTIONS = ['home', 'sec-concept', 'sec-read', 'sec-practice', 'step-1', 'step-2', 'step-2w', 'step-3'];
 
     function hideAllSections() {
         SECTIONS.forEach(function (id) {
@@ -3184,7 +3332,7 @@
         window.scrollTo(0, 0);
     }
 
-    function goHome() { showSection('home'); }
+    function goHome() { restorePracticePanel(); showSection('home'); }
 
     /* =========================================================
        16. 교사 설정 (성취수준 · 루브릭 · 추가 글)
@@ -4201,6 +4349,13 @@
     }
 
     function closeReading() {
+        if (readingReturnTo === 'practice') {
+            readingReturnTo = 'read';
+            hideAllSections();
+            el('sec-practice').classList.remove('hidden');
+            window.scrollTo(0, 0);
+            return;
+        }
         if (readingReturnTo === 'debate') {
             readingReturnTo = 'read';
             hideAllSections();
