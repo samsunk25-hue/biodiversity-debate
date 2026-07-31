@@ -1423,6 +1423,7 @@
 
     function openPracticePicker() {
         pendingPractice = null;
+        hideAllSections();        /* 첫 화면의 활동 카드가 함께 보이지 않도록 */
         el('practice-topic-step').classList.add('hidden');
         ['check', 'hunt'].forEach(function (k) {
             const b = el('pick-kind-' + k);
@@ -1458,6 +1459,8 @@
     function cancelPracticePick() {
         pendingPractice = null;
         el('practice-topic-picker').classList.add('hidden');
+        /* 연습을 그만두면 첫 화면으로 돌아간다 */
+        if (SECTIONS.every(function (id) { const n = el(id); return !n || n.classList.contains('hidden'); })) goHome();
     }
 
     function pickPracticeTopic(id) {
