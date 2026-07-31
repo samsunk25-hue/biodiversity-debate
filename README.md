@@ -117,16 +117,16 @@
 
 배포 주소: **https://samsunk25-hue.github.io/biodiversity-debate/**
 
-`index.html`을 브라우저로 직접 열어도 동작합니다. 다만 바탕화면 바로가기 추가와 오프라인 기능은 `https://` 주소로 접속했을 때만 쓸 수 있습니다. 화면 디자인을 위해 Tailwind CSS·FontAwesome·SUIT 폰트를 CDN에서 불러오므로 첫 접속에는 인터넷 연결이 필요합니다.
+`index.html`을 브라우저로 직접 열어도 동작합니다. 화면 디자인을 위해 Tailwind CSS·FontAwesome·SUIT 폰트를 CDN에서 불러오므로 인터넷 연결이 필요합니다.
 
 ## 파일 구성
 
 | 파일 | 설명 |
 |---|---|
-| `index.html` | 앱 화면과 기능 (네비게이션·필터·시뮬레이터·문장 분석·교사 관리자) |
+| `index.html` | 앱 화면과 기능 (네비게이션·필터·문장 분석·오류 찾기·교사 관리자) |
 | `content.js` | 학습 콘텐츠 (개념 카드·확인 문제·읽기 자료·토론 주제·자료실·맞춤법 규칙) |
 | `manifest.webmanifest` | 앱 이름·아이콘·색상 등 설치 정보 |
 | `sw.js` | 서비스 워커 (오프라인 캐시) |
-| `icons/` | 앱 아이콘과 오픈 그래프 이미지 |
+| `icons/` | 파비콘과 오픈 그래프 이미지 |
 
 수업 내용을 바꾸려면 **`content.js`만 고치면 됩니다.**
