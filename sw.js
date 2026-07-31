@@ -2,11 +2,12 @@
    - 앱 파일을 캐시해 두 번째 방문부터는 인터넷이 느리거나 끊겨도 열립니다.
    - 개인정보는 저장하지 않습니다. 학생이 쓴 글은 캐시 대상이 아닙니다. */
 
-const CACHE = 'bio-debate-v3';
+const CACHE = 'bio-debate-v4';
 
 const CORE = [
     './',
     './index.html',
+    './content.js',
     './manifest.webmanifest',
     './icons/icon-192.png',
     './icons/icon-512.png',
