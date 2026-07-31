@@ -134,33 +134,7 @@
             75% { transform: translateX(6px); }
         }
         .header-gradient { background: linear-gradient(120deg, #ffe9f0 0%, #fdf8e0 100%); }
-        /* 정책 시뮬레이터 슬라이더 */
-        .sim-range {
-            -webkit-appearance: none; appearance: none;
-            width: 100%; height: 6px; border-radius: 999px;
-            background: #fbd0e0; outline: none; cursor: pointer;
-        }
-        .sim-range::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none;
-            width: 22px; height: 22px; border-radius: 50%;
-            background: #e56b99; border: 3px solid #fff;
-            box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer;
-        }
-        .sim-range::-moz-range-thumb {
-            width: 18px; height: 18px; border-radius: 50%;
-            background: #e56b99; border: 3px solid #fff;
-            box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer;
-        }
-        .sim-range:focus-visible { box-shadow: 0 0 0 3px rgba(229,107,153,.35); }
-        .sim-canvas { width: 100%; display: block; }
-        /* 토론 타이머 */
-        .timer-flash { animation: timerFlash 0.6s ease-in-out 4; }
-        @keyframes timerFlash {
-            0%, 100% { background-color: #fff; }
-            50% { background-color: #ffe9f0; }
-        }
         @media (prefers-reduced-motion: reduce) {
-            .timer-flash { animation: none; }
             .fade-in { animation: none; }
             .shake { animation: none; }
         }
@@ -253,6 +227,7 @@
             <button id="nav-concept" class="navbtn" onclick="showSection('concept')"><i class="fa-solid fa-lightbulb"></i> 개념 정리</button>
             <button id="nav-read" class="navbtn" onclick="showSection('read')"><i class="fa-solid fa-book-open-reader"></i> 글 읽기</button>
             <button id="nav-debate" class="navbtn" onclick="showSection('debate')"><i class="fa-solid fa-pen-to-square"></i> 토론 개요서</button>
+            <button id="nav-fallacy" class="navbtn" onclick="showSection('fallacy')"><i class="fa-solid fa-magnifying-glass-arrow-right"></i> 오류 찾기<span class="text-xs font-normal opacity-70">(선택)</span></button>
         </div>
     </nav>
 
@@ -271,7 +246,7 @@
                 <p class="text-gray-400 text-sm mt-1">내 별명: <span id="nickname-badge" class="font-bold text-pinky-600"></span></p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <button onclick="showSection('concept')" class="text-left bg-white rounded-2xl shadow-sm border-2 border-pinky-100 p-6 hover:shadow-lg hover:border-pinky-300 transition-all flex flex-col h-full transform hover:-translate-y-1">
                     <div class="w-12 h-12 bg-pinky-100 text-pinky-600 rounded-full flex items-center justify-center text-2xl mb-4">
                         <i class="fa-solid fa-lightbulb"></i>
@@ -296,11 +271,28 @@
                     </div>
                 </button>
 
+                <button onclick="showSection('debate')" class="text-left bg-white rounded-2xl shadow-sm border-2 border-pinky-100 p-6 hover:shadow-lg hover:border-pinky-300 transition-all flex flex-col h-full transform hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-pinky-100 text-pinky-700 rounded-full flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+                    <div class="text-sm font-bold text-pinky-600 mb-1">활동 3</div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">토론 개요서 작성</h3>
+                    <p class="text-base text-gray-600 flex-grow leading-relaxed">부여·서천·충남 내륙 주제를 골라 논점 3가지를 확인하고, 근거를 찾아 주장과 근거를 씁니다.</p>
+                    <div class="mt-4 pt-4 border-t border-gray-100 text-pinky-600 font-bold text-sm flex items-center justify-between">
+                        개요서 쓰러 가기 <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </button>
+            </div>
+
+            <!-- 더 해 보기(선택 활동) -->
+            <div class="mt-6">
+                <h3 class="font-bold text-gray-700 mb-2"><i class="fa-solid fa-star text-butter-500 mr-1"></i> 더 해 보기 <span class="text-sm font-normal text-gray-400">(시간이 남으면)</span></h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <button onclick="showSection('fallacy')" class="text-left bg-white rounded-2xl shadow-sm border-2 border-butter-100 p-6 hover:shadow-lg hover:border-butter-300 transition-all flex flex-col h-full transform hover:-translate-y-1">
                     <div class="w-12 h-12 bg-butter-100 text-butter-700 rounded-full flex items-center justify-center text-2xl mb-4">
                         <i class="fa-solid fa-magnifying-glass-arrow-right"></i>
                     </div>
-                    <div class="text-sm font-bold text-pinky-600 mb-1">활동 3</div>
+                    <div class="text-sm font-bold text-butter-700 mb-1">선택 활동</div>
                     <h3 class="text-2xl font-bold text-gray-800 mb-2">오류 찾기 연습</h3>
                     <p class="text-base text-gray-600 flex-grow leading-relaxed">앱이 만들어 낸 허술한 주장글을 읽고, 근거가 없거나 논리가 어긋난 문장을 찾아 무엇이 문제인지 짚습니다.</p>
                     <div class="mt-4 pt-4 border-t border-gray-100 text-butter-700 font-bold text-sm flex items-center justify-between">
@@ -308,17 +300,7 @@
                     </div>
                 </button>
 
-                <button onclick="showSection('debate')" class="text-left bg-white rounded-2xl shadow-sm border-2 border-pinky-100 p-6 hover:shadow-lg hover:border-pinky-300 transition-all flex flex-col h-full transform hover:-translate-y-1">
-                    <div class="w-12 h-12 bg-pinky-100 text-pinky-700 rounded-full flex items-center justify-center text-2xl mb-4">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                    </div>
-                    <div class="text-sm font-bold text-pinky-600 mb-1">활동 4</div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-2">토론 개요서 작성</h3>
-                    <p class="text-base text-gray-600 flex-grow leading-relaxed">부여·서천·충남 내륙 주제를 골라 논점 3가지를 확인하고, 근거를 찾아 주장과 근거를 씁니다.</p>
-                    <div class="mt-4 pt-4 border-t border-gray-100 text-pinky-600 font-bold text-sm flex items-center justify-between">
-                        개요서 쓰러 가기 <i class="fa-solid fa-arrow-right"></i>
-                    </div>
-                </button>
+                </div>
             </div>
 
             <!-- 바로 연습하기 -->
@@ -328,7 +310,7 @@
                 </h3>
                 <p class="text-xs text-gray-500 mb-4">개요서를 쓰기 전에 필요한 연습만 골라서 해 볼 수 있습니다. 주제를 고르면 바로 연습 화면이 열립니다.</p>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <button onclick="startPractice('check')" class="text-left border-2 border-pinky-200 bg-white hover:border-pinky-400 rounded-xl p-4 transition-colors">
                         <div class="w-10 h-10 bg-pinky-100 text-pinky-600 rounded-full flex items-center justify-center text-lg mb-2">
                             <i class="fa-solid fa-clipboard-check"></i>
@@ -342,13 +324,6 @@
                         </div>
                         <div class="font-bold text-gray-800 text-lg">근거 찾기 연습</div>
                         <div class="text-sm text-gray-600 mt-1 leading-relaxed">주장을 뒷받침하려면 무엇을 찾아야 할지 정합니다.</div>
-                    </button>
-                    <button onclick="startPractice('sim')" class="text-left border-2 border-gray-200 bg-white hover:border-pinky-400 rounded-xl p-4 transition-colors">
-                        <div class="w-10 h-10 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center text-lg mb-2">
-                            <i class="fa-solid fa-sliders"></i>
-                        </div>
-                        <div class="font-bold text-gray-800 text-lg">정책 시뮬레이터</div>
-                        <div class="text-sm text-gray-600 mt-1 leading-relaxed">변수를 바꿔 결과가 어떻게 달라지는지 봅니다.</div>
                     </button>
                 </div>
 
@@ -428,11 +403,11 @@
             <div id="read-view" class="hidden"></div>
         </section>
 
-        <!-- ===================== 활동 3 : 오류 찾기 연습 ===================== -->
+        <!-- ===================== 선택 활동 : 오류 찾기 연습 ===================== -->
         <section id="sec-fallacy" class="fade-in hidden">
             <button onclick="goHome()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 처음 화면으로</button>
             <div class="sec-head">
-                <h2>활동 3 · 오류 찾기 연습</h2>
+                <h2>선택 활동 · 오류 찾기 연습</h2>
                 <p>아래 글은 <b>앱이 그때그때 만들어 낸 허술한 주장글</b>입니다. 문장마다 무엇이 문제인지 골라 보세요.</p>
             </div>
 
@@ -524,7 +499,7 @@
                     <i class="fa-solid fa-dumbbell text-pinky-500 mr-1"></i> 개요서를 쓰기 전에 연습하기
                 </h3>
                 <p class="text-xs text-gray-500 mb-3">하나를 골라 눌러 보세요. 여기서 확인하고 찾은 내용은 개요서에 그대로 옮겨 쓸 수 있습니다.</p>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                     <button id="practice-btn-check" onclick="openPractice('check')" class="text-left border-2 border-pinky-200 bg-white hover:border-pinky-400 rounded-xl p-4 transition-colors">
                         <div class="w-10 h-10 bg-pinky-100 text-pinky-600 rounded-full flex items-center justify-center text-lg mb-2">
                             <i class="fa-solid fa-clipboard-check"></i>
@@ -539,13 +514,6 @@
                         <div class="font-bold text-gray-800 text-lg">근거 찾기 연습</div>
                         <div class="text-sm text-gray-600 mt-1 leading-relaxed">주장을 뒷받침하려면 무엇을 찾아야 할지 정합니다.</div>
                     </button>
-                    <button id="practice-btn-sim" onclick="openPractice('sim')" class="text-left border-2 border-gray-200 bg-white hover:border-pinky-400 rounded-xl p-4 transition-colors">
-                        <div class="w-10 h-10 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center text-lg mb-2">
-                            <i class="fa-solid fa-sliders"></i>
-                        </div>
-                        <div class="font-bold text-gray-800 text-lg">정책 시뮬레이터</div>
-                        <div class="text-sm text-gray-600 mt-1 leading-relaxed">변수를 바꿔 결과가 어떻게 달라지는지 봅니다.</div>
-                    </button>
                 </div>
 
                 <div id="practice-slot"></div>
@@ -557,7 +525,6 @@
                     <div class="border-2 border-gray-200 rounded-xl bg-white px-4 py-4">
                         <div id="check-body" class="hidden"></div>
                         <div id="hunt-body" class="hidden"></div>
-                        <div id="sim-body" class="hidden"></div>
                     </div>
                 </div>
 
@@ -577,7 +544,7 @@
                 <div id="practice-progress" class="mb-3"></div>
 
                 <button id="go-writing-btn" onclick="goToWriting()" class="w-full bg-gray-300 text-white font-bold py-4 rounded-xl shadow-md transition-all">
-                    세 가지 연습을 마치면 열립니다 <i class="fa-solid fa-lock ml-1"></i>
+                    두 가지 연습을 마치면 열립니다 <i class="fa-solid fa-lock ml-1"></i>
                 </button>
             </div>
         </section>
@@ -1050,56 +1017,6 @@
         </div>
     </div>
 
-    <!-- 토론 타이머 -->
-    <button id="timer-fab" onclick="openTimer()"
-        class="fixed bottom-5 right-5 z-40 bg-pinky-500 hover:bg-pinky-600 text-white font-bold text-sm pl-4 pr-5 py-3 rounded-full shadow-lg transition-transform transform hover:-translate-y-0.5 flex items-center gap-2">
-        <i class="fa-regular fa-clock text-base"></i>
-        <span id="timer-fab-label">토론 타이머</span>
-    </button>
-
-    <div id="timer-panel" class="hidden fixed bottom-5 right-5 z-40 w-[min(21rem,calc(100vw-2.5rem))] bg-white rounded-2xl shadow-2xl border-2 border-pinky-200 overflow-hidden">
-        <div class="flex items-center justify-between px-4 py-3 border-b border-pinky-100 bg-pinky-50">
-            <h3 class="font-bold text-pinky-700 text-sm"><i class="fa-regular fa-clock mr-1"></i> 토론 타이머</h3>
-            <div class="flex items-center gap-1">
-                <button id="timer-sound-btn" onclick="toggleTimerSound()" class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-lg" aria-label="소리 켜기/끄기" title="소리 켜기/끄기">
-                    <i class="fa-solid fa-volume-high"></i>
-                </button>
-                <button onclick="closeTimer()" class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-lg" aria-label="타이머 닫기">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-        </div>
-
-        <div class="p-4">
-            <div class="flex flex-wrap gap-1.5 mb-3" id="timer-presets"></div>
-
-            <p id="timer-stage" class="text-center text-xs font-bold text-gray-500 mb-1">입론</p>
-            <p id="timer-display" class="text-center font-bold text-gray-800 tabular-nums leading-none mb-3" style="font-size:3.25rem" role="timer" aria-live="off">03:00</p>
-
-            <div class="h-2 rounded-full bg-gray-100 overflow-hidden mb-4">
-                <div id="timer-bar" class="h-full bg-pinky-400 rounded-full" style="width:100%; transition: width .2s linear"></div>
-            </div>
-
-            <div class="flex gap-2 mb-2">
-                <button id="timer-toggle" onclick="toggleTimerRun()" class="flex-1 bg-pinky-500 hover:bg-pinky-600 text-white font-bold text-sm py-2.5 rounded-xl transition-colors">
-                    <i class="fa-solid fa-play mr-1"></i> 시작
-                </button>
-                <button onclick="resetTimer()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors" aria-label="처음으로 되돌리기">
-                    <i class="fa-solid fa-rotate-right"></i>
-                </button>
-            </div>
-
-            <div class="flex gap-2" id="timer-adjust">
-                <button onclick="addTimerSeconds(-30)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold text-xs py-2 rounded-lg transition-colors">−30초</button>
-                <button onclick="addTimerSeconds(30)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold text-xs py-2 rounded-lg transition-colors">+30초</button>
-            </div>
-
-            <p class="text-[11px] text-gray-400 mt-3 leading-relaxed">
-                시간은 내 브라우저에서만 계산되고 어디에도 전송·저장되지 않아요. 다른 화면으로 넘어가도 계속 돌아갑니다.
-            </p>
-        </div>
-    </div>
-
     <div id="toast-message" class="toast fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-lg z-50 flex items-center gap-3 max-w-[90vw]">
         <i class="fa-solid fa-circle-check text-butter-300"></i>
         <span id="toast-text">메시지</span>
@@ -1321,8 +1238,6 @@
             cardsContainer.appendChild(card);
         });
 
-        renderTimerPresets();
-        renderTimer();
     }
 
     function renderFactbox(topic) {
@@ -1411,8 +1326,6 @@
         el('refs-chevron').className = 'fa-solid fa-chevron-down text-gray-400 text-xs';
         closePractice();
 
-        simTouched = false;
-        renderSimulator(currentTopic);
         updatePracticeProgress();
 
         el('writing-topic-title').innerText = currentTopic.title;
@@ -1424,7 +1337,6 @@
         renderArgumentBlocks(null);
         el('sc-manual-1').checked = false;
         el('sc-manual-2').checked = false;
-        writingTimerStarted = false;
         updateSelfCheck();
         updateCounters();
         hideFilterPanel();
@@ -1451,7 +1363,7 @@
     /* 준비 화면 ↔ 작성 화면 */
     function goToWriting() {
         if (!allPracticeDone()) {
-            showToast('세 가지 연습을 모두 마쳐야 개요서를 쓸 수 있어요.', 'error');
+            showToast('두 가지 연습을 모두 마쳐야 개요서를 쓸 수 있어요.', 'error');
             el('practice-progress').scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
@@ -1462,8 +1374,6 @@
     }
 
     /* --- 연습 진행 상황 --- */
-    let simTouched = false;
-
     function practiceStatus() {
         const dc = (currentTopic && currentTopic.dataCheck) || [];
         const eh = (currentTopic && currentTopic.evidenceHunt) || [];
@@ -1479,13 +1389,12 @@
         return {
             check: { done: dcDone, total: dc.length, ok: dc.length > 0 && dcDone === dc.length },
             hunt: { done: ehDone, total: eh.length, ok: eh.length > 0 && ehDone === eh.length },
-            sim: { ok: simTouched }
         };
     }
 
     function allPracticeDone() {
         const s = practiceStatus();
-        return s.check.ok && s.hunt.ok && s.sim.ok;
+        return s.check.ok && s.hunt.ok;
     }
 
     function updatePracticeProgress() {
@@ -1502,11 +1411,10 @@
         box.innerHTML =
             '<div class="border-2 ' + (allPracticeDone() ? 'border-emerald-200 bg-emerald-50' : 'border-gray-200 bg-gray-50') + ' rounded-xl p-4">' +
                 '<p class="text-sm font-bold text-gray-700 mb-2">' +
-                    (allPracticeDone() ? '연습을 모두 마쳤어요. 이제 개요서를 쓸 수 있습니다.' : '세 가지 연습을 모두 마쳐야 개요서를 쓸 수 있어요.') +
+                    (allPracticeDone() ? '연습을 모두 마쳤어요. 이제 개요서를 쓸 수 있습니다.' : '두 가지 연습을 모두 마쳐야 개요서를 쓸 수 있어요.') +
                 '</p><ul class="space-y-1.5">' +
                 row('자료 확인 과제', s.check.ok, s.check.done + ' / ' + s.check.total + '개 칸을 채웠어요') +
                 row('근거 찾기 연습', s.hunt.ok, s.hunt.done + ' / ' + s.hunt.total + '개 주장에 찾은 근거를 적었어요') +
-                row('정책 시뮬레이터', s.sim.ok, s.sim.ok ? '변수를 바꿔 결과를 확인했어요' : '한 번 열어 결과를 확인하세요') +
                 '</ul></div>';
 
         const btn = el('go-writing-btn');
@@ -1516,7 +1424,7 @@
                 btn.innerHTML = '준비를 마쳤어요. 개요서 작성하러 가기 <i class="fa-solid fa-arrow-right ml-1"></i>';
             } else {
                 btn.className = 'w-full bg-gray-300 text-white font-bold py-4 rounded-xl shadow-md transition-all cursor-not-allowed';
-                btn.innerHTML = '세 가지 연습을 마치면 열립니다 <i class="fa-solid fa-lock ml-1"></i>';
+                btn.innerHTML = '두 가지 연습을 마치면 열립니다 <i class="fa-solid fa-lock ml-1"></i>';
             }
         }
     }
@@ -1531,12 +1439,11 @@
     /* 준비 화면의 연습 세 가지 */
     const PRACTICE_TITLES = {
         check: '자료 확인 과제 — 이 수치가 맞는지 직접 확인하기',
-        hunt: '근거 찾기 연습 — 이 주장을 뒷받침하려면 무엇을 찾아야 할까?',
-        sim: '정책 시뮬레이터 — 변수를 바꿔 결과를 확인하기'
+        hunt: '근거 찾기 연습 — 이 주장을 뒷받침하려면 무엇을 찾아야 할까?'
     };
 
     function openPractice(which) {
-        ['check', 'hunt', 'sim'].forEach(function (k) {
+        ['check', 'hunt'].forEach(function (k) {
             el(k + '-body').classList.toggle('hidden', k !== which);
             const btn = el('practice-btn-' + k);
             if (btn) btn.classList.toggle('ring-2', k === which);
@@ -1545,7 +1452,6 @@
         el('practice-title').innerText = PRACTICE_TITLES[which];
         el('practice-close').classList.remove('hidden');
         el('practice-panel').classList.remove('hidden');
-        if (which === 'sim') runSim();
         el('practice-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
@@ -1625,10 +1531,6 @@
             text = (topic.evidenceHunt || []).map(function (h) {
                 return h.claim + ' ' + h.questions.join(' ') + ' ' + h.need.join(' ');
             }).join(' ');
-        } else {
-            const model = SIM_MODELS[topic.id];
-            text = model ? (model.title + ' ' + model.concepts.map(function (c) { return c.term + ' ' + c.desc; }).join(' ') +
-                   ' ' + model.controls.map(function (c) { return c.label; }).join(' ')) : '';
         }
         const words = (text.match(/[가-힣]{2,}/g) || []).filter(function (w) { return EXCERPT_STOP.indexOf(w) < 0; });
         /* 자주 나온 낱말일수록 중요하게 본다 */
@@ -1706,7 +1608,7 @@
     function closePractice() {
         const panel = el('practice-panel');
         if (panel) panel.classList.add('hidden');
-        ['check', 'hunt', 'sim'].forEach(function (k) {
+        ['check', 'hunt'].forEach(function (k) {
             const btn = el('practice-btn-' + k);
             if (btn) { btn.classList.remove('ring-2'); btn.classList.remove('ring-pinky-300'); }
         });
@@ -2055,479 +1957,6 @@
     }
 
     /* =========================================================
-       7. 정책 시뮬레이터
-          변수를 바꾸면 개체군 모형을 계산해 그래프로 보여 준다.
-          교육용으로 크게 단순화한 모형이며, 출발값은 각 주제의 실제 통계를 쓴다.
-       ========================================================= */
-    const SIM_C = {
-        pink: '#e56b99',   /* 지키려는 생물 (야생 개체군·미호종개·토종 어류) */
-        gold: '#c99f20',   /* 비율·유전다양성 같은 % 지표 */
-        teal: '#2f8f83',   /* 보조 지표 (사육 개체군·서식지 질) */
-        gray: '#9ca3af'
-    };
-
-    function simNum(n) { return Math.round(n).toLocaleString('ko-KR'); }
-
-    /* --- 주제 1 : 부여 백마강 강변 공간 배분 --- */
-    function simRiverPark(v) {
-        /* 서식지 질 : 습지로 남긴 비율이 높고 완충 폭이 넓을수록, 탐방로가 성길수록 좋아진다 */
-        const bufFactor = Math.min(1, v.buffer / 100);                 /* 완충 폭 100m에서 최대 효과 */
-        const pathHarm  = (v.path / 100) * 0.45;                       /* 탐방로·데크 밀도의 부담 */
-        const builtHarm = (1 - v.wet / 100) * 0.8;                     /* 시설로 쓰는 면적의 부담 */
-        const visitPress = Math.max(0, (v.visitor - 20) / 100) * 0.5;  /* 방문객 압력(만 명 단위) */
-        let quality = (1 - builtHarm) * (1 - pathHarm) * (1 - visitPress * (1 - 0.6 * bufFactor));
-        quality = Math.max(0.02, Math.min(1, quality));
-
-        const K = Math.max(1, Math.round(1200 * quality));             /* 겨울 물새 수용력 */
-        let birds = 500;
-        /* 지역 편익 : 방문객이 많을수록 늘지만, 시설(주차·상업)이 없으면 체류·소비가 줄고
-           반대로 자연이 나빠지면 재방문이 줄어든다 */
-        const facility = 1 - v.wet / 100;
-        const xs = [0], bL = [birds], qL = [quality * 100], eL = [];
-
-        let benefit = 0;
-        for (let t = 1; t <= v.years; t++) {
-            birds = birds + 0.30 * birds * (1 - birds / K);
-            if (birds < 5) birds = 0;
-            const charm = 0.5 + 0.5 * quality;                          /* 자연이 좋을수록 재방문 */
-            benefit = v.visitor * (0.45 + 0.55 * facility) * charm;     /* 상대 지수 */
-            xs.push(t); bL.push(birds); qL.push(quality * 100); eL.push(benefit);
-        }
-        eL.unshift(v.visitor * (0.45 + 0.55 * facility) * (0.5 + 0.5 * quality));
-
-        let verdict;
-        if (quality < 0.35) {
-            verdict = { tone: 'bad', title: '습지 기능이 무너지는 구성입니다', text: '시설 면적과 탐방로 밀도가 높아 서식지 질이 ' + (quality * 100).toFixed(0) + '%까지 떨어졌습니다. 습지로 남기는 비율을 높이거나 완충 폭을 넓혀 보세요.' };
-        } else if (birds < 500) {
-            verdict = { tone: 'warn', title: '물새 개체군이 처음보다 줄었습니다', text: '수용력(K)이 ' + simNum(K) + '마리로 낮아졌습니다. 방문객 압력은 완충 폭을 넓히면 상당 부분 줄어듭니다.' };
-        } else if (facility < 0.15) {
-            verdict = { tone: 'warn', title: '생태는 좋지만 지역 편익이 낮습니다', text: '시설 면적이 거의 없어 체류와 소비가 줄어듭니다. 습지 바깥에 최소한의 편의시설을 두는 조합을 시험해 보세요.' };
-        } else {
-            verdict = { tone: 'good', title: '두 가지가 함께 유지되는 조합입니다', text: '서식지 질 ' + (quality * 100).toFixed(0) + '%를 지키면서 지역 편익도 유지됩니다. 완충 폭이 방문객 압력을 얼마나 줄이는지 그래프에서 확인해 보세요.' };
-        }
-
-        return {
-            xs: xs, xLabel: '경과 연수(년)',
-            rightMax: 100,
-            series: [
-                { name: '겨울 물새(마리)', color: SIM_C.pink, values: bL, axis: 'left' },
-                { name: '서식지 질(%)', color: SIM_C.teal, values: qL, axis: 'right' },
-                { name: '지역 편익 지수', color: SIM_C.gold, values: eL, axis: 'left' }
-            ],
-            metrics: [
-                { label: '서식지 질', value: (quality * 100).toFixed(0) + '%', tone: quality >= 0.7 ? 'good' : (quality >= 0.4 ? 'warn' : 'bad') },
-                { label: '물새 수용력(K)', value: simNum(K) + '마리', tone: 'none' },
-                { label: v.years + '년 뒤 물새', value: birds <= 0 ? '거의 없음' : simNum(birds) + '마리', tone: birds >= 500 ? 'good' : (birds > 0 ? 'warn' : 'bad') },
-                { label: '지역 편익 지수', value: benefit.toFixed(0), tone: benefit >= 25 ? 'good' : (benefit >= 12 ? 'warn' : 'bad') }
-            ],
-            verdict: verdict,
-            evidence: '정책 시뮬레이터로 계산하면, 강변의 ' + v.wet + '%를 습지로 남기고 완충 폭 ' + v.buffer + 'm, 탐방로 밀도 ' + v.path +
-                '%, 축제 방문객 ' + v.visitor + '만 명 조건에서 서식지 질은 ' + (quality * 100).toFixed(0) + '%가 되고 ' + v.years +
-                '년 뒤 겨울 물새는 500마리에서 ' + (birds <= 0 ? '거의 사라진다' : simNum(birds) + '마리가 된다') +
-                '. 완충 폭을 넓히면 같은 방문객 수에서도 서식지 질이 덜 떨어진다.'
-        };
-    }
-
-    /* --- 주제 2 : 서천 갯벌의 도로·양식 확대 --- */
-    function simTidalFlat(v) {
-        const roadHarm = Math.min(1, v.road / 20) * 0.5 * (1 - Math.min(1, v.core / 100) * 0.4); /* 도로 길이(km) */
-        const farmHarm = (v.farm / 100) * 0.6;                       /* 양식 확대 비율 */
-        const coreGain = (v.core / 100) * 0.35;                      /* 핵심 보전구역 비율 */
-        let health = Math.max(0.03, Math.min(1, (1 - roadHarm) * (1 - farmHarm) + coreGain * 0.5));
-
-        const benthos = 100 * health;                                 /* 저서생물 밀도 지수 */
-        const KB = Math.max(1, Math.round(20000 * health));           /* 도래 물새 수용력 */
-        let birds = 12000;
-        let carbon = 0;                                               /* 누적 탄소 저장 지수 */
-        const xs = [0], bL = [birds], hL = [health * 100], cL = [0];
-
-        for (let t = 1; t <= v.years; t++) {
-            birds = birds + 0.25 * birds * (1 - birds / KB);
-            if (birds < 100) birds = 0;
-            carbon += health * 10;                                    /* 갯벌이 온전할수록 해마다 더 쌓인다 */
-            xs.push(t); bL.push(birds); hL.push(health * 100); cL.push(carbon);
-        }
-
-        /* 지역 소득 : 양식·도로는 단기 소득을 늘리지만 갯벌이 나빠지면 관광·어획이 함께 준다 */
-        const income = (30 + v.farm * 0.5 + v.road * 1.2) * (0.4 + 0.6 * health);
-
-        let verdict;
-        if (health < 0.4) {
-            verdict = { tone: 'bad', title: '갯벌 기능이 크게 떨어집니다', text: '저서생물 밀도가 처음의 ' + benthos.toFixed(0) + '% 수준이 되면 먹이가 줄어 물새가 머물지 못합니다. 핵심 보전구역 비율을 높이거나 양식 확대 폭을 줄여 보세요.' };
-        } else if (birds < 12000) {
-            verdict = { tone: 'warn', title: '도래하는 물새가 줄어듭니다', text: '수용력이 ' + simNum(KB) + '마리로 낮아졌습니다. 도로는 길이보다 노선이 중요합니다. 핵심 구역을 지정하면 같은 길이에서도 피해가 줄어드는 것을 확인해 보세요.' };
-        } else if (income < 45) {
-            verdict = { tone: 'warn', title: '생태는 지켰지만 소득이 낮습니다', text: '제한이 강해 단기 소득이 줄어듭니다. 구역을 나누어 이용 구역에서 생업을 이어 가는 조합을 시험해 보세요.' };
-        } else {
-            verdict = { tone: 'good', title: '보전과 생업이 함께 가는 조합입니다', text: '갯벌 건강도 ' + (health * 100).toFixed(0) + '%를 유지하면서 소득 지수도 낮지 않습니다. 핵심 구역 지정이 도로 피해를 얼마나 줄이는지 확인해 보세요.' };
-        }
-
-        return {
-            xs: xs, xLabel: '경과 연수(년)',
-            rightMax: 100,
-            series: [
-                { name: '도래 물새(마리)', color: SIM_C.pink, values: bL, axis: 'left' },
-                { name: '갯벌 건강도(%)', color: SIM_C.teal, values: hL, axis: 'right' },
-                { name: '누적 탄소 저장 지수', color: SIM_C.gold, values: cL, axis: 'left' }
-            ],
-            metrics: [
-                { label: '갯벌 건강도', value: (health * 100).toFixed(0) + '%', tone: health >= 0.7 ? 'good' : (health >= 0.4 ? 'warn' : 'bad') },
-                { label: '저서생물 밀도', value: benthos.toFixed(0) + '%', tone: benthos >= 70 ? 'good' : (benthos >= 40 ? 'warn' : 'bad') },
-                { label: v.years + '년 뒤 물새', value: birds <= 0 ? '거의 없음' : simNum(birds) + '마리', tone: birds >= 12000 ? 'good' : (birds > 0 ? 'warn' : 'bad') },
-                { label: '지역 소득 지수', value: income.toFixed(0), tone: income >= 60 ? 'good' : (income >= 45 ? 'warn' : 'bad') }
-            ],
-            verdict: verdict,
-            evidence: '정책 시뮬레이터로 계산하면, 해안도로 ' + v.road + 'km·양식 확대 ' + v.farm + '%·핵심 보전구역 ' + v.core +
-                '% 조건에서 갯벌 건강도는 ' + (health * 100).toFixed(0) + '%가 되고 ' + v.years + '년 뒤 도래 물새는 12,000마리에서 ' +
-                (birds <= 0 ? '거의 사라진다' : simNum(birds) + '마리가 된다') +
-                '. 같은 도로 길이에서도 핵심 구역을 지정하면 피해가 줄어든다는 점이 계산에 들어 있다.'
-        };
-    }
-
-    /* --- 주제 3 : 충남 내륙 태양광 입지 --- */
-    function simSolar(v) {
-        const forestShare = v.forest / 100;                            /* 산지에 놓는 비율 */
-        const roofShare = 1 - forestShare;                             /* 지붕·유휴부지 비율 */
-        const landPerMW = 1.3;                                         /* 1MW당 필요한 땅(ha) — 교육용 가정 */
-        const forestLoss = v.mw * landPerMW * forestShare * (1 - v.avoid / 100 * 0.6);
-
-        /* 발전량(GWh) : 지붕은 그늘·각도 때문에 조금 낮게 잡는다 */
-        const gen = v.mw * (1.25 * forestShare + 1.10 * roofShare);
-        const cutCO2 = gen * 0.45;                                     /* 발전으로 줄이는 CO2(천 톤) */
-        const lostSink = forestLoss * 0.0065;                          /* 사라진 숲이 흡수하던 CO2(천 톤/년) */
-        const netCO2 = cutCO2 - lostSink;
-
-        /* 생물다양성 지수 : 생태축을 끊는 정도 */
-        const cutAxis = forestShare * (1 - v.avoid / 100);
-        let bio = Math.max(0, 100 - cutAxis * 90 - (v.mw / 200) * 10);
-
-        const xs = [0], nL = [0], bL = [bio];
-        let cum = 0;
-        for (let t = 1; t <= v.years; t++) {
-            cum += netCO2;
-            /* 회피 설계를 잘하면 시간이 지나며 식생이 일부 회복된다 */
-            bio = Math.min(100, bio + (v.avoid / 100) * 0.6);
-            xs.push(t); nL.push(cum); bL.push(bio);
-        }
-
-        let verdict;
-        if (netCO2 <= 0) {
-            verdict = { tone: 'bad', title: '탄소를 줄이지 못하는 조합입니다', text: '사라진 산림이 흡수하던 양이 발전으로 줄이는 양보다 큽니다. 산지 비율을 낮추거나 생태축 회피 설계를 강화해야 합니다.' };
-        } else if (bio < 50) {
-            verdict = { tone: 'bad', title: '생태축이 끊깁니다', text: '생물다양성 지수가 ' + bio.toFixed(0) + '까지 떨어졌습니다. 같은 용량을 지붕·유휴부지로 옮기면 지수가 어떻게 달라지는지 확인해 보세요.' };
-        } else if (forestShare > 0.3) {
-            verdict = { tone: 'warn', title: '감축은 되지만 산림 손실이 큽니다', text: '훼손 면적이 약 ' + forestLoss.toFixed(1) + 'ha입니다. 회피–저감–상쇄 원칙의 첫 단계는 회피입니다. 지붕 비율을 올려 보세요.' };
-        } else {
-            verdict = { tone: 'good', title: '두 목표를 함께 이루는 조합입니다', text: '연간 순감축 약 ' + netCO2.toFixed(1) + '천 톤을 얻으면서 생물다양성 지수 ' + bio.toFixed(0) + '을 지켰습니다. 입지가 용량보다 중요하다는 점을 보여 주는 결과입니다.' };
-        }
-
-        return {
-            xs: xs, xLabel: '경과 연수(년)',
-            rightMax: 100,
-            series: [
-                { name: '누적 순감축(천 톤 CO₂)', color: SIM_C.gold, values: nL, axis: 'left' },
-                { name: '생물다양성 지수', color: SIM_C.teal, values: bL, axis: 'right' }
-            ],
-            metrics: [
-                { label: '연간 발전량', value: gen.toFixed(0) + 'GWh', tone: 'none' },
-                { label: '산림 훼손 면적', value: forestLoss.toFixed(1) + 'ha', tone: forestLoss <= 5 ? 'good' : (forestLoss <= 30 ? 'warn' : 'bad') },
-                { label: '연간 순감축', value: netCO2.toFixed(1) + '천 톤', tone: netCO2 > 20 ? 'good' : (netCO2 > 0 ? 'warn' : 'bad') },
-                { label: '생물다양성 지수', value: bio.toFixed(0), tone: bio >= 70 ? 'good' : (bio >= 50 ? 'warn' : 'bad') }
-            ],
-            verdict: verdict,
-            evidence: '정책 시뮬레이터로 계산하면, 설비 ' + v.mw + 'MW 가운데 ' + v.forest + '%를 산지에 놓고 생태축 회피 설계를 ' + v.avoid +
-                '% 적용할 때 산림 훼손은 약 ' + forestLoss.toFixed(1) + 'ha, 연간 순감축은 약 ' + netCO2.toFixed(1) +
-                '천 톤이 된다. 같은 용량이라도 산지 비율을 낮추면 순감축이 커지는데, 이는 사라진 숲이 흡수하던 탄소를 빼고 계산했기 때문이다.'
-        };
-    }
-
-    const SIM_MODELS = {
-        1: {
-            title: '강변 공간을 어떻게 나눌까?',
-            intro: '강변을 <b>습지로 남기는 비율</b>과 <b>완충 폭</b>을 바꾸면 물새 개체군과 지역 편익이 어떻게 달라지는지 계산합니다.',
-            controls: [
-                { key: 'wet', label: '습지로 남기는 비율', min: 0, max: 100, step: 5, value: 60, unit: '%', help: '나머지는 주차장·상업시설로 씁니다' },
-                { key: 'buffer', label: '완충 폭(핵심 구역과 이용 구역 사이)', min: 0, max: 200, step: 10, value: 30, unit: 'm', help: '폭을 밝히지 않은 대책은 검증할 수 없습니다' },
-                { key: 'path', label: '탐방로·데크 밀도', min: 0, max: 100, step: 5, value: 30, unit: '%' },
-                { key: 'visitor', label: '축제 기간 방문객', min: 5, max: 120, step: 5, value: 40, unit: '만 명' },
-                { key: 'years', label: '계산 기간', min: 5, max: 40, step: 5, value: 15, unit: '년' }
-            ],
-            concepts: [
-                { term: '수용력(K)', desc: '습지가 좁아지면 먹여 살릴 수 있는 물새 수 자체가 줄어듭니다.' },
-                { term: '완충구역', desc: '완충 폭이 넓을수록 같은 방문객 수에서도 핵심 구역이 받는 영향이 줄어듭니다.' },
-                { term: '생태계 서비스', desc: '습지 면적이 줄면 물 정화·홍수 조절 기능도 함께 줄어듭니다.' }
-            ],
-            run: simRiverPark
-        },
-        2: {
-            title: '도로와 양식을 어디까지 허용할까?',
-            intro: '<b>도로 길이</b>, <b>양식 확대</b>, <b>핵심 보전구역</b>을 바꾸어 갯벌 건강도와 지역 소득이 어떻게 달라지는지 봅니다.',
-            controls: [
-                { key: 'road', label: '새로 놓는 해안도로', min: 0, max: 20, step: 1, value: 6, unit: 'km' },
-                { key: 'farm', label: '양식장 확대 비율', min: 0, max: 100, step: 5, value: 30, unit: '%' },
-                { key: 'core', label: '핵심 보전구역 비율', min: 0, max: 100, step: 5, value: 30, unit: '%', help: '핵심 구역을 정하면 같은 도로 길이에서도 피해가 줄어듭니다' },
-                { key: 'years', label: '계산 기간', min: 5, max: 40, step: 5, value: 15, unit: '년' }
-            ],
-            concepts: [
-                { term: '저서생물', desc: '갯지렁이·조개가 줄면 도요·물떼새의 먹이가 사라집니다.' },
-                { term: '블루카본', desc: '갯벌이 온전할수록 해마다 쌓이는 탄소가 많아집니다. 그래프의 누적 곡선이 저장량입니다.' },
-                { term: '서식지 파편화', desc: '도로는 길이보다 어디를 가르느냐가 더 중요합니다.' }
-            ],
-            run: simTidalFlat
-        },
-        3: {
-            title: '같은 용량, 어디에 놓을까?',
-            intro: '설비 용량은 그대로 두고 <b>산지 비율</b>과 <b>생태축 회피 설계</b>만 바꿔 보세요. 순감축량과 생물다양성 지수가 함께 달라집니다.',
-            controls: [
-                { key: 'mw', label: '설비 용량', min: 5, max: 200, step: 5, value: 50, unit: 'MW' },
-                { key: 'forest', label: '산지에 놓는 비율', min: 0, max: 100, step: 5, value: 60, unit: '%', help: '나머지는 건물 지붕·유휴부지에 놓습니다' },
-                { key: 'avoid', label: '생태축 회피 설계 적용', min: 0, max: 100, step: 5, value: 20, unit: '%', help: '민감 구간을 피하고 절토를 최소화하는 정도' },
-                { key: 'years', label: '계산 기간', min: 5, max: 30, step: 5, value: 20, unit: '년' }
-            ],
-            concepts: [
-                { term: '생태축 · 연결성', desc: '산지 비율이 높고 회피 설계가 약할수록 통로가 끊깁니다.' },
-                { term: '기회비용', desc: '같은 용량을 지붕에 놓았을 때와 비교하는 것이 이 계산의 핵심입니다.' },
-                { term: '순감축량', desc: '발전으로 줄인 양에서 사라진 숲이 흡수하던 양을 뺀 값입니다.' }
-            ],
-            run: simSolar
-        }
-    };
-
-    let simModel = null;
-    let simLast = null;
-
-    function toggleSim() {
-        const body = el('sim-body');
-        const chev = el('sim-chevron');
-        body.classList.toggle('hidden');
-        const open = !body.classList.contains('hidden');
-        chev.className = 'fa-solid fa-chevron-' + (open ? 'up' : 'down') + ' text-gray-400 text-xs';
-        if (open) runSim();
-    }
-
-    function renderSimulator(topic) {
-        const body = el('sim-body');
-        simModel = SIM_MODELS[topic.id] || null;
-        simLast = null;
-        if (!simModel) { body.innerHTML = ''; return; }
-
-        let html =
-            '<h4 class="font-bold text-gray-800 mb-1">' + escapeHtml(simModel.title) + '</h4>' +
-            '<p class="text-xs md:text-sm text-gray-600 mb-4 leading-relaxed">' + simModel.intro + '</p>' +
-            '<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-4">';
-
-        simModel.controls.forEach(function (c) {
-            html +=
-                '<div>' +
-                    '<div class="flex items-baseline justify-between mb-1.5 gap-2">' +
-                        '<label for="sim-' + c.key + '" class="text-xs font-bold text-gray-700">' + escapeHtml(c.label) + '</label>' +
-                        '<span class="text-sm font-bold text-pinky-600 whitespace-nowrap">' +
-                            '<span id="simval-' + c.key + '">' + c.value + '</span>' + escapeHtml(c.unit) +
-                        '</span>' +
-                    '</div>' +
-                    '<input type="range" class="sim-range" id="sim-' + c.key + '" min="' + c.min + '" max="' + c.max + '" step="' + c.step + '" value="' + c.value + '" oninput="runSim()">' +
-                    (c.help ? '<p class="text-[11px] text-gray-500 mt-1.5 leading-snug">' + escapeHtml(c.help) + '</p>' : '') +
-                '</div>';
-        });
-        html += '</div>';
-
-        (simModel.toggles || []).forEach(function (t) {
-            html +=
-                '<label class="flex items-start gap-2 bg-pinky-50 border border-pinky-200 rounded-xl px-3 py-2.5 mb-4 cursor-pointer">' +
-                    '<input type="checkbox" id="sim-' + t.key + '" ' + (t.value ? 'checked' : '') + ' onchange="runSim()" class="mt-0.5 w-4 h-4 accent-pinky-500">' +
-                    '<span class="text-xs text-gray-700 leading-snug">' +
-                        '<b>' + escapeHtml(t.label) + '</b>' +
-                        (t.help ? '<br><span class="text-gray-500">' + escapeHtml(t.help) + '</span>' : '') +
-                    '</span>' +
-                '</label>';
-        });
-
-        html +=
-            '<div class="rounded-xl border border-gray-200 bg-gray-50/70 p-3 mb-3">' +
-                '<div id="sim-legend" class="flex flex-wrap gap-x-4 gap-y-1 mb-2"></div>' +
-                '<canvas id="sim-chart" class="sim-canvas" role="img" aria-label="시뮬레이션 결과 그래프. 아래 요약 숫자에 같은 내용이 글로 적혀 있습니다."></canvas>' +
-                '<p id="sim-xlabel" class="text-[11px] text-gray-500 text-center mt-1"></p>' +
-            '</div>' +
-            '<div id="sim-metrics" class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3"></div>' +
-            '<div id="sim-verdict" class="rounded-xl border p-3 mb-4 text-sm"></div>';
-
-        html += '<div class="bg-white border border-gray-200 rounded-xl p-3 mb-4">' +
-            '<h5 class="text-xs font-bold text-gray-700 mb-2"><i class="fa-solid fa-flask text-pinky-500 mr-1"></i> 이 계산에 쓰인 과학 개념</h5>' +
-            '<ul class="space-y-1.5">';
-        simModel.concepts.forEach(function (c) {
-            html += '<li class="text-xs text-gray-600 leading-relaxed"><b class="text-gray-800">' + escapeHtml(c.term) + '</b> — ' + escapeHtml(c.desc) + '</li>';
-        });
-        html += '</ul></div>';
-
-        html +=
-            '<div class="flex flex-col sm:flex-row gap-2 mb-3">' +
-                '<button onclick="useSimEvidence()" class="flex-1 bg-pinky-500 hover:bg-pinky-600 text-white font-bold text-sm py-2.5 px-4 rounded-xl transition-colors">' +
-                    '<i class="fa-solid fa-arrow-down-long mr-1"></i> 이 결과를 근거 칸에 옮겨 적기' +
-                '</button>' +
-                '<button onclick="resetSim()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-semibold text-sm py-2.5 px-4 rounded-xl transition-colors">' +
-                    '<i class="fa-solid fa-rotate-right mr-1"></i> 처음 값으로' +
-                '</button>' +
-            '</div>' +
-            '<p class="text-[11px] text-gray-500 leading-relaxed border-t border-gray-100 pt-3">' +
-                '<b class="text-gray-600">이 그래프는 교육용으로 단순화한 계산입니다.</b> 출발값(개체 수·비율·단가)은 위 ‘핵심 통계’와 ‘자료 찾아보기’의 실제 조사 자료를 썼지만, ' +
-                '성장률·생존율 같은 계수는 수업에서 변화를 눈으로 보기 위해 정한 값입니다. 실제 생태계는 훨씬 복잡하므로 <b class="text-gray-600">시뮬레이터 결과는 ‘경향’으로만 쓰고, ' +
-                '근거에는 실제 통계와 기사를 함께 인용</b>하세요.' +
-            '</p>';
-
-        body.innerHTML = html;
-        runSim();
-    }
-
-    function resetSim() {
-        if (!simModel) return;
-        simModel.controls.forEach(function (c) { el('sim-' + c.key).value = c.value; });
-        (simModel.toggles || []).forEach(function (t) { el('sim-' + t.key).checked = t.value; });
-        runSim();
-    }
-
-    function runSim() {
-        if (!simModel || !el('sim-chart')) return;
-        const v = {};
-        simModel.controls.forEach(function (c) {
-            v[c.key] = Number(el('sim-' + c.key).value);
-            el('simval-' + c.key).innerText = v[c.key].toLocaleString('ko-KR');
-        });
-        (simModel.toggles || []).forEach(function (t) { v[t.key] = el('sim-' + t.key).checked; });
-
-        const out = simModel.run(v);
-        simLast = out;
-        simTouched = true;
-        updatePracticeProgress();
-
-        let legend = '';
-        out.series.forEach(function (s) {
-            legend += '<span class="flex items-center gap-1.5 text-[11px] font-bold text-gray-600">' +
-                '<span class="inline-block w-3 h-1.5 rounded-full" style="background:' + s.color + '"></span>' +
-                escapeHtml(s.name) + '</span>';
-        });
-        el('sim-legend').innerHTML = legend;
-        el('sim-xlabel').innerText = out.xLabel;
-
-        let mh = '';
-        out.metrics.forEach(function (m) {
-            const tone = m.tone === 'good' ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                : m.tone === 'bad' ? 'border-rose-200 bg-rose-50 text-rose-800'
-                : m.tone === 'warn' ? 'border-amber-200 bg-amber-50 text-amber-800'
-                : 'border-gray-200 bg-white text-gray-800';
-            mh += '<div class="rounded-xl border px-3 py-2 ' + tone + '">' +
-                '<div class="text-[11px] opacity-80 leading-tight">' + escapeHtml(m.label) + '</div>' +
-                '<div class="text-sm md:text-base font-bold mt-0.5">' + escapeHtml(m.value) + '</div>' +
-            '</div>';
-        });
-        el('sim-metrics').innerHTML = mh;
-
-        const vd = out.verdict;
-        const vtone = vd.tone === 'good' ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-            : vd.tone === 'bad' ? 'border-rose-200 bg-rose-50 text-rose-800'
-            : 'border-amber-200 bg-amber-50 text-amber-800';
-        const vicon = vd.tone === 'good' ? 'fa-circle-check' : (vd.tone === 'bad' ? 'fa-circle-exclamation' : 'fa-triangle-exclamation');
-        el('sim-verdict').className = 'rounded-xl border p-3 mb-4 text-sm ' + vtone;
-        el('sim-verdict').innerHTML =
-            '<p class="font-bold mb-1"><i class="fa-solid ' + vicon + ' mr-1"></i>' + escapeHtml(vd.title) + '</p>' +
-            '<p class="text-xs leading-relaxed opacity-90">' + escapeHtml(vd.text) + '</p>';
-
-        drawSimChart(el('sim-chart'), out);
-    }
-
-    /* --- 캔버스 꺾은선 그래프 (외부 라이브러리 없이 직접 그린다) --- */
-    function simNiceMax(v) {
-        if (!(v > 0)) return 1;
-        const base = Math.pow(10, Math.floor(Math.log10(v)));
-        const f = v / base;
-        const m = f <= 1 ? 1 : (f <= 2 ? 2 : (f <= 2.5 ? 2.5 : (f <= 5 ? 5 : 10)));
-        return m * base;
-    }
-
-    function simAxisLabel(v) {
-        if (v >= 10000) return Math.round(v / 1000) + '천';
-        if (v >= 100) return String(Math.round(v));
-        return String(Math.round(v * 10) / 10);
-    }
-
-    function drawSimChart(canvas, out) {
-        if (!canvas || !canvas.getContext) return;
-        const cssW = Math.max(240, canvas.clientWidth || (canvas.parentElement ? canvas.parentElement.clientWidth : 320));
-        const cssH = 230;
-        const dpr = window.devicePixelRatio || 1;
-        canvas.style.height = cssH + 'px';
-        canvas.width = Math.round(cssW * dpr);
-        canvas.height = Math.round(cssH * dpr);
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.clearRect(0, 0, cssW, cssH);
-
-        const hasRight = out.series.some(function (s) { return s.axis === 'right'; });
-        const padL = 44, padR = hasRight ? 40 : 14, padT = 12, padB = 26;
-        const w = cssW - padL - padR, h = cssH - padT - padB;
-        const xn = out.xs.length - 1;
-        if (w < 40 || h < 40 || xn < 1) return;
-
-        let lmax = 0, rmax = 0;
-        out.series.forEach(function (s) {
-            const m = s.values.reduce(function (a, b) { return b > a ? b : a; }, 0);
-            if (s.axis === 'right') rmax = Math.max(rmax, m); else lmax = Math.max(lmax, m);
-        });
-        lmax = simNiceMax(lmax);
-        rmax = out.rightMax || simNiceMax(rmax);
-
-        ctx.font = '11px SUIT, sans-serif';
-        for (let i = 0; i <= 4; i++) {
-            const y = Math.round(padT + h * i / 4) + 0.5;
-            ctx.strokeStyle = '#e5e7eb';
-            ctx.lineWidth = 1;
-            ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + w, y); ctx.stroke();
-            ctx.fillStyle = SIM_C.gray;
-            ctx.textBaseline = 'middle';
-            ctx.textAlign = 'right';
-            ctx.fillText(simAxisLabel(lmax * (4 - i) / 4), padL - 6, y);
-            if (hasRight) {
-                ctx.textAlign = 'left';
-                ctx.fillText(simAxisLabel(rmax * (4 - i) / 4), padL + w + 6, y);
-            }
-        }
-
-        ctx.fillStyle = SIM_C.gray;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        for (let i = 0; i <= 4; i++) {
-            const idx = Math.round(xn * i / 4);
-            ctx.fillText(String(out.xs[idx]), padL + w * idx / xn, padT + h + 7);
-        }
-
-        out.series.forEach(function (s) {
-            const max = s.axis === 'right' ? rmax : lmax;
-            ctx.beginPath();
-            ctx.strokeStyle = s.color;
-            ctx.lineWidth = 2.5;
-            ctx.lineJoin = 'round';
-            ctx.lineCap = 'round';
-            s.values.forEach(function (val, i) {
-                const x = padL + w * i / xn;
-                const y = padT + h - h * Math.min(Math.max(val, 0), max) / max;
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-            });
-            ctx.stroke();
-        });
-    }
-
-    window.addEventListener('resize', function () {
-        if (simLast && el('sim-chart')) drawSimChart(el('sim-chart'), simLast);
-    });
-
-    /* 시뮬레이션 결과 문장을 근거 칸에 넣어 준다 */
-    function useSimEvidence() {
-        if (!simLast) return;
-        pushToEvidence(simLast.evidence);
-    }
-
-    /* =========================================================
        8. 예상 반론 (교차조사) 카드
        ========================================================= */
     /* 화면에 떠 있는 예상 반론 질문과, 학생이 쓴 답변 */
@@ -2840,282 +2269,6 @@
     }
 
     /* =========================================================
-       10. 토론 타이머
-          시간은 Date.now() 기준으로 계산하므로 다른 탭에 있어도 밀리지 않는다.
-          소리는 웹 오디오로 그 자리에서 만들어 내므로 받아 오는 파일이 없다.
-       ========================================================= */
-    const FLASH_EVERY = 600;   /* 글쓰기 모드에서 몇 초마다 깜빡일지 (10분) */
-
-    const TIMER_PRESETS = [
-        { name: '글쓰기', up: true },
-        { name: '준비', sec: 30 },
-        { name: '입론', sec: 180 },
-        { name: '교차조사', sec: 120 },
-        { name: '반박', sec: 120 },
-        { name: '최종 발언', sec: 60 }
-    ];
-
-    let timerUp = false;       /* true 면 0부터 올라가는 글쓰기 타이머 */
-    let timerStage = '입론';
-    let timerTotal = 180;      /* 이번 단계의 전체 시간(초) */
-    let timerRemain = 180;     /* 남은 시간(초, 소수 포함) */
-    let timerElapsed = 0;      /* 글쓰기 모드에서 흐른 시간(초) */
-    let timerEndAt = 0;        /* 끝나는 시각 */
-    let timerStartAt = 0;      /* 글쓰기 모드에서 시작한 시각 */
-    let timerRunning = false;
-    let timerHandle = null;
-    let timerSoundOn = true;
-    let timerLastBeep = -1;
-    let timerLastMark = 0;     /* 마지막으로 깜빡인 10분 구간 */
-    let writingTimerStarted = false;
-    let audioCtx = null;
-
-    function renderTimerPresets() {
-        let html = '';
-        TIMER_PRESETS.forEach(function (p, i) {
-            html += '<button onclick="setTimerPreset(' + i + ')" id="timer-preset-' + i + '" ' +
-                'class="text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-colors">' +
-                escapeHtml(p.name) + '</button>';
-        });
-        el('timer-presets').innerHTML = html;
-        highlightTimerPreset();
-    }
-
-    function highlightTimerPreset() {
-        TIMER_PRESETS.forEach(function (p, i) {
-            const btn = el('timer-preset-' + i);
-            if (!btn) return;
-            btn.className = 'text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-colors ' +
-                (p.name === timerStage
-                    ? 'bg-pinky-500 border-pinky-500 text-white'
-                    : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50');
-        });
-    }
-
-    function setTimerPreset(i) {
-        const p = TIMER_PRESETS[i];
-        stopTimerLoop();
-        timerStage = p.name;
-        timerUp = !!p.up;
-        timerLastBeep = -1;
-        timerLastMark = 0;
-        if (timerUp) {
-            timerElapsed = 0;
-        } else {
-            timerTotal = p.sec;
-            timerRemain = p.sec;
-        }
-        highlightTimerPreset();
-        renderTimer();
-    }
-
-    /* 학생이 첫 글자를 치면 글쓰기 시간을 재기 시작한다.
-       이미 다른 단계를 돌리고 있으면 건드리지 않는다. */
-    function startWritingTimerOnce() {
-        if (writingTimerStarted || timerRunning) return;
-        writingTimerStarted = true;
-        setTimerPreset(0);
-        toggleTimerRun();
-        showToast('작성 시간을 재기 시작했어요. 10분마다 알려 드릴게요. ⏱', 'success');
-    }
-
-    function formatClock(sec) {
-        const s = Math.max(0, Math.ceil(sec));
-        const m = Math.floor(s / 60);
-        const r = s % 60;
-        return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r;
-    }
-
-    function renderTimer() {
-        const text = formatClock(timerUp ? timerElapsed : timerRemain);
-        const display = el('timer-display');
-        /* 0.15초마다 다시 그리므로 화면 계산이 필요 없는 textContent 를 쓴다 */
-        display.textContent = text;
-        el('timer-stage').textContent = timerUp
-            ? '글쓰기 — 10분마다 알림'
-            : timerStage;
-
-        const bar = el('timer-bar');
-        let color;
-
-        if (timerUp) {
-            /* 다음 10분 알림까지 얼마나 남았는지를 막대로 보여 준다 */
-            bar.style.width = (timerElapsed % FLASH_EVERY) / FLASH_EVERY * 100 + '%';
-            color = { text: '#1f2937', bar: 'bg-butter-400' };
-        } else {
-            bar.style.width = (timerTotal > 0 ? Math.max(0, Math.min(100, timerRemain / timerTotal * 100)) : 0) + '%';
-            if (timerRemain <= 10) color = { text: '#cf4f80', bar: 'bg-pinky-600' };
-            else if (timerRemain <= 30) color = { text: '#c99f20', bar: 'bg-butter-500' };
-            else color = { text: '#1f2937', bar: 'bg-pinky-400' };
-        }
-
-        display.style.color = color.text;
-        bar.className = 'h-full rounded-full ' + color.bar;
-        bar.style.transition = 'width .2s linear';
-
-        /* 글쓰기 모드에서는 시간을 더하고 빼는 버튼이 뜻이 없다 */
-        const adj = el('timer-adjust');
-        if (timerUp) adj.classList.add('hidden');
-        else adj.classList.remove('hidden');
-
-        const toggle = el('timer-toggle');
-        const resumable = timerUp
-            ? timerElapsed > 0
-            : (timerRemain < timerTotal && timerRemain > 0);
-        toggle.innerHTML = timerRunning
-            ? '<i class="fa-solid fa-pause mr-1"></i> 일시정지'
-            : '<i class="fa-solid fa-play mr-1"></i> ' + (resumable ? '이어서' : '시작');
-
-        /* 타이머를 닫아 두었을 때도 시간이 보이도록 */
-        el('timer-fab-label').textContent = timerRunning
-            ? (timerUp ? '글쓰기 ' : timerStage + ' ') + text
-            : '토론 타이머';
-    }
-
-    function timerLoop() {
-        if (!timerRunning) return;
-
-        if (timerUp) {
-            timerElapsed = (Date.now() - timerStartAt) / 1000;
-            /* 10분이 지날 때마다 깜빡이며 알려 준다 */
-            const mark = Math.floor(timerElapsed / FLASH_EVERY);
-            if (mark > timerLastMark) {
-                timerLastMark = mark;
-                beep(660, 0.15, 2);
-                flashTimer();
-                showToast('글을 쓰기 시작한 지 ' + (mark * FLASH_EVERY / 60) + '분이 지났어요. ⏱', 'success');
-            }
-            renderTimer();
-            timerHandle = setTimeout(timerLoop, 150);
-            return;
-        }
-
-        timerRemain = (timerEndAt - Date.now()) / 1000;
-
-        const whole = Math.ceil(timerRemain);
-        if (whole !== timerLastBeep && whole <= 10 && whole >= 1) {
-            timerLastBeep = whole;
-            beep(880, 0.08);
-        }
-
-        if (timerRemain <= 0) {
-            timerRemain = 0;
-            timerRunning = false;
-            renderTimer();
-            onTimerEnd();
-            return;
-        }
-        renderTimer();
-        timerHandle = setTimeout(timerLoop, 150);
-    }
-
-    function stopTimerLoop() {
-        timerRunning = false;
-        if (timerHandle) { clearTimeout(timerHandle); timerHandle = null; }
-    }
-
-    function toggleTimerRun() {
-        if (timerRunning) {
-            stopTimerLoop();
-            renderTimer();
-            return;
-        }
-        timerRunning = true;
-        timerLastBeep = -1;
-        if (timerUp) {
-            /* 멈춘 지점부터 이어서 잰다 */
-            timerStartAt = Date.now() - timerElapsed * 1000;
-        } else {
-            if (timerRemain <= 0) timerRemain = timerTotal;
-            timerEndAt = Date.now() + timerRemain * 1000;
-        }
-        timerLoop();
-    }
-
-    function resetTimer() {
-        stopTimerLoop();
-        timerLastBeep = -1;
-        timerLastMark = 0;
-        if (timerUp) timerElapsed = 0;
-        else timerRemain = timerTotal;
-        renderTimer();
-    }
-
-    function addTimerSeconds(delta) {
-        if (timerUp) return;
-        timerRemain = Math.max(0, timerRemain + delta);
-        timerTotal = Math.max(timerTotal, Math.ceil(timerRemain));
-        if (timerRunning) timerEndAt = Date.now() + timerRemain * 1000;
-        renderTimer();
-    }
-
-    /* 타이머를 열어 두었으면 패널을, 닫아 두었으면 버튼을 깜빡인다 */
-    function flashTimer() {
-        const panel = el('timer-panel');
-        const target = panel.classList.contains('hidden') ? el('timer-fab') : panel;
-        target.classList.remove('timer-flash');
-        void target.offsetWidth;         /* 애니메이션 다시 실행시키기 */
-        target.classList.add('timer-flash');
-    }
-
-    function onTimerEnd() {
-        beep(660, 0.18, 3);
-        flashTimer();
-        showToast(timerStage + ' 시간이 끝났습니다! ⏰', 'success');
-    }
-
-    /* 파일을 받아 오지 않고 그 자리에서 소리를 만든다 */
-    function beep(freq, dur, times) {
-        if (!timerSoundOn) return;
-        try {
-            const Ctx = window.AudioContext || window.webkitAudioContext;
-            if (!Ctx) return;
-            if (!audioCtx) audioCtx = new Ctx();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-
-            const n = times || 1;
-            for (let i = 0; i < n; i++) {
-                const at = audioCtx.currentTime + i * (dur + 0.12);
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.value = freq;
-                gain.gain.setValueAtTime(0.0001, at);
-                gain.gain.exponentialRampToValueAtTime(0.25, at + 0.01);
-                gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start(at);
-                osc.stop(at + dur + 0.02);
-            }
-        } catch (err) {
-            /* 소리를 못 내는 브라우저에서는 조용히 넘어간다 */
-        }
-    }
-
-    function toggleTimerSound() {
-        timerSoundOn = !timerSoundOn;
-        const btn = el('timer-sound-btn');
-        btn.innerHTML = timerSoundOn
-            ? '<i class="fa-solid fa-volume-high"></i>'
-            : '<i class="fa-solid fa-volume-xmark"></i>';
-        btn.title = timerSoundOn ? '소리 끄기' : '소리 켜기';
-        showToast(timerSoundOn ? '타이머 소리를 켰습니다.' : '타이머 소리를 껐습니다.', 'success');
-    }
-
-    function openTimer() {
-        el('timer-fab').classList.add('hidden');
-        el('timer-panel').classList.remove('hidden');
-        renderTimer();
-    }
-
-    function closeTimer() {
-        el('timer-panel').classList.add('hidden');
-        el('timer-fab').classList.remove('hidden');
-        renderTimer();
-    }
-
-    /* =========================================================
        11. 작성 중 실시간 검사
        ========================================================= */
     function updateCounters() {
@@ -3131,7 +2284,6 @@
     }
 
     function onWriting() {
-        startWritingTimerOnce();
         updateCounters();
         mildConfirmed = false;
         resetSubmitButton();
@@ -4933,7 +4085,7 @@
 
         if (libOpen < 0) {
             box.innerHTML =
-                '<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">' +
+                '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
                 SOURCE_LIBRARY.map(function (g, i) {
                     const short = g.group.split(' — ')[0];
                     return '<button onclick="openLibrary(' + i + ')" class="text-left border-2 border-gray-200 hover:border-pinky-400 rounded-xl p-4 transition-colors bg-white">' +
