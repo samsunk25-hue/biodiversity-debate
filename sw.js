@@ -2,7 +2,7 @@
    - 앱 파일을 캐시해 두 번째 방문부터는 인터넷이 느리거나 끊겨도 열립니다.
    - 개인정보는 저장하지 않습니다. 학생이 쓴 글은 캐시 대상이 아닙니다. */
 
-const CACHE = 'bio-debate-v4';
+const CACHE = 'bio-debate-v5';
 
 const CORE = [
     './',
@@ -51,6 +51,22 @@ self.addEventListener('fetch', function (e) {
                 .catch(function () {
                     return caches.match('./index.html');
                 })
+        );
+        return;
+    }
+
+    // 우리가 만든 스크립트(content.js 등)는 네트워크 우선.
+    // 캐시 우선으로 두면 수업 내용을 고쳐도 옛 글이 계속 보인다.
+    const sameOrigin = new URL(req.url).origin === self.location.origin;
+    if (sameOrigin && /\.js(\?|$)/.test(req.url)) {
+        e.respondWith(
+            fetch(req)
+                .then(function (res) {
+                    const copy = res.clone();
+                    caches.open(CACHE).then(function (c) { c.put(req, copy); }).catch(function () {});
+                    return res;
+                })
+                .catch(function () { return caches.match(req); })
         );
         return;
     }

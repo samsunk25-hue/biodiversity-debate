@@ -63,16 +63,27 @@
     </script>
     <style>
         /* 글자를 전체적으로 키운다 (rem 기준이므로 여백도 함께 넉넉해진다) */
-        html { font-size: 17.5px; }
-        @media (max-width: 640px) { html { font-size: 16.5px; } }
+        html { font-size: 19px; }
+        @media (max-width: 640px) { html { font-size: 17.5px; } }
 
         body { font-family: 'SUIT', sans-serif; background-color: #fdf8f3; }
 
         /* 가장 작은 글씨들을 읽을 수 있는 크기로 올린다 */
-        .text-\[10px\] { font-size: 0.78rem !important; }
-        .text-\[11px\] { font-size: 0.83rem !important; line-height: 1.6 !important; }
-        .text-xs { font-size: 0.85rem; line-height: 1.65; }
-        .text-sm { font-size: 0.95rem; line-height: 1.7; }
+        .text-\[10px\] { font-size: 0.8rem !important; }
+        .text-\[11px\] { font-size: 0.86rem !important; line-height: 1.6 !important; }
+        .text-xs { font-size: 0.88rem; line-height: 1.68; }
+        .text-sm { font-size: 0.98rem; line-height: 1.72; }
+        .text-base { font-size: 1.05rem; line-height: 1.8; }
+        input[type="text"], textarea, select { font-size: 1rem; }
+        /* 작성 단계 표시 */
+        .step-dot {
+            width: 2.5rem; height: 2.5rem; border-radius: 999px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1rem;
+            background: #f3f4f6; color: #9ca3af; border: 2px solid #e5e7eb;
+        }
+        .step-dot.on { background: #e56b99; color: #fff; border-color: #e56b99; }
+        .step-dot.done { background: #fff; color: #cf4f80; border-color: #f088b0; }
         p, li { letter-spacing: -0.01em; }
 
         /* 화면 위쪽 이동 메뉴 */
@@ -260,7 +271,7 @@
                 <p class="text-gray-400 text-sm mt-1">내 별명: <span id="nickname-badge" class="font-bold text-pinky-600"></span></p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <button onclick="showSection('concept')" class="text-left bg-white rounded-2xl shadow-sm border-2 border-pinky-100 p-6 hover:shadow-lg hover:border-pinky-300 transition-all flex flex-col h-full transform hover:-translate-y-1">
                     <div class="w-12 h-12 bg-pinky-100 text-pinky-600 rounded-full flex items-center justify-center text-2xl mb-4">
                         <i class="fa-solid fa-lightbulb"></i>
@@ -285,11 +296,23 @@
                     </div>
                 </button>
 
+                <button onclick="showSection('fallacy')" class="text-left bg-white rounded-2xl shadow-sm border-2 border-butter-100 p-6 hover:shadow-lg hover:border-butter-300 transition-all flex flex-col h-full transform hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-butter-100 text-butter-700 rounded-full flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-magnifying-glass-arrow-right"></i>
+                    </div>
+                    <div class="text-sm font-bold text-pinky-600 mb-1">활동 3</div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">오류 찾기 연습</h3>
+                    <p class="text-base text-gray-600 flex-grow leading-relaxed">앱이 만들어 낸 허술한 주장글을 읽고, 근거가 없거나 논리가 어긋난 문장을 찾아 무엇이 문제인지 짚습니다.</p>
+                    <div class="mt-4 pt-4 border-t border-gray-100 text-butter-700 font-bold text-sm flex items-center justify-between">
+                        오류 찾으러 가기 <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </button>
+
                 <button onclick="showSection('debate')" class="text-left bg-white rounded-2xl shadow-sm border-2 border-pinky-100 p-6 hover:shadow-lg hover:border-pinky-300 transition-all flex flex-col h-full transform hover:-translate-y-1">
                     <div class="w-12 h-12 bg-pinky-100 text-pinky-700 rounded-full flex items-center justify-center text-2xl mb-4">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </div>
-                    <div class="text-sm font-bold text-pinky-600 mb-1">활동 3</div>
+                    <div class="text-sm font-bold text-pinky-600 mb-1">활동 4</div>
                     <h3 class="text-2xl font-bold text-gray-800 mb-2">토론 개요서 작성</h3>
                     <p class="text-base text-gray-600 flex-grow leading-relaxed">부여·서천·충남 내륙 주제를 골라 논점 3가지를 확인하고, 근거를 찾아 주장과 근거를 씁니다.</p>
                     <div class="mt-4 pt-4 border-t border-gray-100 text-pinky-600 font-bold text-sm flex items-center justify-between">
@@ -403,6 +426,26 @@
 
             <!-- 글 본문 + 분석 -->
             <div id="read-view" class="hidden"></div>
+        </section>
+
+        <!-- ===================== 활동 3 : 오류 찾기 연습 ===================== -->
+        <section id="sec-fallacy" class="fade-in hidden">
+            <button onclick="goHome()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 처음 화면으로</button>
+            <div class="sec-head">
+                <h2>활동 3 · 오류 찾기 연습</h2>
+                <p>아래 글은 <b>앱이 그때그때 만들어 낸 허술한 주장글</b>입니다. 문장마다 무엇이 문제인지 골라 보세요.</p>
+            </div>
+
+            <div class="flex flex-wrap gap-2 mb-4">
+                <button onclick="newFallacyText(1)" class="text-sm font-bold px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white hover:border-pinky-300">부여 강변</button>
+                <button onclick="newFallacyText(2)" class="text-sm font-bold px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white hover:border-pinky-300">서천 갯벌</button>
+                <button onclick="newFallacyText(3)" class="text-sm font-bold px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white hover:border-pinky-300">내륙 태양광</button>
+                <button onclick="newFallacyText(0)" class="text-sm font-bold px-4 py-2.5 rounded-xl bg-pinky-500 text-white hover:bg-pinky-600">
+                    <i class="fa-solid fa-rotate mr-1"></i> 새 글 만들기
+                </button>
+            </div>
+
+            <div id="fallacy-body"></div>
         </section>
 
         <!-- ===================== 바로 연습하기 화면 ===================== -->
@@ -530,8 +573,11 @@
                     <div id="refs-body" class="hidden px-4 py-4 space-y-5 bg-white"></div>
                 </div>
 
-                <button onclick="goToWriting()" class="w-full bg-pinky-500 hover:bg-pinky-600 text-white font-bold py-4 rounded-xl shadow-md transition-transform transform hover:-translate-y-0.5">
-                    준비를 마쳤어요. 개요서 작성하러 가기 <i class="fa-solid fa-arrow-right ml-1"></i>
+                <!-- 연습을 마쳐야 개요서로 갈 수 있다 -->
+                <div id="practice-progress" class="mb-3"></div>
+
+                <button id="go-writing-btn" onclick="goToWriting()" class="w-full bg-gray-300 text-white font-bold py-4 rounded-xl shadow-md transition-all">
+                    세 가지 연습을 마치면 열립니다 <i class="fa-solid fa-lock ml-1"></i>
                 </button>
             </div>
         </section>
@@ -585,8 +631,27 @@
                     </div>
 
                     <h3 class="text-lg font-bold mb-1">2. 논점별 주장과 근거</h3>
-                    <p class="text-xs text-gray-500 mb-4">논점마다 내 입장에서 할 말을 씁니다. 논점 설명은 각 칸 위에 함께 보여 줍니다.</p>
-                    <div id="argument-blocks" class="space-y-4 mb-4"></div>
+                    <p class="text-sm text-gray-500 mb-4">논점을 <b>하나씩 차례대로</b> 씁니다. 다 쓰면 ‘다음 논점’을 누르세요.</p>
+
+                    <!-- 진행 단계 -->
+                    <div id="arg-steps" class="flex items-center justify-center gap-3 mb-5"></div>
+
+                    <div id="argument-blocks" class="mb-4"></div>
+
+                    <!-- 단계 이동 -->
+                    <div id="arg-nav" class="flex flex-wrap gap-2 mb-6">
+                        <button id="arg-prev" onclick="goArgStep(argStep - 1)"
+                            class="flex-1 min-w-[8rem] bg-white border-2 border-gray-300 hover:bg-gray-50 text-gray-600 font-bold py-3 rounded-xl transition-colors">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> 이전 논점
+                        </button>
+                        <button id="arg-next" onclick="goArgStep(argStep + 1)"
+                            class="flex-1 min-w-[8rem] bg-pinky-500 hover:bg-pinky-600 text-white font-bold py-3 rounded-xl transition-colors">
+                            다음 논점 <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+
+                    <!-- 마지막 단계에서만 보이는 점검·등록 -->
+                    <div id="final-check" class="hidden">
                     <!-- 자기 점검 체크리스트 -->
                     <div class="border-2 border-pinky-200 rounded-xl p-4 mb-4 bg-white">
                         <div class="flex items-center justify-between gap-2 mb-1">
@@ -642,6 +707,7 @@
                             내 생각 등록하고 친구들과 비교하기 <i class="fa-solid fa-paper-plane ml-1"></i>
                         </button>
                     </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -670,19 +736,25 @@
 
                     <div id="result-arguments" class="space-y-3 flex-grow"></div>
 
-                    <div class="mt-4 flex flex-wrap gap-2">
-                        <button onclick="copyMyText()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
-                            <i class="fa-regular fa-copy"></i> 내 글 복사하기
-                        </button>
-                        <button onclick="savePdf()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
-                            <i class="fa-regular fa-file-pdf"></i> PDF로 저장
-                        </button>
-                        <button onclick="resetApp()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-rotate-right"></i> 다시 하기
-                        </button>
-                    </div>
+                    <p class="mt-4 text-sm text-gray-500">아래 단추를 눌러 친구들의 생각과 예상 반론을 확인하세요.</p>
                 </div>
 
+            </div>
+
+            <div id="student-rubric"></div>
+
+            <button onclick="goToFriends()" class="w-full mt-6 bg-pinky-500 hover:bg-pinky-600 text-white font-bold py-4 rounded-xl shadow-md transition-transform transform hover:-translate-y-0.5">
+                친구들의 생각과 예상 반론 보기 <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+        </section>
+
+        <!-- ============ 4단계 : 친구 생각 · 예상 반론 ============ -->
+        <section id="step-4" class="fade-in hidden">
+            <button onclick="backToResult()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 내 글 다시 보기</button>
+            <div class="sec-head">
+                <h2>친구들의 생각과 예상 반론</h2>
+                <p>다른 입장을 읽고, 상대가 던질 질문에 미리 답해 보세요. 답변을 저장하면 내 글과 함께 정리됩니다.</p>
+            </div>
                 <!-- 가상 친구 -->
                 <div class="space-y-4">
                     <h3 class="font-bold text-gray-700 ml-1"><i class="fa-solid fa-users mr-1"></i> 가상 친구들의 생각 <span class="text-xs font-normal text-gray-400">(모두 별명이에요)</span></h3>
@@ -733,6 +805,19 @@
                 <div id="cross-body"></div>
             </div>
 
+            <button onclick="saveCrossAndFinish()" class="w-full mt-6 bg-pinky-500 hover:bg-pinky-600 text-white font-bold py-4 rounded-xl shadow-md transition-transform transform hover:-translate-y-0.5">
+                답변 저장하고 완성글 보기 <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+        </section>
+
+        <!-- ============ 5단계 : 완성글 ============ -->
+        <section id="step-5" class="fade-in hidden">
+            <button onclick="backToFriends()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 예상 반론 다시 보기</button>
+            <div class="sec-head">
+                <h2>내 글과 반론 답변</h2>
+                <p>내가 쓴 주장·근거와 예상 반론에 대한 답변을 한자리에 모았습니다. 아래에서 하나의 글로 다듬으세요.</p>
+            </div>
+            <div id="final-doc" class="mb-6"></div>
             <!-- 주장 다지기 — 처음 쓴 글과 반박 답변을 하나로 합친다 -->
             <div class="bg-white rounded-2xl shadow-sm border-2 border-butter-200 p-6 mt-6">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
@@ -770,6 +855,17 @@
                     </button>
                 </div>
                 <p class="text-[11px] text-gray-400 mt-2">이 칸의 글도 브라우저 안에만 있고 어디에도 저장되지 않습니다.</p>
+                <div class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
+                    <button onclick="copyMyText()" class="flex-1 min-w-[9rem] bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition-colors">
+                        <i class="fa-regular fa-copy mr-1"></i> 내 글 전체 복사
+                    </button>
+                    <button onclick="savePdf()" class="flex-1 min-w-[9rem] bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition-colors">
+                        <i class="fa-regular fa-file-pdf mr-1"></i> PDF로 저장
+                    </button>
+                    <button onclick="resetApp()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-semibold py-2.5 px-4 rounded-lg transition-colors">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> 다시 하기
+                    </button>
+                </div>
             </div>
         </section>
     </main>
@@ -1315,7 +1411,9 @@
         el('refs-chevron').className = 'fa-solid fa-chevron-down text-gray-400 text-xs';
         closePractice();
 
+        simTouched = false;
         renderSimulator(currentTopic);
+        updatePracticeProgress();
 
         el('writing-topic-title').innerText = currentTopic.title;
         el('label-pro').innerText = currentTopic.proLabel || '찬성합니다';
@@ -1352,10 +1450,75 @@
 
     /* 준비 화면 ↔ 작성 화면 */
     function goToWriting() {
+        if (!allPracticeDone()) {
+            showToast('세 가지 연습을 모두 마쳐야 개요서를 쓸 수 있어요.', 'error');
+            el('practice-progress').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
         hideAllSections();
         setActiveNav('debate');
         el('step-2w').classList.remove('hidden');
         window.scrollTo(0, 0);
+    }
+
+    /* --- 연습 진행 상황 --- */
+    let simTouched = false;
+
+    function practiceStatus() {
+        const dc = (currentTopic && currentTopic.dataCheck) || [];
+        const eh = (currentTopic && currentTopic.evidenceHunt) || [];
+        let dcDone = 0, ehDone = 0;
+        dc.forEach(function (c, i) {
+            const n = el('dc-' + i);
+            if (n && n.value.trim().length >= 5) dcDone++;
+        });
+        eh.forEach(function (h, i) {
+            const n = el('eh-' + i);
+            if (n && n.value.trim().length >= 10) ehDone++;
+        });
+        return {
+            check: { done: dcDone, total: dc.length, ok: dc.length > 0 && dcDone === dc.length },
+            hunt: { done: ehDone, total: eh.length, ok: eh.length > 0 && ehDone === eh.length },
+            sim: { ok: simTouched }
+        };
+    }
+
+    function allPracticeDone() {
+        const s = practiceStatus();
+        return s.check.ok && s.hunt.ok && s.sim.ok;
+    }
+
+    function updatePracticeProgress() {
+        const box = el('practice-progress');
+        if (!box || !currentTopic) return;
+        const s = practiceStatus();
+
+        function row(name, ok, text) {
+            return '<li class="flex items-center gap-2">' +
+                '<i class="fa-solid ' + (ok ? 'fa-circle-check text-emerald-500' : 'fa-circle-notch text-gray-300') + '"></i>' +
+                '<span class="text-sm ' + (ok ? 'text-gray-700' : 'text-gray-500') + '"><b>' + name + '</b> — ' + text + '</span></li>';
+        }
+
+        box.innerHTML =
+            '<div class="border-2 ' + (allPracticeDone() ? 'border-emerald-200 bg-emerald-50' : 'border-gray-200 bg-gray-50') + ' rounded-xl p-4">' +
+                '<p class="text-sm font-bold text-gray-700 mb-2">' +
+                    (allPracticeDone() ? '연습을 모두 마쳤어요. 이제 개요서를 쓸 수 있습니다.' : '세 가지 연습을 모두 마쳐야 개요서를 쓸 수 있어요.') +
+                '</p><ul class="space-y-1.5">' +
+                row('자료 확인 과제', s.check.ok, s.check.done + ' / ' + s.check.total + '개 칸을 채웠어요') +
+                row('근거 찾기 연습', s.hunt.ok, s.hunt.done + ' / ' + s.hunt.total + '개 주장에 찾은 근거를 적었어요') +
+                row('정책 시뮬레이터', s.sim.ok, s.sim.ok ? '변수를 바꿔 결과를 확인했어요' : '한 번 열어 결과를 확인하세요') +
+                '</ul></div>';
+
+        const btn = el('go-writing-btn');
+        if (btn) {
+            if (allPracticeDone()) {
+                btn.className = 'w-full bg-pinky-500 hover:bg-pinky-600 text-white font-bold py-4 rounded-xl shadow-md transition-transform transform hover:-translate-y-0.5';
+                btn.innerHTML = '준비를 마쳤어요. 개요서 작성하러 가기 <i class="fa-solid fa-arrow-right ml-1"></i>';
+            } else {
+                btn.className = 'w-full bg-gray-300 text-white font-bold py-4 rounded-xl shadow-md transition-all cursor-not-allowed';
+                btn.innerHTML = '세 가지 연습을 마치면 열립니다 <i class="fa-solid fa-lock ml-1"></i>';
+            }
+        }
     }
 
     function backToPrepare() {
@@ -1549,7 +1712,9 @@
         });
     }
 
-    /* 논점별 주장·근거 입력 칸 */
+    /* 논점별 주장·근거 입력 칸 — 한 번에 하나씩 차례대로 쓴다 */
+    let argStep = 1;
+
     function renderArgumentBlocks(stance) {
         const box = el('argument-blocks');
         if (!box) return;
@@ -1560,7 +1725,7 @@
             const n = k + 1;
             const side = stance === 'con' ? it.con : it.pro;
             const sideLabel = stance === 'con' ? (currentTopic.conLabel || '반대') : (currentTopic.proLabel || '찬성');
-            return '<div class="border border-' + tone + '-200 rounded-xl p-4 md:p-5 bg-' + tone + '-50/40">' +
+            return '<div id="arg-block-' + n + '" class="arg-block border border-' + tone + '-200 rounded-xl p-4 md:p-5 bg-' + tone + '-50/40">' +
                 '<div class="flex items-center gap-2 mb-1">' +
                     '<span class="w-6 h-6 rounded-full bg-' + tone + '-500 text-white text-xs font-bold flex items-center justify-center">' + n + '</span>' +
                     '<h4 class="text-base font-bold text-gray-800">' + escapeHtml(it.name) + '</h4>' +
@@ -1595,6 +1760,53 @@
             if (node) node.addEventListener('input', onWriting);
         });
         updateCounters();
+        goArgStep(1);
+    }
+
+    /* 논점 1 → 2 → 3 차례대로 */
+    function goArgStep(n) {
+        const total = ((currentTopic && currentTopic.issues) || []).length || ISSUE_COUNT;
+        argStep = Math.max(1, Math.min(total, n));
+
+        for (let i = 1; i <= total; i++) {
+            const block = el('arg-block-' + i);
+            if (block) block.classList.toggle('hidden', i !== argStep);
+        }
+
+        const steps = el('arg-steps');
+        if (steps) {
+            let html = '';
+            for (let i = 1; i <= total; i++) {
+                const cls = i === argStep ? 'step-dot on' : (i < argStep ? 'step-dot done' : 'step-dot');
+                html += '<button onclick="goArgStep(' + i + ')" class="' + cls + '" title="논점 ' + i + '">' + i + '</button>';
+                if (i < total) html += '<span class="w-6 h-0.5 bg-gray-200 inline-block"></span>';
+            }
+            html += '<span class="ml-2 text-sm font-bold text-gray-500">논점 ' + argStep + ' / ' + total + '</span>';
+            steps.innerHTML = html;
+        }
+
+        const prev = el('arg-prev'), next = el('arg-next');
+        if (prev) prev.classList.toggle('hidden', argStep === 1);
+        if (next) {
+            if (argStep < total) {
+                next.innerHTML = '다음 논점 <i class="fa-solid fa-arrow-right ml-1"></i>';
+                next.onclick = function () { goArgStep(argStep + 1); };
+            } else {
+                next.innerHTML = '세 논점을 다 썼어요. 점검하러 가기 <i class="fa-solid fa-arrow-down ml-1"></i>';
+                next.onclick = function () { showFinalCheck(); };
+            }
+        }
+        const fin = el('final-check');
+        if (fin && argStep < total) fin.classList.add('hidden');
+    }
+
+    function showFinalCheck() {
+        const fin = el('final-check');
+        if (!fin) return;
+        fin.classList.remove('hidden');
+        updateSelfCheck();
+        runSpellCheck();
+        fin.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     /* --- 논점 3분류 --- */
@@ -1676,7 +1888,7 @@
                         (c.url ? ' <a href="' + c.url + '" target="_blank" rel="noopener noreferrer" class="text-pinky-600 underline ml-1">열기 <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>' : '') +
                     '</p>' +
                     '<textarea id="dc-' + i + '" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-pinky-200 leading-relaxed" ' +
-                        'placeholder="확인한 값과 기준 연도, 자료 이름을 적으세요. 예) 2024년 기준 ○○, 국립생태원 자료"></textarea>' +
+                        'oninput="updatePracticeProgress()" placeholder="확인한 값과 기준 연도, 자료 이름을 적으세요. 예) 2024년 기준 ○○, 국립생태원 자료"></textarea>' +
                 '</li>';
         });
         html += '</ol>';
@@ -1717,7 +1929,7 @@
 
                     '<label class="text-xs font-bold text-gray-700 block mb-1">내가 찾은 근거</label>' +
                     '<textarea id="eh-' + i + '" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-butter-200 leading-relaxed mb-2" ' +
-                        'placeholder="자료 이름 · 기관 · 기준 연도 · 확인한 값을 적으세요."></textarea>' +
+                        'oninput="updatePracticeProgress()" placeholder="자료 이름 · 기관 · 기준 연도 · 확인한 값을 적으세요."></textarea>' +
                     '<button onclick="useHuntEvidence(' + i + ')" class="text-xs font-bold bg-butter-500 hover:bg-butter-600 text-white px-3 py-2 rounded-lg transition-colors">' +
                         '<i class="fa-solid fa-arrow-down-long mr-1"></i> 근거 칸에 옮겨 적기</button>' +
                 '</div>';
@@ -2184,6 +2396,8 @@
 
         const out = simModel.run(v);
         simLast = out;
+        simTouched = true;
+        updatePracticeProgress();
 
         let legend = '';
         out.series.forEach(function (s) {
@@ -3204,8 +3418,9 @@
     }
 
     function resetApp() {
-        step3.classList.add('hidden');
+        hideAllSections();
         step1.classList.remove('hidden');
+        setActiveNav('debate');
         crossList = [];
         crossAnswers = [];
         el('polish-text').value = '';
@@ -3393,7 +3608,93 @@
     /* =========================================================
        15. 화면 이동 (개념 정리 · 글 읽기 · 토론 개요서)
        ========================================================= */
-    const SECTIONS = ['home', 'sec-concept', 'sec-read', 'sec-practice', 'step-1', 'step-2', 'step-2w', 'step-3'];
+    const SECTIONS = ['home', 'sec-concept', 'sec-read', 'sec-fallacy', 'sec-practice', 'step-1', 'step-2', 'step-2w', 'step-3', 'step-4', 'step-5'];
+
+    /* 등록 뒤 화면 흐름 : 내 글 → 친구 생각·예상 반론 → 완성글 */
+    function goToFriends() {
+        hideAllSections();
+        setActiveNav('debate');
+        el('step-4').classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    function backToResult() {
+        hideAllSections();
+        setActiveNav('debate');
+        step3.classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    function backToFriends() { goToFriends(); }
+
+    /* 반론 답변을 저장하면 내 글과 함께 보여 준다 */
+    function saveCrossAndFinish() {
+        if (!guardCrossAnswers()) return;
+
+        renderFinalDoc();
+        const box = el('polish-text');
+        if (box && box.value.trim() === '') {
+            box.value = buildMergedText().slice(0, 3000);
+            onPolishInput();
+        }
+
+        hideAllSections();
+        setActiveNav('debate');
+        el('step-5').classList.remove('hidden');
+        window.scrollTo(0, 0);
+
+        const answered = crossAnswers.filter(function (a) { return (a || '').trim() !== ''; }).length;
+        showToast(answered > 0 ? '반론 답변 ' + answered + '개를 저장했어요.' : '답변 없이 넘어왔어요. 반론에 답해 보면 더 좋아요.', 'success');
+    }
+
+    /* 완성글 : 나의 입장 + 논점별 주장·근거 + 반론 답변 */
+    function renderFinalDoc() {
+        const box = el('final-doc');
+        if (!box) return;
+        const issues = currentTopic.issues || [];
+        const stanceLabel = selectedStance === 'pro' ? currentTopic.proLabel : currentTopic.conLabel;
+
+        let html =
+            '<div class="bg-white rounded-2xl shadow-sm border-2 border-pinky-200 p-6 mb-4">' +
+                '<div class="flex flex-wrap items-center gap-2 mb-3">' +
+                    '<span class="bg-pinky-100 text-pinky-700 text-xs font-bold px-2 py-1 rounded">나의 입장</span>' +
+                    '<span class="font-bold text-gray-800 text-lg">' + escapeHtml(stanceLabel) + '</span>' +
+                    '<span class="text-xs text-gray-400">작성자 별명: ' + escapeHtml(myNickname) + '</span>' +
+                '</div>' +
+                '<p class="text-sm text-gray-500 mb-4">' + escapeHtml(currentTopic.title) + '</p>';
+
+        for (let i = 1; i <= ISSUE_COUNT; i++) {
+            const it = issues[i - 1] || { no: '논점 ' + i, name: '' };
+            const m = el('main-' + i), e = el('evidence-' + i);
+            html +=
+                '<div class="border-l-4 border-pinky-200 pl-4 mb-4">' +
+                    '<div class="text-xs font-bold text-pinky-600 mb-1">' + escapeHtml((it.no || '') + ' ' + (it.name || '')) + '</div>' +
+                    '<p class="font-bold text-gray-800 leading-snug mb-1">' + escapeHtml(m ? m.value.trim() : '') + '</p>' +
+                    '<p class="text-gray-700 leading-relaxed">' + escapeHtml(e ? e.value.trim() : '') + '</p>' +
+                '</div>';
+        }
+        html += '</div>';
+
+        const answered = crossList.filter(function (item, i) { return (crossAnswers[i] || '').trim() !== ''; });
+        html += '<div class="bg-white rounded-2xl shadow-sm border-2 border-butter-200 p-6">' +
+            '<h3 class="font-bold text-butter-700 text-lg mb-3"><i class="fa-solid fa-comments mr-1"></i> 예상 반론에 대한 나의 답변</h3>';
+        if (answered.length === 0) {
+            html += '<p class="text-sm text-gray-500">아직 쓴 답변이 없습니다. 앞 화면에서 답변을 적으면 여기에 함께 정리됩니다.</p>';
+        } else {
+            crossList.forEach(function (item, i) {
+                const a = (crossAnswers[i] || '').trim();
+                if (a === '') return;
+                html +=
+                    '<div class="border border-gray-200 rounded-xl p-4 mb-3">' +
+                        '<p class="font-bold text-gray-800 mb-2">Q' + (i + 1) + '. ' + escapeHtml(item.q) + '</p>' +
+                        '<p class="text-gray-700 leading-relaxed">A' + (i + 1) + '. ' + escapeHtml(a) + '</p>' +
+                    '</div>';
+            });
+        }
+        html += '</div>';
+
+        box.innerHTML = html;
+    }
 
     function hideAllSections() {
         SECTIONS.forEach(function (id) {
@@ -3404,7 +3705,7 @@
 
     /* 위쪽 이동 메뉴에서 지금 있는 곳을 표시한다 */
     function setActiveNav(which) {
-        ['home', 'concept', 'read', 'debate'].forEach(function (k) {
+        ['home', 'concept', 'read', 'fallacy', 'debate'].forEach(function (k) {
             const btn = el('nav-' + k);
             if (btn) btn.classList.toggle('on', k === which);
         });
@@ -3422,6 +3723,10 @@
             el('read-view').classList.add('hidden');
             renderReadingCards();
             showStandard('read');
+        } else if (which === 'fallacy') {
+            el('sec-fallacy').classList.remove('hidden');
+            if (fallacyLines.length === 0) newFallacyText(1);
+            showStandard('fallacy');
         } else if (which === 'debate') {
             el('step-1').classList.remove('hidden');
             showStandard('debate');
@@ -3486,7 +3791,7 @@
         const lines = [];
         if (s.all && s.all.trim()) lines.push({ tag: '공통', text: s.all.trim() });
         if (where !== 'all' && s[where] && s[where].trim()) {
-            const label = where === 'concept' ? '개념 정리' : (where === 'read' ? '글 읽기' : '토론 개요서');
+            const label = where === 'concept' ? '개념 정리' : (where === 'read' ? '글 읽기' : (where === 'fallacy' ? '오류 찾기' : '토론 개요서'));
             lines.push({ tag: label, text: s[where].trim() });
         }
         if (lines.length === 0) { box.classList.add('hidden'); box.innerHTML = ''; return; }
@@ -3602,6 +3907,7 @@
             if (!map[k]) map[k] = {
                 nick: k, tries: 0, solved: 0, wrong: 0, first: 0,
                 weakConcepts: {}, anCount: 0, anRight: 0, anTotal: 0,
+                falTries: 0, falRight: 0, sumCount: 0, sumScore: 0,
                 debate: 0, topics: {}, lastAt: ''
             };
             return map[k];
@@ -3616,6 +3922,17 @@
         records.analysis.forEach(function (r) {
             const s = slot(r.nick);
             s.anCount++; s.anRight += r.right; s.anTotal += r.total;
+            if (r.t > s.lastAt) s.lastAt = r.t;
+        });
+        (records.summary || []).forEach(function (r) {
+            const s = slot(r.nick);
+            s.sumCount++; s.sumScore += r.score;
+            if (r.t > s.lastAt) s.lastAt = r.t;
+        });
+        (records.fallacy || []).forEach(function (r) {
+            const s = slot(r.nick);
+            s.falTries++;
+            if (r.correct) s.falRight++;
             if (r.t > s.lastAt) s.lastAt = r.t;
         });
         (records.debate || []).forEach(function (r) {
@@ -3647,6 +3964,8 @@
                 '<th class="border border-gray-200 p-2">개념 문제<br>맞힘/시도</th>' +
                 '<th class="border border-gray-200 p-2">한 번에<br>맞힘</th>' +
                 '<th class="border border-gray-200 p-2">문장 분석<br>정답률</th>' +
+                '<th class="border border-gray-200 p-2">요약 연습<br>평균 점수</th>' +
+                '<th class="border border-gray-200 p-2">오류 찾기<br>맞힌/시도</th>' +
                 '<th class="border border-gray-200 p-2">개요서<br>제출</th>' +
                 '<th class="border border-gray-200 p-2 text-left">더 볼 개념</th>' +
                 '<th class="border border-gray-200 p-2">마지막 활동</th>' +
@@ -3661,6 +3980,8 @@
                 '<td class="border border-gray-200 p-2 text-center">' + s.solved + ' / ' + s.tries + '</td>' +
                 '<td class="border border-gray-200 p-2 text-center">' + s.first + '</td>' +
                 '<td class="border border-gray-200 p-2 text-center">' + anRate + (s.anCount ? ' <span class="text-gray-400">(' + s.anCount + '회)</span>' : '') + '</td>' +
+                '<td class="border border-gray-200 p-2 text-center">' + (s.sumCount ? (s.sumScore / s.sumCount).toFixed(1) + ' / 4' : '-') + '</td>' +
+                '<td class="border border-gray-200 p-2 text-center">' + (s.falTries ? s.falRight + ' / ' + s.falTries : '-') + '</td>' +
                 '<td class="border border-gray-200 p-2 text-center">' + (s.debate ? s.debate + '건' : '-') + '</td>' +
                 '<td class="border border-gray-200 p-2 text-gray-600">' + escapeHtml(weak || '-') + '</td>' +
                 '<td class="border border-gray-200 p-2 text-center whitespace-nowrap text-gray-500">' + escapeHtml(s.lastAt || '-') + '</td>' +
@@ -3737,6 +4058,12 @@
         records.analysis.forEach(function (r) {
             csv += ['문장분석', r.t, r.nick, String(r.reading).replace(/,/g, ' '), r.mode, '', r.right + '/' + r.total, ''].join(',') + '\n';
         });
+        (records.summary || []).forEach(function (r) {
+            csv += ['요약연습', r.t, r.nick, String(r.reading).replace(/,/g, ' '), '', '', r.score + '/4', r.chars + '자'].join(',') + '\n';
+        });
+        (records.fallacy || []).forEach(function (r) {
+            csv += ['오류찾기', r.t, r.nick, String(r.answer).replace(/,/g, ' '), '', r.attempt, r.correct ? '맞음' : '틀림', String(r.choice).replace(/,/g, ' ')].join(',') + '\n';
+        });
         (records.debate || []).forEach(function (r) {
             csv += ['개요서', r.t, r.nick, String(r.topic).replace(/,/g, ' '), String(r.stance).replace(/,/g, ' '), '', '제출', r.chars + '자'].join(',') + '\n';
         });
@@ -3750,7 +4077,7 @@
 
     function clearRecords() {
         if (!confirm('쌓인 학습 기록을 모두 지울까요? 되돌릴 수 없습니다.')) return;
-        records = { quiz: [], analysis: [], debate: [] };
+        records = { quiz: [], analysis: [], debate: [], fallacy: [], summary: [] };
         persistRecords();
         renderRecords();
         el('adm-sr-text').value = '';
@@ -3799,6 +4126,20 @@
             const anRate = Math.round(s.anRight / s.anTotal * 100);
             parts.push('신문 기사와 칼럼을 읽고 사실과 의견, 주장과 근거를 구분하는 활동을 ' + s.anCount + '회 수행하여 평균 정답률 ' + anRate + '%를 기록함' +
                 (anRate >= 80 ? ', 특히 필자의 판단이 담긴 표현을 정확히 가려냄.' : ', 반복 수행을 통해 판단 표현을 가려내는 능력이 향상됨.'));
+        }
+
+        /* 요약 연습 */
+        if (s.sumCount > 0) {
+            const avg = (s.sumScore / s.sumCount).toFixed(1);
+            parts.push('읽은 글을 세 문장 안으로 간추리는 요약 활동을 ' + s.sumCount + '회 수행하여 평균 ' + avg + '점(4점 만점)을 기록함' +
+                (avg >= 3 ? ', 자신의 판단을 섞지 않고 글의 내용만 담아 정리함.' : ', 요약에 판단이 섞이지 않도록 다듬어 가는 모습을 보임.'));
+        }
+
+        /* 오류 찾기 */
+        if (s.falTries > 0) {
+            const rate = Math.round(s.falRight / s.falTries * 100);
+            parts.push('근거가 없거나 논리가 어긋난 문장을 찾는 활동에서 ' + s.falTries + '회 시도해 ' + s.falRight + '회 정확히 지적함' +
+                (rate >= 70 ? ', 출처와 기준 시점이 빠진 문장을 특히 잘 가려냄.' : ', 반복 활동을 통해 오류 유형을 구분하는 힘이 자랐음.'));
         }
 
         /* 토론 개요서 */
@@ -4337,10 +4678,109 @@
     }
 
     /* =========================================================
+       17-3. 오류 찾기 연습 — 허술한 주장글을 그때그때 만들어 낸다
+       ========================================================= */
+    let fallacyTopic = 1;
+    let fallacyLines = [];
+
+    function pickOne(list, seed) {
+        return list[Math.floor(Math.random() * list.length)];
+    }
+
+    function newFallacyText(topicId) {
+        if (topicId) fallacyTopic = topicId;
+        const bank = FALLACY_BANK[fallacyTopic];
+        if (!bank) return;
+
+        /* 오류 유형 가운데 4가지를 뽑고, 제대로 쓴 문장 2개를 섞는다 */
+        const badKeys = FALLACY_TYPES.filter(function (t) { return t.key !== 'ok'; }).map(function (t) { return t.key; });
+        for (let i = badKeys.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const tmp = badKeys[i]; badKeys[i] = badKeys[j]; badKeys[j] = tmp;
+        }
+        const chosen = badKeys.slice(0, 4).concat(['ok', 'ok']);
+        for (let i = chosen.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const tmp = chosen[i]; chosen[i] = chosen[j]; chosen[j] = tmp;
+        }
+
+        fallacyLines = chosen.map(function (k, i) {
+            return { i: i, key: k, text: pickOne(bank.lines[k]), tries: 0, solved: false, wrong: [] };
+        });
+
+        el('fallacy-body').innerHTML =
+            '<div class="bg-white rounded-2xl shadow-sm border-2 border-butter-200 p-6 mb-4">' +
+                '<div class="text-xs font-bold text-gray-500 mb-1">' + escapeHtml(bank.topic) + ' · 어느 학생이 썼다고 가정한 글</div>' +
+                '<p class="text-base text-gray-800 leading-relaxed mb-4">' + escapeHtml(pickOne(bank.opening)) + '</p>' +
+                fallacyLines.map(function (l) {
+                    return '<div id="fal-' + l.i + '" class="border border-gray-200 rounded-xl p-4 mb-3">' +
+                        '<p class="text-base text-gray-800 leading-relaxed mb-3">' +
+                            '<span class="text-pinky-600 font-bold mr-1">' + (l.i + 1) + '.</span>' + escapeHtml(l.text) + '</p>' +
+                        '<div class="flex flex-wrap gap-1.5" id="fal-opt-' + l.i + '">' +
+                            FALLACY_TYPES.map(function (t) {
+                                return '<button id="fal-' + l.i + '-' + t.key + '" onclick="answerFallacy(' + l.i + ',\'' + t.key + '\')" ' +
+                                    'class="text-sm font-bold px-3 py-2 rounded-lg border border-gray-200 hover:border-pinky-300 hover:bg-pinky-50 transition-colors">' +
+                                    escapeHtml(t.name) + '</button>';
+                            }).join('') +
+                        '</div>' +
+                        '<div id="fal-why-' + l.i + '" class="hidden mt-3 text-sm leading-relaxed rounded-lg p-3"></div>' +
+                    '</div>';
+                }).join('') +
+                '<p class="text-xs text-gray-500 mt-2">이 글은 연습을 위해 앱이 만들어 낸 것입니다. 실제 기사나 누군가의 글이 아닙니다.</p>' +
+            '</div>' +
+            '<div id="fallacy-score" class="text-sm font-bold text-gray-700"></div>';
+        updateFallacyScore();
+    }
+
+    function answerFallacy(i, key) {
+        const line = fallacyLines[i];
+        if (!line || line.solved) return;
+        const type = FALLACY_TYPES.find(function (t) { return t.key === key; });
+        const correct = key === line.key;
+        line.tries++;
+        saveFallacyRecord(line, key, correct);
+
+        const why = el('fal-why-' + i);
+        const btn = el('fal-' + i + '-' + key);
+
+        if (!correct) {
+            line.wrong.push(key);
+            btn.className = 'text-sm font-bold px-3 py-2 rounded-lg border border-gray-200 text-gray-400 line-through';
+            btn.disabled = true;
+            why.className = 'mt-3 text-sm leading-relaxed rounded-lg p-3 bg-butter-50 border border-butter-200 text-gray-800';
+            why.innerHTML = '<b class="text-butter-700">다시 생각해 볼까요?</b> 이 문장에서 <b>무엇을 확인할 수 없는지</b> 짚어 보세요. ' +
+                '숫자가 있어도 어디서 온 값인지, 언제 기준인지 없으면 근거가 되지 못합니다.';
+            why.classList.remove('hidden');
+            return;
+        }
+
+        line.solved = true;
+        FALLACY_TYPES.forEach(function (t) {
+            const b = el('fal-' + i + '-' + t.key);
+            if (!b) return;
+            if (t.key === key) b.className = 'text-sm font-bold px-3 py-2 rounded-lg border-2 border-emerald-300 bg-emerald-50 text-emerald-900';
+            else b.className = 'text-sm font-bold px-3 py-2 rounded-lg border border-gray-200 text-gray-400';
+            b.disabled = true;
+        });
+        why.className = 'mt-3 text-sm leading-relaxed rounded-lg p-3 bg-emerald-50 border border-emerald-200 text-emerald-900';
+        why.innerHTML = '<b>맞았어요' + (line.tries > 1 ? ' (' + line.tries + '번째 시도)' : '') + '. ' + escapeHtml(type.name) + '</b> — ' + escapeHtml(type.desc);
+        why.classList.remove('hidden');
+        updateFallacyScore();
+    }
+
+    function updateFallacyScore() {
+        const box = el('fallacy-score');
+        if (!box) return;
+        const solved = fallacyLines.filter(function (l) { return l.solved; }).length;
+        const once = fallacyLines.filter(function (l) { return l.solved && l.tries === 1; }).length;
+        box.innerText = '찾은 문장 ' + solved + ' / ' + fallacyLines.length + ' · 한 번에 맞힌 문장 ' + once + '개';
+    }
+
+    /* =========================================================
        17-2. 학습 기록 (관리자 페이지에서 확인)
        ========================================================= */
     const RECORD_KEY = 'bio-debate-records-v1';
-    let records = { quiz: [], analysis: [], debate: [] };
+    let records = { quiz: [], analysis: [], debate: [], fallacy: [], summary: [] };
 
     function loadRecords() {
         try {
@@ -4350,8 +4790,29 @@
                 records.quiz = Array.isArray(r.quiz) ? r.quiz : [];
                 records.analysis = Array.isArray(r.analysis) ? r.analysis : [];
                 records.debate = Array.isArray(r.debate) ? r.debate : [];
+                records.fallacy = Array.isArray(r.fallacy) ? r.fallacy : [];
+                records.summary = Array.isArray(r.summary) ? r.summary : [];
             }
         } catch (e) { /* 저장값이 깨졌으면 새로 시작 */ }
+    }
+
+    function saveSummaryRecord(reading, score, chars) {
+        records.summary.push({ t: nowText(), nick: myNickname, reading: String(reading).slice(0, 24), score: score, chars: chars });
+        if (records.summary.length > 2000) records.summary = records.summary.slice(-2000);
+        persistRecords();
+    }
+
+    function saveFallacyRecord(line, choice, correct) {
+        const t = FALLACY_TYPES.find(function (x) { return x.key === line.key; });
+        const c = FALLACY_TYPES.find(function (x) { return x.key === choice; });
+        records.fallacy.push({
+            t: nowText(), nick: myNickname,
+            answer: t ? t.name : line.key,
+            choice: c ? c.name : choice,
+            attempt: line.tries, correct: correct
+        });
+        if (records.fallacy.length > 2000) records.fallacy = records.fallacy.slice(-2000);
+        persistRecords();
     }
 
     function saveDebateRecord() {
@@ -4633,6 +5094,22 @@
             html += '</div>';
         }
 
+        /* 요약 연습 — 모든 글에서 할 수 있다 */
+        html +=
+            '<div class="bg-white rounded-2xl shadow-sm border-2 border-butter-200 p-6 mb-6">' +
+                '<h3 class="font-bold text-butter-700 text-lg mb-1"><i class="fa-solid fa-pen-nib mr-1"></i> 요약 연습</h3>' +
+                '<p class="text-sm text-gray-500 mb-3">이 글이 <b>무엇을 알려 주는지</b> 세 문장 안으로 간추려 보세요. 내 생각이나 판단은 넣지 않습니다.</p>' +
+                '<div class="flex justify-between items-end mb-1.5">' +
+                    '<label for="summary-text" class="text-sm font-bold text-gray-700">내가 쓴 요약</label>' +
+                    '<span class="text-xs text-gray-400"><span id="count-summary">0</span>/300자</span>' +
+                '</div>' +
+                '<textarea id="summary-text" maxlength="300" rows="4" oninput="onSummaryInput()" ' +
+                    'class="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-butter-300 outline-none resize-none text-gray-700 leading-relaxed" ' +
+                    'placeholder="예) ○○신문은 ~라고 보도했다. 그 근거로 ~를 들었다."></textarea>' +
+                '<button onclick="checkSummary()" class="w-full mt-3 bg-butter-500 hover:bg-butter-600 text-white font-bold py-2.5 rounded-xl transition-colors">요약 점검하기</button>' +
+                '<div id="summary-result" class="mt-3 text-sm text-gray-500 leading-relaxed">문장 수, 핵심어, 의견 섞임을 확인해 알려 줍니다.</div>' +
+            '</div>';
+
         if (r.analysis) {
             html +=
                 '<div class="bg-white rounded-2xl shadow-sm border-2 border-pinky-200 p-6">' +
@@ -4650,6 +5127,54 @@
         if (tabs.length) showReadTab(tabs[0]);
         if (r.analysis) setAnalysisMode('fo');
         window.scrollTo(0, 0);
+    }
+
+    /* --- 요약 연습 --- */
+    const OPINION_MARKS = ['생각한다', '해야 한다', '해야한다', '좋다', '나쁘다', '옳다', '그르다', '중요하다', '느꼈다', '아쉽다', '바람직'];
+
+    function onSummaryInput() {
+        const n = el('summary-text');
+        if (n) el('count-summary').innerText = n.value.length;
+    }
+
+    function checkSummary() {
+        const box = el('summary-result');
+        const text = (el('summary-text') || {}).value || '';
+        const t = text.trim();
+        if (t.length < 30) {
+            box.className = 'mt-3 text-sm text-pinky-700 leading-relaxed';
+            box.innerHTML = '<b>조금 더 써 주세요.</b> 30자 이상으로, 글이 무엇을 알려 주는지 담아야 합니다.';
+            return;
+        }
+
+        const sentences = t.split(/[.!?。]\s*/).filter(function (s) { return s.trim().length > 3; }).length;
+        const keys = (currentReading.terms || []).concat(
+            (currentReading.numbers || []).map(function (x) { return x.value; })
+        ).concat([currentReading.source ? currentReading.source.media : '']);
+        const hit = keys.filter(function (k) { return k && t.indexOf(String(k).slice(0, 4)) >= 0; }).length;
+        const opinions = OPINION_MARKS.filter(function (w) { return t.indexOf(w) >= 0; });
+
+        const items = [
+            { ok: sentences >= 1 && sentences <= 3, good: '세 문장 안으로 잘 간추렸어요. (' + sentences + '문장)',
+              bad: '문장이 ' + sentences + '개입니다. 세 문장 안으로 줄여 보세요.' },
+            { ok: hit >= 1, good: '글의 핵심어나 출처가 들어갔어요.',
+              bad: '어느 매체의 글인지, 핵심어가 무엇인지 한 가지는 넣어 보세요.' },
+            { ok: opinions.length === 0, good: '내 판단을 넣지 않고 글의 내용만 담았어요.',
+              bad: '‘' + opinions.join('’, ‘') + '’ 같은 표현은 내 판단입니다. 요약에서는 빼세요.' },
+            { ok: t.length >= 60, good: '내용을 충분히 담았어요.',
+              bad: '조금 더 자세히 써 보세요. 60자 이상을 권합니다.' }
+        ];
+        const okCount = items.filter(function (x) { return x.ok; }).length;
+
+        box.className = 'mt-3 text-sm leading-relaxed';
+        box.innerHTML = '<b class="' + (okCount === 4 ? 'text-emerald-700' : 'text-gray-800') + '">' + okCount + ' / 4 항목을 지켰어요.</b>' +
+            '<ul class="mt-2 space-y-1">' + items.map(function (x) {
+                return '<li class="flex items-start gap-2">' +
+                    '<i class="fa-solid ' + (x.ok ? 'fa-circle-check text-emerald-500' : 'fa-circle-exclamation text-butter-500') + ' mt-1"></i>' +
+                    '<span class="' + (x.ok ? 'text-gray-600' : 'text-gray-700') + '">' + escapeHtml(x.ok ? x.good : x.bad) + '</span></li>';
+            }).join('') + '</ul>';
+
+        saveSummaryRecord(currentReading.title, okCount, t.length);
     }
 
     function showReadTab(which) {
