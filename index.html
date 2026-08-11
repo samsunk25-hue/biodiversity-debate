@@ -989,7 +989,7 @@
     </div>
 
     <!-- 학습 콘텐츠(개념·읽기 자료·토론 주제·맞춤법 규칙) -->
-    <script src="./content.js?v=20260801n"></script>
+    <script src="./content.js?v=20260812a"></script>
 
     <script>
 
@@ -3888,39 +3888,43 @@
         if (opening && !viewedConcepts[key]) {
             viewedConcepts[key] = true;
             renderConcepts(conceptGroup);
-            el('concept-detail-' + key).classList.remove('hidden');
+            const again = el('concept-detail-' + key);
+            if (again) again.classList.remove('hidden');
         }
     }
 
     function updateConceptProgress() {
-        /* 분류 하나를 모두 확인하면 그 분류의 문제가 열린다 */
+        /* 개념 카드를 하나 확인하면 그 개념의 문제가 하나 열린다 */
         const list = allConcepts().filter(function (c) { return c.group === conceptGroup; });
         const seen = list.filter(function (c) { return viewedConcepts[c.key]; }).length;
-        const done = list.length > 0 && seen >= list.length;
-        const gName = (CONCEPT_GROUPS.filter(function (g) { return g.key === conceptGroup; })[0] || {}).name || '이 분류';
+        const opened = openedQuizCount();
 
         const bar = el('concept-progress');
         if (bar) {
             bar.innerHTML =
                 '<div class="flex items-center justify-between gap-2 mb-1">' +
-                    '<span class="text-xs font-bold text-gray-600">' + escapeHtml(gName) + ' — 확인한 개념 ' + seen + ' / ' + list.length + '</span>' +
-                    '<span class="text-xs ' + (done ? 'text-emerald-600 font-bold' : 'text-gray-400') + '">' +
-                        (done ? '이 분류의 문제가 열렸습니다!' : '이 분류를 모두 확인하면 문제가 열립니다') + '</span>' +
+                    '<span class="text-xs font-bold text-gray-600">확인한 개념 ' + seen + ' / ' + list.length + ' (이 묶음)</span>' +
+                    '<span class="text-xs ' + (opened ? 'text-emerald-600 font-bold' : 'text-gray-400') + '">' +
+                        (opened ? '지금까지 확인한 개념의 문제 ' + opened + '개가 열렸습니다' : '개념 카드를 누르면 그 개념의 문제가 열립니다') + '</span>' +
                 '</div>' +
                 '<div class="h-2 rounded-full bg-gray-100 overflow-hidden">' +
-                    '<div class="h-full ' + (done ? 'bg-emerald-400' : 'bg-pinky-400') + ' rounded-full" style="width:' + Math.round(seen / list.length * 100) + '%"></div>' +
+                    '<div class="h-full ' + (seen === list.length && list.length ? 'bg-emerald-400' : 'bg-pinky-400') + ' rounded-full" style="width:' + (list.length ? Math.round(seen / list.length * 100) : 0) + '%"></div>' +
                 '</div>';
         }
 
-        const lock = el('quiz-lock');
-        const body = el('quiz-body');
-        if (lock && body) {
-            lock.classList.toggle('hidden', done);
-            body.classList.toggle('hidden', !done);
-            /* 분류를 바꾸면 그 분류의 문제로 다시 그린다 */
-            if (done && quizRenderedFor !== conceptGroup) { quizRenderedFor = conceptGroup; quizReady = true; renderQuiz(); }
-            if (!done) quizRenderedFor = '';
-        }
+        renderQuiz();
+    }
+
+    /* 확인한 개념에 딸린 문제 수 */
+    function openedQuizCount() {
+        return openedQuizList().length;
+    }
+
+    /* 지금까지 확인한 개념의 문제만 모은다 */
+    function openedQuizList() {
+        const seenTerms = {};
+        allConcepts().forEach(function (c) { if (viewedConcepts[c.key]) seenTerms[c.term] = true; });
+        return CONCEPT_QUIZ.filter(function (q) { return seenTerms[q.concept]; });
     }
 
     /* --- 개념 확인 문제 : 틀리면 힌트를 주고 다시 고르게 한다 --- */
@@ -3929,31 +3933,62 @@
     let quizList = [];          /* 지금 화면에 그려 둔 분류의 문제들 */
     let quizRenderedFor = '';   /* 그 문제들이 속한 분류 */
 
-    function renderQuiz() {
-        const gTerms = {};
-        allConcepts().filter(function (c) { return c.group === conceptGroup; })
-            .forEach(function (c) { gTerms[c.term] = true; });
-        quizList = CONCEPT_QUIZ.filter(function (q) { return gTerms[q.concept]; });
-        quizState = quizList.map(function () { return { tries: 0, wrong: [], solved: false }; });
-        el('quiz-body').innerHTML =
+    function renderQuiz(reset) {
+        const list = openedQuizList();
+        const lock = el('quiz-lock');
+        const body = el('quiz-body');
+        if (!body) return;
+
+        if (list.length === 0) {
+            if (lock) lock.classList.remove('hidden');
+            body.classList.add('hidden');
+            quizList = [];
+            return;
+        }
+        if (lock) lock.classList.add('hidden');
+        body.classList.remove('hidden');
+
+        /* 이미 푼 문제는 그대로 두고, 새로 열린 문제만 더한다 */
+        const prev = {};
+        if (!reset) {
+            quizList.forEach(function (q, i) { prev[q.concept] = quizState[i]; });
+        }
+        quizList = list;
+        quizState = quizList.map(function (q) { return prev[q.concept] || { tries: 0, wrong: [], solved: false }; });
+
+        body.innerHTML =
             quizList.map(function (q, i) {
+                const st = quizState[i];
                 return '<div class="border border-gray-200 rounded-xl p-4 mb-3">' +
                     '<div class="text-[11px] font-bold text-pinky-600 mb-1">' + escapeHtml(q.concept || '') + '</div>' +
                     '<p class="text-base font-bold text-gray-800 mb-3 leading-snug"><span class="text-pinky-600 mr-1">' + (i + 1) + '.</span>' + escapeHtml(q.q) + '</p>' +
                     '<div class="space-y-1.5">' +
                         q.options.map(function (o, j) {
+                            const solvedRight = st.solved && j === q.answer;
+                            const wrongPicked = st.wrong.indexOf(j) >= 0;
+                            const cls = solvedRight
+                                ? 'w-full text-left text-sm px-3 py-2.5 rounded-lg border-2 border-emerald-300 bg-emerald-50 text-emerald-900 font-bold'
+                                : (wrongPicked
+                                    ? 'w-full text-left text-sm px-3 py-2.5 rounded-lg border border-gray-200 text-gray-400 line-through'
+                                    : (st.solved
+                                        ? 'w-full text-left text-sm px-3 py-2.5 rounded-lg border border-gray-200 text-gray-400'
+                                        : 'w-full text-left text-sm px-3 py-2.5 rounded-lg border border-gray-200 hover:border-pinky-300 hover:bg-pinky-50 transition-colors'));
                             return '<button id="quiz-' + i + '-' + j + '" onclick="answerQuiz(' + i + ',' + j + ')" ' +
-                                'class="w-full text-left text-sm px-3 py-2.5 rounded-lg border border-gray-200 hover:border-pinky-300 hover:bg-pinky-50 transition-colors">' +
+                                (st.solved || wrongPicked ? 'disabled ' : '') + 'class="' + cls + '">' +
                                 escapeHtml(o) + '</button>';
                         }).join('') +
                     '</div>' +
-                    '<div id="quiz-why-' + i + '" class="hidden mt-3 text-sm leading-relaxed rounded-lg p-3"></div>' +
+                    (st.solved
+                        ? '<div id="quiz-why-' + i + '" class="mt-3 text-sm leading-relaxed rounded-lg p-3 bg-emerald-50 border border-emerald-200 text-emerald-900"><b>맞았어요' +
+                          (st.tries > 1 ? ' (' + st.tries + '번째 시도)' : '') + '. </b>' + escapeHtml(q.why) + '</div>'
+                        : '<div id="quiz-why-' + i + '" class="hidden mt-3 text-sm leading-relaxed rounded-lg p-3"></div>') +
                 '</div>';
             }).join('') +
             '<div class="flex flex-wrap items-center gap-3 mt-4">' +
-                '<span id="quiz-score" class="text-sm font-bold text-gray-700">푼 문제 0 / ' + CONCEPT_QUIZ.length + '</span>' +
-                '<button onclick="renderQuiz()" class="text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg">처음부터 다시 풀기</button>' +
+                '<span id="quiz-score" class="text-sm font-bold text-gray-700"></span>' +
+                '<button onclick="renderQuiz(true)" class="text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg">처음부터 다시 풀기</button>' +
             '</div>';
+        updateQuizScore();
     }
 
     function answerQuiz(i, j) {
