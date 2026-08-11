@@ -515,6 +515,45 @@
 
                 <div id="writing-area" class="hidden fade-in">
 
+                    <!-- 토론 준비 양식 : 기본 정보(논제·입장·모둠·역할) -->
+                    <div class="border-2 border-gray-300 rounded-xl p-4 md:p-5 mb-5 bg-white">
+                        <h3 class="text-lg font-bold mb-1"><i class="fa-solid fa-table-list text-gray-500 mr-1"></i> 토론 준비 양식 · 기본 정보</h3>
+                        <p class="text-xs text-gray-500 mb-4">여기에 적은 내용은 <b>개요서 PDF 맨 위</b>에 그대로 인쇄됩니다.</p>
+
+                        <div class="mb-3">
+                            <label class="text-sm font-bold text-gray-700 block mb-1">논제</label>
+                            <p id="prep-motion" class="text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-lg p-3 leading-relaxed"></p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <div>
+                                <label class="text-sm font-bold text-gray-700 block mb-1">입장</label>
+                                <p id="prep-stance" class="text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-lg p-3"></p>
+                            </div>
+                            <div>
+                                <label for="prep-group" class="text-sm font-bold text-gray-700 block mb-1">모둠</label>
+                                <input type="text" id="prep-group" maxlength="20" placeholder="예: 3모둠"
+                                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pinky-300 focus:border-pinky-400 outline-none text-gray-700">
+                            </div>
+                        </div>
+
+                        <label class="text-sm font-bold text-gray-700 block mb-1">역할 나누기</label>
+                        <p class="text-xs text-gray-500 mb-2">모둠원의 학번·이름과, 준비 단계와 토론에서 맡을 일을 적습니다.</p>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="border border-gray-300 p-2 w-16">학번</th>
+                                        <th class="border border-gray-300 p-2 w-24">이름</th>
+                                        <th class="border border-gray-300 p-2">준비 단계</th>
+                                        <th class="border border-gray-300 p-2">토론</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="prep-role-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <!-- 입장별 자료 탐색 안내 -->
                     <div id="stance-tips" class="rounded-xl p-4 mb-4"></div>
 
@@ -756,11 +795,14 @@
                 </div>
                 <p class="text-[11px] text-gray-400 mt-2">이 칸의 글도 브라우저 안에만 있고 어디에도 저장되지 않습니다.</p>
                 <div class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
+                    <button onclick="savePrepPdf()" class="flex-1 min-w-[13rem] bg-pinky-500 hover:bg-pinky-600 text-white font-bold py-2.5 px-4 rounded-lg transition-colors">
+                        <i class="fa-regular fa-file-pdf mr-1"></i> 개요서를 PDF로 저장 (토론 준비 양식)
+                    </button>
                     <button onclick="copyMyText()" class="flex-1 min-w-[9rem] bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition-colors">
                         <i class="fa-regular fa-copy mr-1"></i> 내 글 전체 복사
                     </button>
                     <button onclick="savePdf()" class="flex-1 min-w-[9rem] bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition-colors">
-                        <i class="fa-regular fa-file-pdf mr-1"></i> PDF로 저장
+                        <i class="fa-regular fa-file-pdf mr-1"></i> 줄글로 저장
                     </button>
                     <button onclick="resetApp()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-semibold py-2.5 px-4 rounded-lg transition-colors">
                         <i class="fa-solid fa-rotate-right mr-1"></i> 다시 하기
@@ -1619,6 +1661,28 @@
                         'class="w-full h-28 p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pinky-300 focus:border-pinky-400 outline-none resize-none text-gray-700 leading-relaxed" ' +
                         'placeholder="확인한 자료의 이름·기관·기준 연도와 수치, 그리고 과학 개념을 넣어 씁니다."></textarea>' +
                 '</div>' +
+                /* 토론 준비 양식의 '상대측 예상주장'과 '예상주장 반론' */
+                '<div class="mt-4 pt-4 border-t border-dashed border-gray-300">' +
+                    '<p class="text-xs font-bold text-gray-500 mb-2"><i class="fa-solid fa-people-arrows mr-1"></i> 상대편은 뭐라고 할까? — 미리 준비해 두면 토론에서 당황하지 않습니다</p>' +
+                    '<div class="mb-3">' +
+                        '<div class="flex items-end justify-between mb-1.5">' +
+                            '<label for="oppose-' + n + '" class="text-sm font-bold text-gray-700">상대측 예상 주장</label>' +
+                            '<span class="text-xs text-gray-400"><span id="count-oppose-' + n + '">0</span>/200자</span>' +
+                        '</div>' +
+                        '<textarea id="oppose-' + n + '" maxlength="200" ' +
+                            'class="w-full h-20 p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-300 focus:border-gray-400 outline-none resize-none text-gray-700 leading-relaxed" ' +
+                            'placeholder="이 논점에서 상대편이 펼칠 주장을 상대편 입장이 되어 써 봅니다."></textarea>' +
+                    '</div>' +
+                    '<div>' +
+                        '<div class="flex items-end justify-between mb-1.5">' +
+                            '<label for="rebut-' + n + '" class="text-sm font-bold text-gray-700">예상 주장에 대한 반론</label>' +
+                            '<span class="text-xs text-gray-400"><span id="count-rebut-' + n + '">0</span>/300자</span>' +
+                        '</div>' +
+                        '<textarea id="rebut-' + n + '" maxlength="300" ' +
+                            'class="w-full h-24 p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-300 focus:border-gray-400 outline-none resize-none text-gray-700 leading-relaxed" ' +
+                            'placeholder="위 예상 주장의 어디가 약한지, 어떤 자료로 되받을지 씁니다."></textarea>' +
+                    '</div>' +
+                '</div>' +
                 '<div class="text-[11px] text-gray-500 mt-2">이 논점에서 확인할 자료: ' + escapeHtml((it.check || []).join(' · ')) + '</div>' +
             '</div>';
         }).join('');
@@ -1627,8 +1691,72 @@
             const node = el(f.id);
             if (node) node.addEventListener('input', onWriting);
         });
+        /* 새로 넣은 예상주장·반론 칸도 글자 수를 세고 저장에 반영한다 */
+        issues.slice(0, ISSUE_COUNT).forEach(function (_, k) {
+            ['oppose-', 'rebut-'].forEach(function (p) {
+                const node = el(p + (k + 1));
+                if (node) node.addEventListener('input', onWriting);
+            });
+        });
+        renderPrepHeader();
         updateCounters();
         goArgStep(1);
+    }
+
+    /* 토론 준비 양식의 머리부(논제·입장·역할표)를 채운다 */
+    function renderPrepHeader() {
+        const motion = el('prep-motion');
+        if (motion) motion.textContent = (currentTopic && currentTopic.title) || '';
+        const st = el('prep-stance');
+        if (st) {
+            st.textContent = selectedStance === 'con'
+                ? '반대 — ' + ((currentTopic && currentTopic.conLabel) || '반대')
+                : '찬성 — ' + ((currentTopic && currentTopic.proLabel) || '찬성');
+        }
+        const body = el('prep-role-body');
+        if (body && !body.children.length) {
+            let html = '';
+            for (let i = 1; i <= 4; i++) {
+                html += '<tr>' +
+                    '<td class="border border-gray-300 p-1"><input type="text" id="role-no-' + i + '" maxlength="8" class="w-full p-1.5 text-xs outline-none"></td>' +
+                    '<td class="border border-gray-300 p-1"><input type="text" id="role-name-' + i + '" maxlength="10" class="w-full p-1.5 text-xs outline-none"></td>' +
+                    '<td class="border border-gray-300 p-1"><input type="text" id="role-prep-' + i + '" maxlength="30" placeholder="예: 자료 찾기" class="w-full p-1.5 text-xs outline-none"></td>' +
+                    '<td class="border border-gray-300 p-1"><input type="text" id="role-deb-' + i + '" maxlength="30" placeholder="예: 입론 발표" class="w-full p-1.5 text-xs outline-none"></td>' +
+                    '</tr>';
+            }
+            body.innerHTML = html;
+        }
+    }
+
+    /* 화면에 적힌 값을 모아 '토론 준비 양식' 한 벌로 만든다 */
+    function collectPrepForm() {
+        const issues = (currentTopic && currentTopic.issues) || [];
+        const v = function (id) { const n = el(id); return n ? String(n.value || '').trim() : ''; };
+        const roles = [];
+        for (let i = 1; i <= 4; i++) {
+            const r = { no: v('role-no-' + i), name: v('role-name-' + i), prep: v('role-prep-' + i), deb: v('role-deb-' + i) };
+            if (r.no || r.name || r.prep || r.deb) roles.push(r);
+        }
+        return {
+            motion: (currentTopic && currentTopic.title) || '',
+            region: (currentTopic && currentTopic.region) || '',
+            stance: selectedStance === 'con'
+                ? '반대 — ' + ((currentTopic && currentTopic.conLabel) || '반대')
+                : '찬성 — ' + ((currentTopic && currentTopic.proLabel) || '찬성'),
+            group: v('prep-group'),
+            nickname: myNickname || '',
+            roles: roles,
+            issues: issues.slice(0, ISSUE_COUNT).map(function (it, k) {
+                const n = k + 1;
+                return {
+                    name: it.name || ('논점 ' + n),
+                    claim: v('main-' + n),
+                    evidence: v('evidence-' + n),
+                    oppose: v('oppose-' + n),
+                    rebut: v('rebut-' + n)
+                };
+            })
+        };
     }
 
     /* 논점 1 → 2 → 3 차례대로 */
@@ -2510,6 +2638,80 @@
         if (!guardCrossAnswers()) return;
         const ok = copyToClipboard(buildMergedText());
         showToast(ok ? "내 글과 반박 답변을 함께 복사했습니다! 📋" : "복사에 실패했습니다.", ok ? "success" : "error");
+    }
+
+    /**
+     * 개요서를 '토론 준비 양식' 표 모양 그대로 PDF로 저장한다.
+     * 인쇄 창에서 대상을 'PDF로 저장'으로 고르면 파일이 된다.
+     */
+    function savePrepPdf() {
+        if (!guardCrossAnswers()) return;
+        const d = collectPrepForm();
+        const esc = escapeHtml;
+        const cell = function (s) { return esc(s || '').replace(/\n/g, '<br>'); };
+
+        let roleRows = '';
+        const roleList = d.roles.length ? d.roles : [{ no: '', name: '', prep: '', deb: '' }];
+        for (let i = 0; i < Math.max(4, roleList.length); i++) {
+            const r = roleList[i] || { no: '', name: '', prep: '', deb: '' };
+            roleRows += '<tr><td>' + cell(r.no) + '</td><td>' + cell(r.name) + '</td>' +
+                '<td>' + cell(r.prep) + '</td><td>' + cell(r.deb) + '</td></tr>';
+        }
+
+        const circled = ['①', '②', '③', '④'];
+        let issueList = '';
+        let issueBlocks = '';
+        d.issues.forEach(function (it, k) {
+            issueList += '<div>' + circled[k] + ' ' + esc(it.name) + '</div>';
+            issueBlocks +=
+                '<table class="form"><tr><th class="lead" style="width:88px">필수쟁점</th>' +
+                    '<td colspan="2"><b>' + circled[k] + '</b> ' + cell(it.name) + '</td></tr>' +
+                '<tr><th rowspan="2" class="lead" style="width:34px">입론</th>' +
+                    '<th class="lead" style="width:54px">주장 및 근거</th><td>' + cell(it.claim) + '</td></tr>' +
+                '<tr><th class="lead">근거 및 논증</th><td>' + cell(it.evidence) + '</td></tr>' +
+                '<tr><th class="lead" colspan="2">상대측 예상주장</th><td>' + cell(it.oppose) + '</td></tr>' +
+                '<tr><th class="lead" colspan="2">예상주장 반론</th><td>' + cell(it.rebut) + '</td></tr>' +
+                '</table>';
+        });
+
+        const win = window.open('', '_blank');
+        if (!win) { showToast('팝업이 막혀 있어요. 팝업 허용 후 다시 눌러 주세요.', 'error'); return; }
+
+        win.document.write(
+            '<!doctype html><html lang="ko"><head><meta charset="utf-8">' +
+            '<title>토론 준비하기 - ' + esc(d.motion) + '</title><style>' +
+            'body{font-family:"Malgun Gothic","맑은 고딕",sans-serif;color:#222;margin:0;padding:14mm 12mm;font-size:11pt}' +
+            'h1{text-align:center;font-size:15pt;margin:0 0 14px;letter-spacing:2px}' +
+            'table.form{width:100%;border-collapse:collapse;margin-bottom:10px;table-layout:fixed}' +
+            'table.form th,table.form td{border:1px solid #333;padding:6px 8px;font-size:10.5pt;' +
+                'vertical-align:top;line-height:1.6;word-break:break-word}' +
+            'table.form th.lead{background:#f6f1e0;font-weight:bold;text-align:center;font-size:10pt}' +
+            'table.form td{min-height:28px}' +
+            '.roles th{background:#f6f1e0;text-align:center;font-size:10pt}' +
+            '.roles td{height:26px}' +
+            '.issue-list div{margin:2px 0}' +
+            '.foot{margin-top:10px;font-size:9pt;color:#777;text-align:right}' +
+            '@page{size:A4;margin:12mm}' +
+            'table.form{break-inside:avoid;page-break-inside:avoid}' +
+            '</style></head><body>' +
+            '<h1>&lt;토론 준비하기&gt;</h1>' +
+            '<table class="form">' +
+                '<tr><th class="lead" style="width:70px">논제</th><td colspan="3">' + cell(d.motion) + '</td></tr>' +
+                '<tr><th class="lead">입장</th><td>' + cell(d.stance) + '</td>' +
+                    '<th class="lead" style="width:52px">모둠</th><td style="width:26%">' + cell(d.group) + '</td></tr>' +
+            '</table>' +
+            '<table class="form roles"><tr><th style="width:64px">학번</th><th style="width:80px">이름</th>' +
+                '<th>준비단계</th><th>토론</th></tr>' + roleRows + '</table>' +
+            '<table class="form"><tr><th class="lead" style="width:70px">필수<br>쟁점</th>' +
+                '<td class="issue-list">' + issueList + '</td></tr></table>' +
+            issueBlocks +
+            '<div class="foot">' + esc(d.region) + (d.nickname ? ' · 작성자 ' + esc(d.nickname) : '') + '</div>' +
+            '<scr' + 'ipt>window.onload=function(){window.focus();window.print();}</scr' + 'ipt>' +
+            '</body></html>'
+        );
+        win.document.close();
+        win.focus();
+        showToast('인쇄 창에서 대상을 "PDF로 저장"으로 고르면 개요서 파일이 됩니다. 📄', 'success');
     }
 
     /* PDF 저장. 인쇄 창에서 '대상: PDF로 저장'을 고르면 파일로 남는다. */
