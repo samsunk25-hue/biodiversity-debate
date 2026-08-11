@@ -360,7 +360,7 @@
             <button onclick="goBackScreen()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>
             <div class="sec-head">
                 <h2>활동 3 · 오류 찾기 연습</h2>
-                <p>아래 글은 <b>앱이 그때그때 만들어 낸 허술한 주장글</b>입니다. 문장마다 무엇이 문제인지 골라 보세요. 글의 주제는 위에 적혀 있습니다.</p>
+                <p>아래 글은 <b>앱이 그때그때 만들어 낸 허술한 주장글</b>입니다. 문장마다 무엇이 문제인지 골라 보세요.</p>
             </div>
 
             <div class="flex flex-wrap items-center gap-3 mb-4">
@@ -989,7 +989,7 @@
     </div>
 
     <!-- 학습 콘텐츠(개념·읽기 자료·토론 주제·맞춤법 규칙) -->
-    <script src="./content.js?v=20260801i"></script>
+    <script src="./content.js?v=20260801j"></script>
 
     <script>
 
@@ -4050,7 +4050,8 @@
 
         el('fallacy-body').innerHTML =
             '<div class="bg-white rounded-2xl shadow-sm border-2 border-butter-200 p-6 mb-4">' +
-                '<div class="text-xs font-bold text-gray-500 mb-1">' + escapeHtml(bank.topic) + ' · 어느 학생이 썼다고 가정한 글</div>' +
+                '<div class="text-lg md:text-xl font-bold text-gray-900 mb-1">' + escapeHtml(bank.topic) + '</div>' +
+                '<div class="text-xs text-gray-500 mb-3">어느 학생이 썼다고 가정한 글</div>' +
                 '<p class="text-base text-gray-800 leading-relaxed mb-4">' + escapeHtml(pickOne(bank.opening)) + '</p>' +
                 fallacyLines.map(function (l) {
                     return '<div id="fal-' + l.i + '" class="border border-gray-200 rounded-xl p-4 mb-3">' +
