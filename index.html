@@ -2277,14 +2277,18 @@
 
     /* 주제별 과학 개념어 */
     const SCIENCE_TERMS = {
-        1: ['습지', '생태계 서비스', '정화', '홍수', '완충', '수용력', '서식지', '파편화', '개체군',
-            '철새', '물새', '기수역', '세계유산', '탐방로', '경관', '조류'],
-        2: ['갯벌', '블루카본', '탄소', '저서생물', '철새', '기착지', '이동경로', '수용력', '파편화',
-            '세계자연유산', '보전구역', '완충', '저장량', '흡수량', '어촌계', '생태계 서비스'],
-        3: ['생태축', '연결성', '산림', '탄소', '흡수', '감축', '기회비용', '회피', '저감', '상쇄',
-            '개체군', '서식지', '재생에너지', '유휴부지', '영농형', '생태자연도'],
-        4: ['녹지', '생태축', '완충', '열섬', '미세먼지', '빗물', '서식지', '단편화', '연결성',
-            '개발제한구역', '그린벨트', '환경평가', '등급', '생물다양성', '난개발', '도시']
+        /* 1 가로림만 조력발전 */
+        1: ['갯벌', '블루카본', '탄소', '저서생물', '철새', '기착지', '조력', '조수', '퇴적',
+            '수용력', '서식지', '먹이', '생태계 서비스', '재생에너지', '흡수량', '저장량'],
+        /* 2 학교 잔디밭 */
+        2: ['종 다양성', '균등도', '식물', '자생식물', '화분매개', '곤충', '천이', '경쟁',
+            '외래', '서식지', '생물다양성', '개체', '군집', '피복', '관리', '조사'],
+        /* 3 부여 금강 생태 관광 */
+        3: ['서식지', '수용력', '완충', '탐방로', '멸종위기', '개체군', '교란', '번식',
+            '생태 관광', '모래톱', '여울', '습지', '연결', '단편화', '조류', '수질'],
+        /* 4 산지 태양광 */
+        4: ['산림', '탄소', '흡수', '감축', '생태축', '연결성', '서식지', '단편화', '개체군',
+            '재생에너지', '유휴부지', '경사', '토사', '산사태', '광합성', '기후']
     };
 
     /* 근거에 자료 이름이 들어갔는지 확인할 때 쓰는 낱말.
@@ -2525,19 +2529,20 @@
             }
         });
 
-        /* 과학적 분석 논점은 개념어와 수치를 반드시 담아야 한다 */
+        /* 과학적 분석 쟁점은 개념어와 수치를 반드시 담아야 한다.
+           화면에 나온 쟁점(pickedIssues)의 순서와 칸 번호를 맞춘다. */
         const terms = SCIENCE_TERMS[currentTopic.id] || [];
-        (currentTopic.issues || []).forEach(function (it, k) {
+        pickedIssues().forEach(function (it, k) {
             if (!it.requireScience) return;
             const node = el('evidence-' + (k + 1));
             const v = node ? node.value.trim() : '';
             if (v === '') return;
             if (!/[0-9]/.test(v)) {
-                issues.push('<b>논점 ' + (k + 1) + ' 근거</b>는 과학적 분석 논점입니다. 확인한 <b>수치와 기준 연도</b>를 넣어 주세요.');
+                issues.push('<b>쟁점 ' + (k + 1) + ' 근거</b>는 과학적 분석 쟁점입니다. 확인한 <b>수치와 기준 연도</b>를 넣어 주세요.');
                 if (!firstBad) firstBad = 'evidence-' + (k + 1);
             }
             if (!hasAny(v, terms)) {
-                issues.push('<b>논점 ' + (k + 1) + ' 근거</b>에 <b>과학 개념어</b>가 없어요. 예를 들어 ‘' + terms.slice(0, 3).join('’, ‘') + '’ 같은 말을 써서 설명해 보세요.');
+                issues.push('<b>쟁점 ' + (k + 1) + ' 근거</b>에 <b>과학 개념어</b>가 없어요. 예를 들어 ‘' + terms.slice(0, 3).join('’, ‘') + '’ 같은 말을 써서 설명해 보세요.');
                 if (!firstBad) firstBad = 'evidence-' + (k + 1);
             }
         });
@@ -4224,14 +4229,16 @@
             const pro = group.filter(function (r) { return r.stance === 'pro'; }).length;
             const con = group.filter(function (r) { return r.stance === 'con'; }).length;
             html +=
-                '<div class="sm:col-span-2 mt-2 mb-1">' +
-                    '<h3 class="font-bold text-gray-800">' + escapeHtml(topic.region) + '</h3>' +
-                    '<p class="text-xs text-gray-500">' + escapeHtml(topic.title) + ' — 글 ' + group.length + '편 (찬성 쪽 ' + pro + ' · 반대 쪽 ' + con + ')</p>' +
+                '<div class="sm:col-span-2 mt-8 mb-2 border-l-4 border-pinky-300 pl-4">' +
+                    '<div class="text-sm font-bold text-pinky-600 mb-1">' + escapeHtml(topic.region) + '</div>' +
+                    '<h3 class="text-xl md:text-2xl font-bold text-gray-900 leading-snug">' + escapeHtml(topic.title) + '</h3>' +
+                    '<p class="text-sm text-gray-500 mt-1.5">글 ' + group.length + '편 · 찬성 쪽 ' + pro + '편 · 반대 쪽 ' + con + '편</p>' +
                 '</div>' + group.map(readingCardHtml).join('');
         });
         const rest = list.filter(function (r) { return !r.topicId; });
         if (rest.length) {
-            html += '<div class="sm:col-span-2 mt-2 mb-1"><h3 class="font-bold text-gray-800">선생님이 올린 자료</h3></div>' +
+            html += '<div class="sm:col-span-2 mt-8 mb-2 border-l-4 border-gray-300 pl-4">' +
+                '<h3 class="text-xl md:text-2xl font-bold text-gray-900">선생님이 올린 자료</h3></div>' +
                 rest.map(readingCardHtml).join('');
         }
         box.innerHTML = html;
