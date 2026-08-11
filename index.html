@@ -989,7 +989,7 @@
     </div>
 
     <!-- 학습 콘텐츠(개념·읽기 자료·토론 주제·맞춤법 규칙) -->
-    <script src="./content.js?v=20260801j"></script>
+    <script src="./content.js?v=20260801k"></script>
 
     <script>
 
@@ -1488,8 +1488,9 @@
 
     function pickPracticeTopic(id) {
         const kind = pendingPractice || 'check';
-        el('practice-topic-picker').classList.add('hidden');
         pendingPractice = null;
+        /* 연습 고르기 카드를 여기서 닫지 않는다.
+           화면을 넘길 때 '연습 고르기'가 뒤로 기록에 남아야 하기 때문이다. */
 
         if (kind === 'fallacy') {
             selectTopic(id, true);
