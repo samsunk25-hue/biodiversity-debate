@@ -381,8 +381,8 @@
         <!-- ===================== 바로 연습하기 화면 ===================== -->
         <section id="sec-practice" class="fade-in hidden">
             <div class="flex flex-wrap items-center gap-2 mb-4">
-                <button onclick="goHome()" class="back-btn" style="margin-bottom:0">
-                    <i class="fa-solid fa-arrow-left"></i> 첫 화면으로
+                <button onclick="openPracticePicker()" class="back-btn" style="margin-bottom:0">
+                    <i class="fa-solid fa-arrow-left"></i> 근거찾기 고르기로
                 </button>
                 <span class="text-gray-300">|</span>
                 <button onclick="goToPrepareFromPractice()" class="back-btn" style="margin-bottom:0;border-color:#e5e7eb;color:#4b5563">
@@ -1351,6 +1351,8 @@
 
     function goBackToStep1() {
         hideAllSections();
+        setActiveNav('debate');     /* 주제 고르기로 돌아가도 위쪽 탭은 개요서 */
+        showStandard('debate');
         step1.classList.remove('hidden');
         window.scrollTo(0, 0);
     }
@@ -1458,6 +1460,7 @@
         });
         el('practice-topic-picker').classList.remove('hidden');
         setActiveNav('practice');
+        showStandard('practice');   /* 고르기 화면에서도 근거찾기 기준을 보여 준다 */
         el('practice-topic-picker').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
@@ -1531,6 +1534,8 @@
     function goToPrepareFromPractice() {
         restorePracticePanel();
         hideAllSections();
+        setActiveNav('debate');     /* 위쪽 탭도 개요서로 바꾼다 */
+        showStandard('debate');
         step2.classList.remove('hidden');
         window.scrollTo(0, 0);
     }
@@ -3829,17 +3834,19 @@
     }
 
     function updateConceptProgress() {
-        const list = allConcepts();
+        /* 분류 하나를 모두 확인하면 그 분류의 문제가 열린다 */
+        const list = allConcepts().filter(function (c) { return c.group === conceptGroup; });
         const seen = list.filter(function (c) { return viewedConcepts[c.key]; }).length;
-        const done = seen >= list.length;
+        const done = list.length > 0 && seen >= list.length;
+        const gName = (CONCEPT_GROUPS.filter(function (g) { return g.key === conceptGroup; })[0] || {}).name || '이 분류';
 
         const bar = el('concept-progress');
         if (bar) {
             bar.innerHTML =
                 '<div class="flex items-center justify-between gap-2 mb-1">' +
-                    '<span class="text-xs font-bold text-gray-600">확인한 개념 ' + seen + ' / ' + list.length + '</span>' +
+                    '<span class="text-xs font-bold text-gray-600">' + escapeHtml(gName) + ' — 확인한 개념 ' + seen + ' / ' + list.length + '</span>' +
                     '<span class="text-xs ' + (done ? 'text-emerald-600 font-bold' : 'text-gray-400') + '">' +
-                        (done ? '문제가 열렸습니다!' : '모두 확인하면 문제가 열립니다') + '</span>' +
+                        (done ? '이 분류의 문제가 열렸습니다!' : '이 분류를 모두 확인하면 문제가 열립니다') + '</span>' +
                 '</div>' +
                 '<div class="h-2 rounded-full bg-gray-100 overflow-hidden">' +
                     '<div class="h-full ' + (done ? 'bg-emerald-400' : 'bg-pinky-400') + ' rounded-full" style="width:' + Math.round(seen / list.length * 100) + '%"></div>' +
@@ -3851,18 +3858,26 @@
         if (lock && body) {
             lock.classList.toggle('hidden', done);
             body.classList.toggle('hidden', !done);
-            if (done && !quizReady) { quizReady = true; renderQuiz(); }
+            /* 분류를 바꾸면 그 분류의 문제로 다시 그린다 */
+            if (done && quizRenderedFor !== conceptGroup) { quizRenderedFor = conceptGroup; quizReady = true; renderQuiz(); }
+            if (!done) quizRenderedFor = '';
         }
     }
 
     /* --- 개념 확인 문제 : 틀리면 힌트를 주고 다시 고르게 한다 --- */
     let quizReady = false;
     let quizState = [];
+    let quizList = [];          /* 지금 화면에 그려 둔 분류의 문제들 */
+    let quizRenderedFor = '';   /* 그 문제들이 속한 분류 */
 
     function renderQuiz() {
-        quizState = CONCEPT_QUIZ.map(function () { return { tries: 0, wrong: [], solved: false }; });
+        const gTerms = {};
+        allConcepts().filter(function (c) { return c.group === conceptGroup; })
+            .forEach(function (c) { gTerms[c.term] = true; });
+        quizList = CONCEPT_QUIZ.filter(function (q) { return gTerms[q.concept]; });
+        quizState = quizList.map(function () { return { tries: 0, wrong: [], solved: false }; });
         el('quiz-body').innerHTML =
-            CONCEPT_QUIZ.map(function (q, i) {
+            quizList.map(function (q, i) {
                 return '<div class="border border-gray-200 rounded-xl p-4 mb-3">' +
                     '<div class="text-[11px] font-bold text-pinky-600 mb-1">' + escapeHtml(q.concept || '') + '</div>' +
                     '<p class="text-base font-bold text-gray-800 mb-3 leading-snug"><span class="text-pinky-600 mr-1">' + (i + 1) + '.</span>' + escapeHtml(q.q) + '</p>' +
@@ -3885,7 +3900,7 @@
     function answerQuiz(i, j) {
         const st = quizState[i];
         if (!st || st.solved) return;
-        const q = CONCEPT_QUIZ[i];
+        const q = quizList[i];
         const correct = j === q.answer;
 
         st.tries++;
@@ -3930,7 +3945,7 @@
     function updateQuizScore() {
         const solved = quizState.filter(function (s) { return s.solved; }).length;
         const once = quizState.filter(function (s) { return s.solved && s.tries === 1; }).length;
-        el('quiz-score').innerText = '푼 문제 ' + solved + ' / ' + CONCEPT_QUIZ.length + ' · 한 번에 맞힌 문제 ' + once + '개';
+        el('quiz-score').innerText = '푼 문제 ' + solved + ' / ' + quizList.length + ' · 한 번에 맞힌 문제 ' + once + '개';
     }
 
     /* =========================================================
@@ -4093,7 +4108,7 @@
     }
 
     function saveQuizRecord(qi, choice, correct, attempt) {
-        const q = CONCEPT_QUIZ[qi];
+        const q = quizList[qi];
         records.quiz.push({
             t: nowText(), nick: myNickname, no: qi + 1,
             concept: q.concept || '', attempt: attempt,
