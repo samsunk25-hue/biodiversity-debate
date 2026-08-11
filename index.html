@@ -197,6 +197,7 @@
     <!-- 화면 이동 메뉴 -->
     <nav class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm">
         <div class="max-w-4xl mx-auto px-4 py-2.5 flex items-center gap-2 overflow-x-auto">
+            <button id="nav-back" class="navbtn hidden" onclick="goBackScreen()" style="color:#b45309;border-color:#fcd34d;background:#fffbeb"><i class="fa-solid fa-arrow-left"></i> 이전</button>
             <button id="nav-home" class="navbtn" onclick="goHome()"><i class="fa-solid fa-house"></i> 처음</button>
             <span class="text-gray-300">›</span>
             <button id="nav-concept" class="navbtn" onclick="showSection('concept')"><i class="fa-solid fa-lightbulb"></i> 개념 정리</button>
@@ -1450,9 +1451,9 @@
     /* 첫 화면에서 바로 연습하기 : 연습을 고른 뒤 주제를 고르면 그 연습이 열린다 */
     let pendingPractice = null;
 
-    function openPracticePicker() {
+    function openPracticePicker(skipHistory) {
         pendingPractice = null;
-        hideAllSections();        /* 첫 화면의 활동 카드가 함께 보이지 않도록 */
+        hideAllSections(skipHistory);        /* 첫 화면의 활동 카드가 함께 보이지 않도록 */
         el('practice-topic-step').classList.add('hidden');
         ['check', 'hunt', 'fallacy'].forEach(function (k) {
             const b = el('pick-kind-' + k);
@@ -2899,7 +2900,66 @@
         box.innerHTML = html;
     }
 
-    function hideAllSections() {
+    /* ── 화면 기록: 바뀌기 직전 화면을 쌓아 두고 뒤로가기에 쓴다 ── */
+    const navHistory = [];
+    const SCREEN_INFO = {
+        'home':        { nav: 'home',     std: 'all',      name: '첫 화면' },
+        'sec-concept': { nav: 'concept',  std: 'concept',  name: '개념 정리' },
+        'sec-read':    { nav: 'read',     std: 'read',     name: '글 읽기' },
+        'sec-fallacy': { nav: 'practice', std: 'fallacy',  name: '오류 찾기' },
+        'sec-practice':{ nav: 'practice', std: 'practice', name: '근거찾기' },
+        'step-1':      { nav: 'debate',   std: 'debate',   name: '주제 고르기' },
+        'step-2':      { nav: 'debate',   std: 'debate',   name: '준비 화면' },
+        'step-2w':     { nav: 'debate',   std: 'debate',   name: '개요서 작성' },
+        'step-3':      { nav: 'debate',   std: 'debate',   name: '개요서' },
+        'step-4':      { nav: 'debate',   std: 'debate',   name: '개요서' },
+        'step-5':      { nav: 'debate',   std: 'debate',   name: '개요서' }
+    };
+    /* 지금 보이는 화면의 id */
+    function currentScreen() {
+        const picker = el('practice-topic-picker');
+        if (picker && !picker.classList.contains('hidden')) return 'picker';
+        for (let i = 0; i < SECTIONS.length; i++) {
+            const node = el(SECTIONS[i]);
+            if (node && !node.classList.contains('hidden')) return SECTIONS[i];
+        }
+        return '';
+    }
+    function updateBackBtn() {
+        const b = el('nav-back');
+        if (!b) return;
+        const prev = navHistory[navHistory.length - 1];
+        if (!prev) { b.classList.add('hidden'); return; }
+        b.classList.remove('hidden');
+        const label = prev === 'picker' ? '근거찾기 고르기' : ((SCREEN_INFO[prev] || {}).name || '이전');
+        b.innerHTML = '<i class="fa-solid fa-arrow-left"></i> ' + escapeHtml(label);
+        b.title = label + '(으)로 돌아가기';
+    }
+    /* 바로 앞 화면으로 되돌아간다 */
+    function goBackScreen() {
+        const prev = navHistory.pop();
+        if (!prev) return;
+        const skip = true;                 /* 되돌아갈 때는 기록을 쌓지 않는다 */
+        if (prev === 'picker') { openPracticePicker(skip); }
+        else {
+            hideAllSections(skip);
+            const node = el(prev);
+            if (node) node.classList.remove('hidden');
+            const info = SCREEN_INFO[prev];
+            if (info) { setActiveNav(info.nav); showStandard(info.std); }
+            window.scrollTo(0, 0);
+        }
+        updateBackBtn();
+    }
+
+    function hideAllSections(skipHistory) {
+        if (!skipHistory) {
+            const cur = currentScreen();
+            if (cur && navHistory[navHistory.length - 1] !== cur) {
+                navHistory.push(cur);
+                if (navHistory.length > 20) navHistory.shift();
+            }
+        }
         const picker = el('practice-topic-picker');
         if (picker) picker.classList.add('hidden');
         SECTIONS.forEach(function (id) {
@@ -2910,6 +2970,7 @@
 
     /* 위쪽 이동 메뉴에서 지금 있는 곳을 표시한다 */
     function setActiveNav(which) {
+        setTimeout(updateBackBtn, 0);
         ['home', 'concept', 'read', 'debate', 'practice'].forEach(function (k) {
             const btn = el('nav-' + k);
             if (btn) btn.classList.toggle('on', k === which);
