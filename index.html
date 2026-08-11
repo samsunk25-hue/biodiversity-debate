@@ -360,7 +360,7 @@
             <button onclick="goBackScreen()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>
             <div class="sec-head">
                 <h2>활동 3 · 오류 찾기 연습</h2>
-                <p>아래 글은 <b>앱이 그때그때 만들어 낸 허술한 주장글</b>입니다. 문장마다 무엇이 문제인지 골라 보세요.</p>
+                <p>아래 글은 <b>앱이 그때그때 만들어 낸 허술한 주장글</b>입니다. 문장마다 무엇이 문제인지 골라 보세요. 글의 주제는 위에 적혀 있습니다.</p>
             </div>
 
             <div class="flex flex-wrap gap-2 mb-4">
@@ -991,7 +991,7 @@
     </div>
 
     <!-- 학습 콘텐츠(개념·읽기 자료·토론 주제·맞춤법 규칙) -->
-    <script src="./content.js?v=20260801g"></script>
+    <script src="./content.js?v=20260801h"></script>
 
     <script>
 
@@ -1451,6 +1451,16 @@
 
     function pickPracticeKind(kind) {
         pendingPractice = kind;
+
+        /* 오류 찾기는 주제를 고르지 않고 바로 시작한다.
+           화면을 넘길 때 '연습 고르기'가 뒤로 기록에 남도록 순서를 지킨다. */
+        if (kind === 'fallacy') {
+            pendingPractice = null;
+            showSection('fallacy');
+            newFallacyText(0);
+            return;
+        }
+
         ['check', 'hunt', 'fallacy'].forEach(function (k) {
             const b = el('pick-kind-' + k);
             if (b) b.classList.toggle('ring-2', k === kind);
@@ -2981,7 +2991,7 @@
         } else if (which === 'fallacy') {
             el('sec-fallacy').classList.remove('hidden');
             setActiveNav('practice');
-            if (fallacyLines.length === 0) newFallacyText(1);
+            if (fallacyLines.length === 0) newFallacyText(0);
             showStandard('fallacy');
         } else if (which === 'debate') {
             el('step-1').classList.remove('hidden');
@@ -4009,22 +4019,18 @@
     }
 
     /* 주제 단추는 실제 주제 목록에서 만들어 늘 맞게 한다 */
-    function renderFallacyTopics() {
-        const box = el('fallacy-topics');
-        if (!box) return;
-        box.innerHTML = discussionData
-            .filter(function (t) { return FALLACY_BANK[t.id]; })
-            .map(function (t) {
-                const on = t.id === fallacyTopic;
-                const label = String(t.region).split(' · ').pop();
-                return '<button onclick="newFallacyText(' + t.id + ')" class="text-sm font-bold px-4 py-2.5 rounded-xl border-2 transition-colors ' +
-                    (on ? 'bg-pinky-100 border-pinky-400 text-pinky-700' : 'border-gray-200 bg-white text-gray-600 hover:border-pinky-300') + '">' +
-                    escapeHtml(label) + '</button>';
-            }).join('');
-    }
+
 
     function newFallacyText(topicId) {
-        if (topicId) fallacyTopic = topicId;
+        const ids = Object.keys(FALLACY_BANK);
+        if (topicId) {
+            fallacyTopic = topicId;
+        } else {
+            /* 주제를 고르지 않으면 지금 것과 다른 주제로 바꾼다 */
+            const others = ids.filter(function (k) { return String(k) !== String(fallacyTopic); });
+            const pool = others.length ? others : ids;
+            fallacyTopic = pool[Math.floor(Math.random() * pool.length)];
+        }
         const bank = FALLACY_BANK[fallacyTopic];
         if (!bank) return;
 
@@ -4044,7 +4050,6 @@
             return { i: i, key: k, text: pickOne(bank.lines[k]), tries: 0, solved: false, wrong: [] };
         });
 
-        renderFallacyTopics();
         el('fallacy-body').innerHTML =
             '<div class="bg-white rounded-2xl shadow-sm border-2 border-butter-200 p-6 mb-4">' +
                 '<div class="text-xs font-bold text-gray-500 mb-1">' + escapeHtml(bank.topic) + ' · 어느 학생이 썼다고 가정한 글</div>' +
