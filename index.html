@@ -316,7 +316,7 @@
             <div id="concept-body" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8"></div>
 
             <div class="bg-white rounded-2xl shadow-sm border-2 border-butter-200 p-6">
-                <h3 class="font-bold text-butter-700 mb-1"><i class="fa-solid fa-list-check mr-1"></i> 개념 확인 문제</h3>
+                <h3 class="font-bold text-butter-700 mb-1"><i class="fa-solid fa-list-check mr-1"></i> <span id="quiz-heading">개념 확인 문제</span></h3>
                 <p class="text-xs text-gray-500 mb-4">틀린 보기를 고르면 답을 알려 주지 않고 <b>힌트를 준 뒤 다시 고르게</b> 합니다.</p>
                 <div id="quiz-lock" class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center">
                     <i class="fa-solid fa-lock text-gray-400 text-2xl mb-2"></i>
@@ -3823,6 +3823,8 @@
        ========================================================= */
     let conceptGroup = CONCEPT_GROUPS[0].key;
     let viewedConcepts = {};
+    let activeConceptTerm = '';     /* 지금 보고 있는 개념 */
+    let quizStateByTerm = {};       /* 개념 이름 → 푼 기록 */
 
     /* 교사가 추가한 개념까지 합친 목록 */
     function allConcepts() {
@@ -3883,14 +3885,22 @@
 
     function toggleConcept(key) {
         const box = el('concept-detail-' + key);
+        if (!box) return;              /* 다른 묶음의 개념이면 화면에 없다 */
         const opening = box.classList.contains('hidden');
         box.classList.toggle('hidden');
+
+        if (opening) {
+            /* 방금 연 개념의 문제만 아래에 보여 준다 */
+            const c = allConcepts().filter(function (x) { return x.key === key; })[0];
+            if (c) activeConceptTerm = c.term;
+        }
+
         if (opening && !viewedConcepts[key]) {
             viewedConcepts[key] = true;
-            renderConcepts(conceptGroup);
-            const again = el('concept-detail-' + key);
-            if (again) again.classList.remove('hidden');
         }
+        renderConcepts(conceptGroup);
+        const again = el('concept-detail-' + key);
+        if (again && opening) again.classList.remove('hidden');
     }
 
     function updateConceptProgress() {
@@ -3905,7 +3915,7 @@
                 '<div class="flex items-center justify-between gap-2 mb-1">' +
                     '<span class="text-xs font-bold text-gray-600">확인한 개념 ' + seen + ' / ' + list.length + ' (이 묶음)</span>' +
                     '<span class="text-xs ' + (opened ? 'text-emerald-600 font-bold' : 'text-gray-400') + '">' +
-                        (opened ? '지금까지 확인한 개념의 문제 ' + opened + '개가 열렸습니다' : '개념 카드를 누르면 그 개념의 문제가 열립니다') + '</span>' +
+                        (activeConceptTerm ? '아래에 ‘' + escapeHtml(activeConceptTerm) + '’ 문제가 있습니다' : '개념 카드를 누르면 그 개념의 문제가 열립니다') + '</span>' +
                 '</div>' +
                 '<div class="h-2 rounded-full bg-gray-100 overflow-hidden">' +
                     '<div class="h-full ' + (seen === list.length && list.length ? 'bg-emerald-400' : 'bg-pinky-400') + ' rounded-full" style="width:' + (list.length ? Math.round(seen / list.length * 100) : 0) + '%"></div>' +
@@ -3920,11 +3930,10 @@
         return openedQuizList().length;
     }
 
-    /* 지금까지 확인한 개념의 문제만 모은다 */
+    /* 방금 연 개념의 문제만 모은다 */
     function openedQuizList() {
-        const seenTerms = {};
-        allConcepts().forEach(function (c) { if (viewedConcepts[c.key]) seenTerms[c.term] = true; });
-        return CONCEPT_QUIZ.filter(function (q) { return seenTerms[q.concept]; });
+        if (!activeConceptTerm) return [];
+        return CONCEPT_QUIZ.filter(function (q) { return q.concept === activeConceptTerm; });
     }
 
     /* --- 개념 확인 문제 : 틀리면 힌트를 주고 다시 고르게 한다 --- */
@@ -3945,16 +3954,18 @@
             quizList = [];
             return;
         }
+        el('quiz-heading').innerText = '‘' + activeConceptTerm + '’ 확인 문제';
         if (lock) lock.classList.add('hidden');
         body.classList.remove('hidden');
 
-        /* 이미 푼 문제는 그대로 두고, 새로 열린 문제만 더한다 */
-        const prev = {};
-        if (!reset) {
-            quizList.forEach(function (q, i) { prev[q.concept] = quizState[i]; });
-        }
+        /* 개념별로 푼 기록을 보관해 두어, 다시 열어도 그대로 보인다 */
         quizList = list;
-        quizState = quizList.map(function (q) { return prev[q.concept] || { tries: 0, wrong: [], solved: false }; });
+        quizState = quizList.map(function (q) {
+            if (reset || !quizStateByTerm[q.concept]) {
+                quizStateByTerm[q.concept] = { tries: 0, wrong: [], solved: false };
+            }
+            return quizStateByTerm[q.concept];
+        });
 
         body.innerHTML =
             quizList.map(function (q, i) {
@@ -4037,9 +4048,12 @@
     }
 
     function updateQuizScore() {
-        const solved = quizState.filter(function (s) { return s.solved; }).length;
-        const once = quizState.filter(function (s) { return s.solved && s.tries === 1; }).length;
-        el('quiz-score').innerText = '푼 문제 ' + solved + ' / ' + quizList.length + ' · 한 번에 맞힌 문제 ' + once + '개';
+        /* 지금 개념 하나만 화면에 있으므로, 점수는 지금까지 푼 것 전체로 센다 */
+        const all = Object.keys(quizStateByTerm).map(function (k) { return quizStateByTerm[k]; });
+        const solved = all.filter(function (s) { return s.solved; }).length;
+        const once = all.filter(function (s) { return s.solved && s.tries === 1; }).length;
+        const box = el('quiz-score');
+        if (box) box.innerText = '지금까지 푼 문제 ' + solved + '개 · 한 번에 맞힌 문제 ' + once + '개';
     }
 
     /* =========================================================
