@@ -201,7 +201,7 @@
             <span class="text-gray-300">›</span>
             <button id="nav-concept" class="navbtn" onclick="showSection('concept')"><i class="fa-solid fa-lightbulb"></i> 개념 정리</button>
             <button id="nav-read" class="navbtn" onclick="showSection('read')"><i class="fa-solid fa-book-open-reader"></i> 글 읽기</button>
-            <button id="nav-practice" class="navbtn" onclick="openPracticePicker()"><i class="fa-solid fa-dumbbell"></i> 연습</button>
+            <button id="nav-practice" class="navbtn" onclick="openPracticePicker()"><i class="fa-solid fa-dumbbell"></i> 근거찾기</button>
             <button id="nav-debate" class="navbtn" onclick="showSection('debate')"><i class="fa-solid fa-pen-to-square"></i> 토론 개요서</button>
         </div>
     </nav>
@@ -214,7 +214,7 @@
         <!-- 위쪽 '연습' 탭에서 여는 선택 카드 -->
         <div id="practice-topic-picker" class="hidden mb-6 bg-white border-2 border-pinky-200 rounded-2xl p-5">
             <div class="flex items-center justify-between gap-2 mb-3">
-                <p class="font-bold text-gray-800 text-lg">연습하기</p>
+                <p class="font-bold text-gray-800 text-lg">근거찾기</p>
                 <button onclick="cancelPracticePick()" class="text-sm font-bold text-gray-500 hover:text-gray-700 px-2 py-1">닫기</button>
             </div>
 
@@ -246,7 +246,7 @@
             <div class="sec-head">
                 <h2>어떤 활동부터 시작할까요?</h2>
                 <p>
-                    개념 정리 → 글 읽기 → 토론 개요서 차례로 하면 좋습니다. <b>연습은 선택</b>이며, 개요서는 연습 없이 바로 쓸 수 있습니다.
+                    개념 정리 → 글 읽기 → 토론 개요서 차례로 하면 좋습니다. <b>근거찾기는 선택</b>이며, 개요서는 연습 없이 바로 쓸 수 있습니다.
                 </p>
                 <p class="text-gray-400 text-sm mt-1">내 별명: <span id="nickname-badge" class="font-bold text-pinky-600"></span></p>
             </div>
@@ -281,7 +281,7 @@
                         <i class="fa-solid fa-dumbbell"></i>
                     </div>
                     <div class="text-sm font-bold text-pinky-600 mb-1">활동 3</div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-2">연습</h3>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">근거찾기</h3>
                     <p class="text-base text-gray-600 flex-grow leading-relaxed">자료 확인 과제와 근거 찾기 연습, 오류 찾기 연습을 합니다. <b>하지 않아도 개요서를 쓸 수 있고</b>, 해 두면 적어 둔 내용을 그대로 옮겨 쓸 수 있습니다.</p>
                     <div class="mt-4 pt-4 border-t border-gray-100 text-butter-700 font-bold text-sm flex items-center justify-between">
                         연습하러 가기 <i class="fa-solid fa-arrow-right"></i>
@@ -859,6 +859,14 @@
                         <div>
                             <label class="text-xs font-bold text-gray-600">글 읽기 활동</label>
                             <textarea id="adm-std-read" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="예) 글에서 사실과 의견, 주장과 근거를 구분할 수 있다."></textarea>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-600">근거찾기 활동</label>
+                            <textarea id="adm-std-practice" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="예) 주장을 뒷받침하는 근거를 자료에서 찾아 출처와 함께 제시할 수 있다."></textarea>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-600">오류 찾기 활동</label>
+                            <textarea id="adm-std-fallacy" rows="2" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="예) 글에서 논리적 오류와 근거 없는 표현을 찾아낼 수 있다."></textarea>
                         </div>
                         <div>
                             <label class="text-xs font-bold text-gray-600">토론 개요서 활동</label>
@@ -1508,6 +1516,7 @@
         el('practice-head').innerText = PRACTICE_TITLES[kind].split(' — ')[0];
         renderExcerpt(currentTopic, kind);
 
+        showStandard('practice');   // 화면에 맞는 개별 평가 기준을 보여 준다
         hideAllSections();
         el('sec-practice').classList.remove('hidden');
         window.scrollTo(0, 0);
@@ -3005,7 +3014,7 @@
             const label = goalWhere === 'concept' ? '개념 정리'
                 : (goalWhere === 'read' ? '글 읽기'
                 : (goalWhere === 'fallacy' ? '오류 찾기'
-                : (goalWhere === 'practice' ? '연습' : '토론 개요서')));
+                : (goalWhere === 'practice' ? '근거찾기' : '토론 개요서')));
             lines.push({ tag: label, text: s[goalWhere].trim() });
         }
 
@@ -3081,6 +3090,8 @@
         el('adm-std-all').value = s.all || '';
         el('adm-std-concept').value = s.concept || '';
         el('adm-std-read').value = s.read || '';
+        el('adm-std-practice').value = s.practice || '';
+        el('adm-std-fallacy').value = s.fallacy || '';
         el('adm-std-debate').value = s.debate || '';
         renderRubricRows();
         renderAdminReadings();
@@ -3444,6 +3455,8 @@
             all: el('adm-std-all').value,
             concept: el('adm-std-concept').value,
             read: el('adm-std-read').value,
+            practice: el('adm-std-practice').value,
+            fallacy: el('adm-std-fallacy').value,
             debate: el('adm-std-debate').value
         };
         if (persistAdmin()) {
