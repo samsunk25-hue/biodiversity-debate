@@ -306,9 +306,7 @@
 
         <!-- ===================== 활동 1 : 개념 정리 ===================== -->
         <section id="sec-concept" class="fade-in hidden">
-            <button onclick="goHome()" class="back-btn">
-                <i class="fa-solid fa-arrow-left"></i> 처음 화면으로
-            </button>
+            <button onclick="goBackScreen()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>
             <div class="sec-head">
                 <h2>활동 1 · 개념 정리</h2>
                 <p>카드를 눌러 자세한 설명과 ‘이렇게 오해하기 쉬워요’를 확인하세요. 모두 확인하면 문제가 열립니다.</p>
@@ -331,9 +329,7 @@
 
         <!-- ===================== 활동 2 : 글 읽기 ===================== -->
         <section id="sec-read" class="fade-in hidden">
-            <button onclick="goHome()" class="back-btn">
-                <i class="fa-solid fa-arrow-left"></i> 처음 화면으로
-            </button>
+            <button onclick="goBackScreen()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>
 
             <!-- 글 목록 -->
             <div id="read-list">
@@ -361,7 +357,7 @@
 
         <!-- ===================== 선택 활동 : 오류 찾기 연습 ===================== -->
         <section id="sec-fallacy" class="fade-in hidden">
-            <button onclick="goHome()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 처음 화면으로</button>
+            <button onclick="goBackScreen()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>
             <div class="sec-head">
                 <h2>활동 3 · 오류 찾기 연습</h2>
                 <p>아래 글은 <b>앱이 그때그때 만들어 낸 허술한 주장글</b>입니다. 문장마다 무엇이 문제인지 골라 보세요.</p>
@@ -382,13 +378,7 @@
         <!-- ===================== 바로 연습하기 화면 ===================== -->
         <section id="sec-practice" class="fade-in hidden">
             <div class="flex flex-wrap items-center gap-2 mb-4">
-                <button onclick="openPracticePicker()" class="back-btn" style="margin-bottom:0">
-                    <i class="fa-solid fa-arrow-left"></i> 근거찾기 고르기로
-                </button>
-                <span class="text-gray-300">|</span>
-                <button onclick="goToPrepareFromPractice()" class="back-btn" style="margin-bottom:0;border-color:#e5e7eb;color:#4b5563">
-                    이 주제로 개요서 쓰러 가기 <i class="fa-solid fa-arrow-right ml-0.5"></i>
-                </button>
+                <button onclick="goBackScreen()" class="back-btn" style="margin-bottom:0"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>
             </div>
 
             <div class="mb-5">
@@ -405,9 +395,7 @@
 
         <!-- ===================== 1단계 : 주제 선택 ===================== -->
         <section id="step-1" class="fade-in hidden">
-            <button onclick="goHome()" class="back-btn">
-                <i class="fa-solid fa-arrow-left"></i> 처음 화면으로
-            </button>
+            <button onclick="goBackScreen()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>
             <div class="sec-head">
                 <h2>활동 4 · 토론 개요서 작성</h2>
                 <p>토론할 주제를 고르세요. 토론 안내서에 실린 세 가지 주제입니다.</p>
@@ -417,9 +405,7 @@
 
         <!-- ===================== 2단계 : 의견 작성 ===================== -->
         <section id="step-2" class="fade-in hidden">
-            <button onclick="goBackToStep1()" class="back-btn">
-                <i class="fa-solid fa-arrow-left"></i> 다른 주제 선택하기
-            </button>
+            <button onclick="goBackScreen()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>
 
             <div class="bg-white rounded-2xl shadow-sm border border-pinky-100 p-6 md:p-8 mb-6">
                 <div class="inline-block bg-pinky-100 text-pinky-700 px-3 py-1 rounded-full text-sm font-bold mb-3" id="current-region-label">지역</div>
@@ -485,9 +471,7 @@
 
         <!-- ===================== 2단계-2 : 개요서 작성 ===================== -->
         <section id="step-2w" class="fade-in hidden">
-            <button onclick="backToPrepare()" class="back-btn">
-                <i class="fa-solid fa-arrow-left"></i> 준비 화면으로 (자료 확인 · 근거 찾기)
-            </button>
+            <button onclick="goBackScreen()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>
 
             <div class="bg-white rounded-2xl shadow-sm border border-pinky-100 p-6 md:p-8 mb-6">
                 <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-1" id="writing-topic-title">주제</h2>
@@ -690,7 +674,7 @@
 
         <!-- ============ 4단계 : 친구 생각 · 예상 반론 ============ -->
         <section id="step-4" class="fade-in hidden">
-            <button onclick="backToResult()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 내 글 다시 보기</button>
+            <button onclick="goBackScreen()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>
             <div class="sec-head">
                 <h2>친구들의 생각과 예상 반론</h2>
                 <p>다른 입장을 읽고, 상대가 던질 질문에 미리 답해 보세요. 답변을 저장하면 내 글과 함께 정리됩니다.</p>
@@ -752,7 +736,7 @@
 
         <!-- ============ 5단계 : 완성글 ============ -->
         <section id="step-5" class="fade-in hidden">
-            <button onclick="backToFriends()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 예상 반론 다시 보기</button>
+            <button onclick="goBackScreen()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>
             <div class="sec-head">
                 <h2>내 글과 반론 답변</h2>
                 <p>내가 쓴 주장·근거와 예상 반론에 대한 답변을 한자리에 모았습니다. 아래에서 하나의 글로 다듬으세요.</p>
@@ -1007,7 +991,7 @@
     </div>
 
     <!-- 학습 콘텐츠(개념·읽기 자료·토론 주제·맞춤법 규칙) -->
-    <script src="./content.js?v=20260801d"></script>
+    <script src="./content.js?v=20260801g"></script>
 
     <script>
 
@@ -4024,6 +4008,21 @@
         return list[Math.floor(Math.random() * list.length)];
     }
 
+    /* 주제 단추는 실제 주제 목록에서 만들어 늘 맞게 한다 */
+    function renderFallacyTopics() {
+        const box = el('fallacy-topics');
+        if (!box) return;
+        box.innerHTML = discussionData
+            .filter(function (t) { return FALLACY_BANK[t.id]; })
+            .map(function (t) {
+                const on = t.id === fallacyTopic;
+                const label = String(t.region).split(' · ').pop();
+                return '<button onclick="newFallacyText(' + t.id + ')" class="text-sm font-bold px-4 py-2.5 rounded-xl border-2 transition-colors ' +
+                    (on ? 'bg-pinky-100 border-pinky-400 text-pinky-700' : 'border-gray-200 bg-white text-gray-600 hover:border-pinky-300') + '">' +
+                    escapeHtml(label) + '</button>';
+            }).join('');
+    }
+
     function newFallacyText(topicId) {
         if (topicId) fallacyTopic = topicId;
         const bank = FALLACY_BANK[fallacyTopic];
@@ -4045,6 +4044,7 @@
             return { i: i, key: k, text: pickOne(bank.lines[k]), tries: 0, solved: false, wrong: [] };
         });
 
+        renderFallacyTopics();
         el('fallacy-body').innerHTML =
             '<div class="bg-white rounded-2xl shadow-sm border-2 border-butter-200 p-6 mb-4">' +
                 '<div class="text-xs font-bold text-gray-500 mb-1">' + escapeHtml(bank.topic) + ' · 어느 학생이 썼다고 가정한 글</div>' +
@@ -4328,9 +4328,7 @@
         view.classList.remove('hidden');
 
         let html =
-            '<button onclick="closeReading()" class="back-btn">' +
-                '<i class="fa-solid fa-arrow-left"></i> ' + (readingReturnTo === 'debate' ? '토론 개요서로 돌아가기' : '글 목록으로') +
-            '</button>' +
+            '<button onclick="goBackScreen()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>' +
             '<article class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8 mb-6">' +
                 '<div class="flex flex-wrap items-center gap-2 mb-3">' +
                     '<span class="text-[11px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded-full">' + escapeHtml(r.genre) + '</span>' +
