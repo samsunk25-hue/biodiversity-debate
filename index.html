@@ -339,7 +339,7 @@
             <div id="read-list">
                 <div class="sec-head">
                     <h2>활동 2 · 글 읽기와 분석</h2>
-                    <p>주제마다 찬성 쪽 2편, 반대 쪽 2편이 있습니다. 모두 실제로 발표된 글이며 원문으로 이어집니다.</p>
+                    <p>주제마다 서로 다른 관점의 글이 있습니다. 모두 실제로 발표된 글이며 원문으로 이어집니다.</p>
                 </div>
                 <div id="reading-cards" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8"></div>
 
@@ -1007,7 +1007,7 @@
     </div>
 
     <!-- 학습 콘텐츠(개념·읽기 자료·토론 주제·맞춤법 규칙) -->
-    <script src="./content.js?v=20260801-topics4"></script>
+    <script src="./content.js?v=20260801b"></script>
 
     <script>
 
@@ -4220,7 +4220,7 @@
         const box = el('reading-cards');
         if (!box) return;
 
-        /* 주제별로 묶어 보여 준다 (찬성 쪽 2편 · 반대 쪽 2편) */
+        /* 주제별로 묶어 보여 준다 */
         const list = allReadings();
         let html = '';
         discussionData.forEach(function (topic) {
@@ -4232,7 +4232,7 @@
                 '<div class="sm:col-span-2 mt-8 mb-2 border-l-4 border-pinky-300 pl-4">' +
                     '<div class="text-sm font-bold text-pinky-600 mb-1">' + escapeHtml(topic.region) + '</div>' +
                     '<h3 class="text-xl md:text-2xl font-bold text-gray-900 leading-snug">' + escapeHtml(topic.title) + '</h3>' +
-                    '<p class="text-sm text-gray-500 mt-1.5">글 ' + group.length + '편 · 찬성 쪽 ' + pro + '편 · 반대 쪽 ' + con + '편</p>' +
+                    '<p class="text-sm text-gray-500 mt-1.5">글 ' + group.length + '편</p>' +
                 '</div>' + group.map(readingCardHtml).join('');
         });
         const rest = list.filter(function (r) { return !r.topicId; });
@@ -4249,9 +4249,6 @@
             '<div class="flex items-center gap-2 mb-3 flex-wrap">' +
                 '<span class="w-9 h-9 bg-pinky-50 text-pinky-600 rounded-full flex items-center justify-center"><i class="fa-solid ' + r.icon + '"></i></span>' +
                 '<span class="text-[11px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded-full">' + escapeHtml(r.genre) + '</span>' +
-                (r.stance ? '<span class="text-[11px] font-bold px-2 py-1 rounded-full ' +
-                    (r.stance === 'pro' ? 'bg-butter-100 text-butter-700' : 'bg-pinky-100 text-pinky-700') + '">' +
-                    (r.stance === 'pro' ? '찬성 쪽' : '반대 쪽') + '</span>' : '') +
                 '<span class="text-[11px] text-gray-400">약 ' + r.minutes + '분</span>' +
             '</div>' +
             '<h3 class="font-bold text-gray-800 leading-snug mb-2">' + escapeHtml(r.title) + '</h3>' +
@@ -4337,9 +4334,6 @@
             '<article class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8 mb-6">' +
                 '<div class="flex flex-wrap items-center gap-2 mb-3">' +
                     '<span class="text-[11px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded-full">' + escapeHtml(r.genre) + '</span>' +
-                    (r.stance ? '<span class="text-[11px] font-bold px-2 py-1 rounded-full ' +
-                        (r.stance === 'pro' ? 'bg-butter-100 text-butter-700' : 'bg-pinky-100 text-pinky-700') + '">' +
-                        (r.stance === 'pro' ? '찬성 쪽 글' : '반대 쪽 글') + '</span>' : '') +
                     '<span class="text-[11px] text-gray-500">' + escapeHtml(r.region) + ' · 약 ' + r.minutes + '분</span>' +
                 '</div>' +
                 (r.stanceNote ? '<p class="text-xs text-gray-600 mb-2">' + escapeHtml(r.stanceNote) + '</p>' : '') +
