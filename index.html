@@ -203,7 +203,6 @@
             <button id="nav-read" class="navbtn" onclick="showSection('read')"><i class="fa-solid fa-book-open-reader"></i> 글 읽기</button>
             <button id="nav-practice" class="navbtn" onclick="openPracticePicker()"><i class="fa-solid fa-dumbbell"></i> 근거찾기</button>
             <button id="nav-debate" class="navbtn" onclick="showSection('debate')"><i class="fa-solid fa-pen-to-square"></i> 토론 개요서</button>
-            <button id="nav-board" class="navbtn" onclick="showSection('board')"><i class="fa-solid fa-users"></i> 모두의 기록</button>
         </div>
     </nav>
 
@@ -371,17 +370,6 @@
             </div>
 
             <div id="fallacy-body"></div>
-        </section>
-
-        <!-- ===================== 모두의 기록 ===================== -->
-        <section id="sec-board" class="fade-in hidden">
-            <button onclick="goBackScreen()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>
-            <div class="sec-head">
-                <h2>모두의 기록</h2>
-                <p>친구들이 활동한 결과를 <b>별명</b>으로 함께 봅니다. 이름이나 쓴 글은 올라가지 않습니다.</p>
-            </div>
-            <div id="board-state" class="text-xs text-gray-500 mb-3"></div>
-            <div id="board-body" class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5"></div>
         </section>
 
         <!-- ===================== 바로 연습하기 화면 ===================== -->
@@ -952,6 +940,10 @@
                         </div>
                     </div>
                     <p class="text-xs text-gray-500 mb-3">개념 확인 문제는 <b>틀려서 다시 고른 것까지 모두</b> 남습니다. 문장 분석 연습과 개요서 제출 결과도 함께 쌓입니다.</p>
+                    <div id="adm-cloud" class="hidden bg-butter-50 border border-butter-200 rounded-lg p-3 mb-3 text-xs text-gray-700 flex flex-wrap items-center gap-2">
+                        <span id="adm-cloud-state" class="flex-grow">지금은 이 기기의 기록만 보입니다. 모든 학생의 기록은 선생님 구글 계정으로 로그인해야 볼 수 있습니다.</span>
+                        <button id="adm-cloud-btn" onclick="teacherLogin()" class="font-bold bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-2.5 py-1.5 rounded-lg"><i class="fa-brands fa-google mr-1"></i> 구글로 로그인</button>
+                    </div>
                     <div id="adm-records"></div>
                 </div>
 
@@ -2823,7 +2815,7 @@
     /* =========================================================
        15. 화면 이동 (개념 정리 · 글 읽기 · 토론 개요서)
        ========================================================= */
-    const SECTIONS = ['home', 'sec-concept', 'sec-read', 'sec-fallacy', 'sec-board', 'sec-practice', 'step-1', 'step-2', 'step-2w', 'step-3', 'step-4', 'step-5'];
+    const SECTIONS = ['home', 'sec-concept', 'sec-read', 'sec-fallacy', 'sec-practice', 'step-1', 'step-2', 'step-2w', 'step-3', 'step-4', 'step-5'];
 
     /* 등록 뒤 화면 흐름 : 내 글 → 친구 생각·예상 반론 → 완성글 */
     function goToFriends() {
@@ -2919,7 +2911,6 @@
         'sec-read':    { nav: 'read',     std: 'read',     name: '글 읽기' },
         'sec-fallacy': { nav: 'practice', std: 'fallacy',  name: '오류 찾기' },
         'sec-practice':{ nav: 'practice', std: 'practice', name: '근거찾기' },
-        'sec-board':   { nav: 'board',    std: 'all',      name: '모두의 기록' },
         'step-1':      { nav: 'debate',   std: 'debate',   name: '주제 고르기' },
         'step-2':      { nav: 'debate',   std: 'debate',   name: '준비 화면' },
         'step-2w':     { nav: 'debate',   std: 'debate',   name: '개요서 작성' },
@@ -2983,7 +2974,7 @@
     /* 위쪽 이동 메뉴에서 지금 있는 곳을 표시한다 */
     function setActiveNav(which) {
         setTimeout(updateBackBtn, 0);
-        ['home', 'concept', 'read', 'debate', 'practice', 'board'].forEach(function (k) {
+        ['home', 'concept', 'read', 'debate', 'practice'].forEach(function (k) {
             const btn = el('nav-' + k);
             if (btn) btn.classList.toggle('on', k === which);
         });
@@ -3009,10 +3000,6 @@
         } else if (which === 'debate') {
             el('step-1').classList.remove('hidden');
             showStandard('debate');
-        } else if (which === 'board') {
-            el('sec-board').classList.remove('hidden');
-            renderBoard();
-            showStandard('all');
         } else {
             el('home').classList.remove('hidden');
             showStandard('all');
@@ -3286,20 +3273,20 @@
         const box = el('adm-records');
         if (!box) return;
         fillStudentPicker();
-        if (records.quiz.length === 0 && records.analysis.length === 0 && (records.debate || []).length === 0) {
+        if (summarizeStudents().length === 0) {
             box.innerHTML = '<p class="text-xs text-gray-400">아직 기록이 없습니다. 학생이 문제를 풀거나 문장 분석을 채점하면 여기에 쌓입니다.</p>';
             return;
         }
 
         let html = '<p class="text-xs font-bold text-gray-700 mb-1">학생별 학습 결과 (모아 보기)</p>' +
-            studentTableHtml(summarizeStudents(), '');
+            studentTableHtml(summarizeStudents());
 
         html += recordDetailsHtml();
         box.innerHTML = html;
     }
 
-    /* 학생별 결과 표 — 관리자 페이지와 '모두의 기록'이 함께 쓴다 */
-    function studentTableHtml(students, me) {
+    /* 학생별 결과 표 */
+    function studentTableHtml(students) {
         let html =
             '<div class="overflow-x-auto mb-4"><table class="w-full text-xs border-collapse">' +
             '<thead><tr class="bg-gray-50">' +
@@ -3318,9 +3305,8 @@
                 .sort(function (a, b) { return s.weakConcepts[b] - s.weakConcepts[a]; })
                 .slice(0, 2).join(', ');
             const anRate = s.anTotal ? Math.round(s.anRight / s.anTotal * 100) + '%' : '-';
-            const mine = me && s.nick === me;
-            html += '<tr' + (mine ? ' class="bg-pinky-50"' : '') + '>' +
-                '<td class="border border-gray-200 p-2 font-bold text-gray-800 whitespace-nowrap">' + escapeHtml(s.nick) + (mine ? ' <span class="text-pinky-600">(나)</span>' : '') + '</td>' +
+            html += '<tr>' +
+                '<td class="border border-gray-200 p-2 font-bold text-gray-800 whitespace-nowrap">' + escapeHtml(s.nick) + '</td>' +
                 '<td class="border border-gray-200 p-2 text-center">' + s.solved + ' / ' + s.tries + '</td>' +
                 '<td class="border border-gray-200 p-2 text-center">' + s.first + '</td>' +
                 '<td class="border border-gray-200 p-2 text-center">' + anRate + (s.anCount ? ' <span class="text-gray-400">(' + s.anCount + '회)</span>' : '') + '</td>' +
@@ -3400,29 +3386,8 @@
         return html;
     }
 
-    /* --- 모두의 기록 화면 --- */
-    function renderBoard() {
-        const body = el('board-body');
-        if (!body) return;
-        const state = el('board-state');
-        if (state) {
-            state.innerHTML = cloudDb
-                ? '<i class="fa-solid fa-cloud text-emerald-500 mr-1"></i> 모든 기기의 기록이 함께 보입니다. 새 기록은 바로 반영됩니다.'
-                : '<i class="fa-solid fa-laptop text-gray-400 mr-1"></i> 지금은 <b>이 기기에서 한 활동</b>만 보입니다.';
-        }
-        const students = summarizeStudents();
-        if (students.length === 0) {
-            body.innerHTML = '<p class="text-sm text-gray-500">아직 기록이 없습니다. 개념 문제나 오류 찾기를 풀면 여기에 쌓입니다.</p>';
-            return;
-        }
-        body.innerHTML = '<p class="text-sm text-gray-600 mb-3">내 별명은 <b class="text-pinky-700">' + escapeHtml(myNickname) + '</b>입니다.</p>' +
-            studentTableHtml(students, myNickname);
-    }
-
     /* 기록이 바뀌면 열려 있는 기록 화면을 다시 그린다 */
     function refreshRecordViews() {
-        const board = el('sec-board');
-        if (board && !board.classList.contains('hidden')) renderBoard();
         const panel = el('admin-panel');
         if (panel && !panel.classList.contains('hidden')) renderRecords();
     }
@@ -3453,7 +3418,7 @@
     }
 
     function clearRecords() {
-        if (cloudDb) { showToast('모두의 기록은 Firebase 콘솔에서 지웁니다.', 'error'); return; }
+        if (cloudView) { showToast('모든 학생의 기록은 Firebase 콘솔에서 지웁니다.', 'error'); return; }
         if (!confirm('쌓인 학습 기록을 모두 지울까요? 되돌릴 수 없습니다.')) return;
         records = { quiz: [], analysis: [], debate: [], fallacy: [], summary: [] };
         persistRecords();
@@ -4288,25 +4253,27 @@
     }
 
     function persistRecords() {
+        if (cloudView) return;      /* 모든 학생 기록을 보는 중에는 이 기기 저장소를 덮지 않는다 */
         try { localStorage.setItem(RECORD_KEY, JSON.stringify(records)); } catch (e) { /* 저장 불가 */ }
     }
 
-    /* 기록 하나를 더한다. Firebase가 켜져 있으면 그곳에 올리고,
-       화면은 Firebase가 돌려주는 목록으로 다시 그린다. */
+    /* 기록 하나를 더한다. 이 기기에 남기고, Firebase가 켜져 있으면 그곳에도 올린다.
+       학생은 올리기만 하고, 읽기는 선생님 계정만 할 수 있다(firestore.rules). */
     function addRecord(kind, rec) {
         if (cloudDb) {
             cloudDb.collection('records').add({ kind: kind, nick: rec.nick, ms: Date.now(), rec: rec })
-                .catch(function () { showToast('기록을 올리지 못했어요. 인터넷 연결을 확인하세요.', 'error'); });
-            return;
+                .catch(function () { /* 연결이 없으면 이 기기 기록으로만 남는다 */ });
         }
+        if (cloudView) return;      /* 선생님 화면은 Firebase 목록으로 다시 그려진다 */
         records[kind].push(rec);
         if (records[kind].length > 2000) records[kind] = records[kind].slice(-2000);
         persistRecords();
         refreshRecordViews();
     }
 
-    /* ── 모두의 기록: firebase-config.js에 설정이 있으면 Firestore와 이어 붙인다 ── */
+    /* ── Firebase: firebase-config.js에 설정이 있으면 기록을 Firestore에 모은다 ── */
     let cloudDb = null;
+    let cloudView = false;
     const FIREBASE_SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
 
     function loadScript(src) {
@@ -4324,6 +4291,21 @@
             .then(function () {
                 firebase.initializeApp(FIREBASE_CONFIG);
                 cloudDb = firebase.firestore();
+                const box = el('adm-cloud');
+                if (box) box.classList.remove('hidden');
+            })
+            .catch(function () { cloudDb = null; });
+    }
+
+    /* 선생님 구글 계정으로 로그인해 모든 학생의 기록을 불러온다 */
+    function teacherLogin() {
+        if (!cloudDb) { showToast('Firebase에 연결되지 않았어요.', 'error'); return; }
+        const state = el('adm-cloud-state');
+        const ready = (typeof firebase.auth === 'function') ? Promise.resolve() : loadScript(FIREBASE_SDK + 'firebase-auth-compat.js');
+        ready
+            .then(function () { return firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()); })
+            .then(function (res) {
+                const email = (res.user && res.user.email) || '';
                 cloudDb.collection('records').orderBy('ms', 'desc').limit(5000).onSnapshot(function (snap) {
                     const next = { quiz: [], analysis: [], debate: [], fallacy: [], summary: [] };
                     snap.forEach(function (doc) {
@@ -4331,13 +4313,19 @@
                         if (next[d.kind] && d.rec) next[d.kind].push(d.rec);
                     });
                     Object.keys(next).forEach(function (k) { next[k].reverse(); });
+                    cloudView = true;
                     records = next;
+                    state.innerHTML = '<b class="text-emerald-700">' + escapeHtml(email) + '</b> 계정으로 모든 학생의 기록을 보고 있습니다. 새 기록은 바로 반영됩니다.';
+                    el('adm-cloud-btn').classList.add('hidden');
                     refreshRecordViews();
                 }, function () {
-                    showToast('모두의 기록을 불러오지 못했어요.', 'error');
+                    state.innerHTML = '<b class="text-rose-700">' + escapeHtml(email) + '</b> 계정은 학생 기록을 볼 권한이 없습니다. 선생님 계정으로 다시 로그인하세요.';
+                    firebase.auth().signOut();
                 });
             })
-            .catch(function () { cloudDb = null; });
+            .catch(function (e) {
+                showToast('로그인하지 못했어요. ' + ((e && e.code) || ''), 'error');
+            });
     }
 
     function nowText() {
