@@ -7,4 +7,11 @@
 
    null로 두면 기록은 지금처럼 이 브라우저에만 저장된다.
    ========================================================= */
-const FIREBASE_CONFIG = null;
+const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyD7oKXvbl4ZzWlFAneIy999Z5RpJ2fJ47c",
+    authDomain: "bio-deb.firebaseapp.com",
+    projectId: "bio-deb",
+    storageBucket: "bio-deb.firebasestorage.app",
+    messagingSenderId: "683619465832",
+    appId: "1:683619465832:web:2677e40bb033a908ca59dd"
+};
