@@ -140,9 +140,9 @@
 
 학생 기록은 Firebase(Firestore)에 모이고, **선생님 구글 계정으로만** 읽을 수 있습니다. 학생은 기록을 올리기만 합니다.
 
-1. Firebase 콘솔에서 Firestore Database를 만들고, **규칙** 탭에 [firestore.rules](firestore.rules)를 붙여 넣습니다. 이때 을 선생님 구글 계정 주소로 바꿉니다.
+1. Firebase 콘솔에서 Firestore Database를 만들고, **규칙** 탭에 [firestore.rules](firestore.rules)를 붙여 넣습니다. 이때 `TEACHER_EMAIL`을 선생님 구글 계정 주소로 바꿉니다.
 2. **Authentication > 로그인 방법**에서 **Google**을 사용 설정합니다.
-3. **Authentication > 설정 > 승인된 도메인**에 를 추가합니다.
+3. **Authentication > 설정 > 승인된 도메인**에 `samsunk25-hue.github.io`를 추가합니다.
 4. 앱의 관리자 페이지 > 학생 학습 기록에서 **구글로 로그인**을 누르면 모든 학생의 기록이 보입니다.
 
-올라가는 값은 별명과 활동 결과뿐입니다. 기록을 지울 때는 Firebase 콘솔의  컬렉션에서 지웁니다.
+올라가는 값은 별명과 활동 결과뿐입니다. 기록을 지울 때는 Firebase 콘솔의 `records` 컬렉션에서 지웁니다.
