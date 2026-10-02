@@ -641,6 +641,9 @@
                 </span>
             </div>
 
+            <!-- 맞춤법 검사 결과 (한글 맞춤법·표준어 규정 근거) -->
+            <div id="result-spell" class="mb-6"></div>
+
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- 내 의견 -->
                 <div class="bg-white rounded-2xl shadow-sm border-2 border-pinky-200 p-6 flex flex-col h-full">
@@ -985,7 +988,7 @@
     </div>
 
     <!-- 학습 콘텐츠(개념·읽기 자료·토론 주제·맞춤법 규칙) -->
-    <script src="./content.js?v=20261002b"></script>
+    <script src="./content.js?v=20261002c"></script>
     <script src="./firebase-config.js?v=20261002a"></script>
 
     <script>
@@ -1003,18 +1006,74 @@
             '닥쳐라','꺼져라','꺼지라','엿먹','뒈져','뒤져라','죽여버','죽어버려','죽을래',
             '느금마','니애미','니애비','앰창','애미없','호로자식','후레자식',
             '씹새','씹할','씹창','썩을놈','빌어먹을',
+            '개같','개좆','좃같','븅신','빙신','찐따',
+            '틀딱','급식충','맘충','한남충','김치녀','된장녀','짱깨','쪽바리',
             'fuck','fucking','shit','bitch','bastard','asshole'
         ];
         // (1) 특수문자·숫자를 끼워 넣은 우회 표기용 : 시*발, 시1발, 씨~발
         //     공백은 지우지 않는다. ("동시 발생", "무시 발생" 같은 정상 문장 오탐 방지)
-        const LOOSE_SYMBOL = ['시발','씨발','씨팔','시팔','개새끼','지랄','씹새','좆'];
+        const LOOSE_SYMBOL = ['시발','씨발','씨팔','시팔','개새끼','지랄','씹새','좆','병신','존나'];
         // (2) 초성 축약 : 공백까지 지우고 검사해도 우연히 만들어질 수 없는 형태만
-        const LOOSE_JAMO = ['ㅅㅂ','ㅆㅂ','ㅄ','ㅂㅅ','ㅈㄹ','ㄲㅈ','ㅅㄲ','ㄴㄱㅁ','ㅁㅊㄴ','ㅗ'];
+        const LOOSE_JAMO = ['ㅅㅂ','ㅆㅂ','ㅄ','ㅂㅅ','ㅈㄹ','ㄲㅈ','ㅅㄲ','ㄴㄱㅁ','ㅁㅊㄴ','ㅁㅊ','ㅈㄴ','ㄷㅊ','ㅗ'];
         // 거친 표현·인신공격 : 경고 후 등록 가능
         const MILD = [
             '바보','멍청','한심','찌질','재수없','짜증나','밥맛없','무식',
-            '닥쳐','꺼져','같잖','어이없네','못생','띨빵','띨띨'
+            '닥쳐','꺼져','같잖','어이없네','못생','띨빵','띨띨',
+            '빡치','빡쳐','쪽팔','꼴통','꼰대','미친','정신나간','정신 나간','짜증'
         ];
+
+        // 줄임말·인터넷 말투 : 고쳐 쓸 말을 알려 주고, 거친 표현처럼 한 번 더 누르면 등록된다
+        //   w : 화면에 보여 줄 부분(정규식 묶음 번호), fix : 고쳐 쓸 말
+        const SLANG = [
+            { re: /ㅋ{2,}|ㅎ{2,}|[ㅠㅜ]{2,}/g, fix: '지우기' },
+            { re: /(^|[^ㄱ-ㅎ])(ㅇㅇ|ㅇㅋ|ㄱㄱ|ㄴㄴ|ㄹㅇ|ㅇㅈ|ㅈㅅ|ㄱㅅ|ㅊㅋ|ㄷㄷ|ㅂㅂ|ㅅㄱ|ㅇㄱㄹㅇ)(?![ㄱ-ㅎ])/g, w: 2, fix: '낱말로 풀어 쓰기' },
+            { re: /(개|핵|존)(좋|많|싫|웃기|웃겨|잘|쩔|빡|귀찮|어렵|쉽|중요|심각|이득|꿀|맛)/g, fix: function (m) { return '아주 ' + m[2] + '…'; } },
+            { re: /레알/g, fix: '정말' },
+            { re: /존잼|꿀잼/g, fix: '아주 재미있다' },
+            { re: /핵?노잼/g, fix: '재미없다' },
+            { re: /갑분싸/g, fix: '갑자기 분위기가 어색해졌다' },
+            { re: /별다줄/g, fix: '줄이지 말고 풀어 쓰기' },
+            { re: /킹받/g, fix: '화가 나' },
+            { re: /[어저]쩔티비/g, fix: '지우기' },
+            { re: /실화냐/g, fix: '정말이냐' },
+            { re: /팩폭/g, fix: '사실을 근거로 한 지적' },
+            { re: /쌉가능/g, fix: '충분히 가능하다' },
+            { re: /쌉인정|인정각/g, fix: '인정한다' },
+            { re: /극혐/g, fix: '매우 싫다' },
+            { re: /넘사벽/g, fix: '넘을 수 없는 차이' },
+            { re: /사바사/g, fix: '사람마다 다르다' },
+            { re: /케바케/g, fix: '경우마다 다르다' },
+            { re: /솔까말|솔까/g, fix: '솔직히 말하면' },
+            { re: /안물안궁/g, fix: '지우기' },
+            { re: /현타/g, fix: '허탈함' },
+            { re: /쩐다|쩔어|쩔었|지린다|지리네|지렸|오지네|오진다|오졌/g, fix: '대단하다' },
+            { re: /대박/g, fix: '놀랍다' },
+            { re: /인싸/g, fix: '인기 많은 사람' },
+            { re: /아싸(?![가-힣])/g, fix: '어울리지 못하는 사람' },
+            { re: /갠적/g, fix: '개인적' },
+            { re: /(^|[^가-힣])걍(?![가-힣])/g, w: 0, fix: '그냥' },
+            { re: /어케/g, fix: '어떻게' },
+            { re: /왜케/g, fix: '왜 이렇게' },
+            { re: /넘나/g, fix: '너무나' },
+            { re: /쌤/g, fix: '선생님' },
+            { re: /셤(?![가-힣])/g, fix: '시험' },
+            { re: /겜(?![가-힣])/g, fix: '게임' },
+            { re: /담주/g, fix: '다음 주' },
+            { re: /\bTMI\b/gi, fix: '지나치게 많은 정보' }
+        ];
+
+        function findSlang(text) {
+            const hits = [];
+            SLANG.forEach(function (rule) {
+                const re = new RegExp(rule.re.source, rule.re.flags.replace('g', ''));
+                const m = re.exec(text);
+                if (!m) return;
+                const word = String(rule.w ? m[rule.w] : m[0]).trim();
+                const fix = typeof rule.fix === 'function' ? rule.fix(m) : rule.fix;
+                if (word && !hits.some(function (h) { return h.word === word; })) hits.push({ word: word, fix: fix });
+            });
+            return hits;
+        }
 
         // 개인정보 패턴
         const PII_RULES = [
@@ -1080,17 +1139,18 @@
 
         return {
             check: function (text) {
-                if (!text) return { severe: [], mild: [], pii: [], clean: true };
+                if (!text) return { severe: [], mild: [], slang: [], pii: [], clean: true };
                 const severeExact = findWords(text, SEVERE);
                 const bySymbol = findVariant(text, LOOSE_SYMBOL, stripSymbols, severeExact);
                 const found = severeExact.concat(bySymbol);
                 const byJamo = findVariant(text, LOOSE_JAMO, stripAll, found);
                 const severe = found.concat(byJamo);
                 const mild = findWords(text, MILD);
+                const slang = findSlang(text);
                 const pii = findPii(text);
                 return {
-                    severe: severe, mild: mild, pii: pii,
-                    clean: severe.length === 0 && mild.length === 0 && pii.length === 0
+                    severe: severe, mild: mild, slang: slang, pii: pii,
+                    clean: severe.length === 0 && mild.length === 0 && slang.length === 0 && pii.length === 0
                 };
             },
             mask: mask,
@@ -2392,6 +2452,18 @@
         }
     }
 
+    /* 검사할 글 전체 — 논점·주장·근거·상대측 예상 주장·반론 */
+    function fullText() {
+        const parts = FIELDS.map(function (f) { const n = el(f.id); return n ? n.value : ''; });
+        for (let n = 1; n <= ISSUE_COUNT; n++) {
+            ['issue-name-', 'oppose-', 'rebut-'].forEach(function (p) {
+                const node = el(p + n);
+                if (node) parts.push(node.value);
+            });
+        }
+        return parts.join('\n');
+    }
+
     function allText() {
         return FIELDS.map(function (f) { return el(f.id).value; }).join('\n');
     }
@@ -2401,7 +2473,7 @@
         mildConfirmed = false;
         resetSubmitButton();
         updateSelfCheck();
-        const result = BadWordFilter.check(allText());
+        const result = BadWordFilter.check(fullText());
         if (result.clean) hideFilterPanel();
         else renderFilterPanel(result, false);
 
@@ -2466,6 +2538,12 @@
                 result.mild.map(function (w) { return escapeHtml(BadWordFilter.mask(w)); }).join(', ');
             list.appendChild(li);
         }
+        if (result.slang && result.slang.length > 0) {
+            const li = document.createElement('li');
+            li.innerHTML = '<b>줄임말·인터넷 말투</b>가 있어요 — ' +
+                result.slang.map(function (h) { return '‘' + escapeHtml(h.word) + '’ → ' + escapeHtml(h.fix); }).join(', ');
+            list.appendChild(li);
+        }
 
         if (isSevere) {
             el('filter-title').innerText = blocking ? '이대로는 등록할 수 없어요.' : '수정이 필요한 내용이 있어요.';
@@ -2473,8 +2551,8 @@
                 ? '이름·학교·학년/반·연락처·주소·아이디 같은 개인정보는 쓰지 않아도 토론에 아무 문제가 없어요. 해당 부분을 지우고 다시 등록해 주세요.'
                 : '토론은 사람이 아니라 주장을 상대로 하는 거예요. 비속어를 지우고 근거 중심으로 바꿔 볼까요?';
         } else {
-            el('filter-title').innerText = blocking ? '이 표현, 그대로 등록할까요?' : '조금 더 부드럽게 바꿔 볼까요?';
-            el('filter-help').innerText = '예) “바보 같은 주장” → “근거가 부족한 주장”. 그래도 등록하려면 등록 버튼을 한 번 더 누르세요.';
+            el('filter-title').innerText = blocking ? '이 표현, 그대로 등록할까요?' : '바른 말로 바꿔 볼까요?';
+            el('filter-help').innerText = '개요서는 토론에서 발표하는 글이라 줄임말이나 인터넷 말투 대신 바른 말로 씁니다. 예) “바보 같은 주장” → “근거가 부족한 주장”, “레알” → “정말”. 그래도 등록하려면 등록 버튼을 한 번 더 누르세요.';
         }
 
         filterPanel.classList.remove('hidden');
@@ -2543,7 +2621,7 @@
         }
 
         // (2) 바른 말 · 개인정보 검사
-        const result = BadWordFilter.check(allText());
+        const result = BadWordFilter.check(fullText());
 
         if (result.pii.length > 0) {
             renderFilterPanel(result, true);
@@ -2557,12 +2635,14 @@
             showToast("욕설·비속어가 포함되어 등록할 수 없어요.", "error");
             return;
         }
-        if (result.mild.length > 0 && !mildConfirmed) {
+        if ((result.mild.length > 0 || result.slang.length > 0) && !mildConfirmed) {
             mildConfirmed = true;
             renderFilterPanel(result, true);
             submitBtn.className = "bg-butter-500 hover:bg-butter-600 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-transform transform hover:-translate-y-1";
             submitBtn.innerHTML = '표현을 확인했어요. 그대로 등록하기 <i class="fa-solid fa-check ml-1"></i>';
-            showToast("거친 표현이 있어요. 다듬거나 한 번 더 누르면 등록됩니다.", "error");
+            showToast(result.slang.length > 0 && result.mild.length === 0
+                ? "줄임말이나 인터넷 말투가 있어요. 고치거나 한 번 더 누르면 등록됩니다."
+                : "거친 표현이 있어요. 다듬거나 한 번 더 누르면 등록됩니다.", "error");
             return;
         }
 
@@ -2585,9 +2665,9 @@
         step3.classList.remove('hidden');
         window.scrollTo(0, 0);
 
-        const spell = findSpellIssues(allText()).length;
+        const spell = renderResultSpell();
         showToast(spell > 0
-            ? '등록했습니다. 맞춤법에서 고칠 곳 ' + spell + '군데가 보여요.'
+            ? '등록했습니다. 맞춤법에서 고칠 곳 ' + spell + '군데가 보여요(위쪽 맞춤법 검사 참고).'
             : '성공적으로 등록되었습니다!', 'success');
     }
 
@@ -4874,19 +4954,53 @@
     function findSpellIssues(text) {
         const found = [];
         SPELL_RULES.forEach(function (rule) {
-            rule.re.lastIndex = 0;
-            const m = text.match(rule.re);
-            if (m && m.length) {
-                found.push({ wrong: m[0], fix: String(rule.fix).replace(/\$1/, '').trim(), why: rule.why, count: m.length });
-            }
+            const re = new RegExp(rule.re.source, rule.re.flags.replace('g', ''));
+            const m = re.exec(text);
+            if (!m) return;
+            /* 뒤 문맥을 보는 규칙이 있어, 찾은 자리부터 바꿔 본 뒤 그만큼만 잘라 낸다 */
+            const rest = text.slice(m.index);
+            const fixed = rest.replace(re, rule.fix);
+            const wrong = m[0].trim();
+            const fix = fixed.slice(0, m[0].length + fixed.length - rest.length).trim();
+            /* 앞 규칙이 이미 더 넓게 잡은 표현이면 다시 알리지 않는다 (예: 안되요 / 되요) */
+            if (found.some(function (f) { return f.wrong.indexOf(wrong) !== -1; })) return;
+            const all = text.match(new RegExp(rule.re.source, rule.re.flags.indexOf('g') === -1 ? rule.re.flags + 'g' : rule.re.flags));
+            found.push({ wrong: wrong, fix: fix, why: rule.why, ref: rule.ref || '', count: all ? all.length : 1 });
         });
         return found;
+    }
+
+    function spellListHtml(issues) {
+        return '<ul class="mt-1.5 space-y-1">' +
+            issues.map(function (it) {
+                return '<li class="border-l-2 border-pinky-300 pl-2">‘<b>' + escapeHtml(it.wrong) + '</b>’ → ‘<b class="text-emerald-700">' + escapeHtml(it.fix) + '</b>’ — ' +
+                    escapeHtml(it.why) +
+                    ' <span class="text-gray-400 whitespace-nowrap">(' + escapeHtml(it.ref || '국어사전') + ')</span></li>';
+            }).join('') + '</ul>';
+    }
+
+    /* 등록 뒤 맞춤법 검사 결과 — 근거 조항과 함께 보여 준다 */
+    function renderResultSpell() {
+        const box = el('result-spell');
+        if (!box) return 0;
+        const issues = findSpellIssues(fullText());
+        if (issues.length === 0) {
+            box.innerHTML = '<div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-sm text-emerald-800">' +
+                '<i class="fa-solid fa-spell-check mr-1"></i> <b>맞춤법 검사</b> — 「한글 맞춤법·표준어 규정」 기준으로 고칠 곳을 찾지 못했습니다. ' +
+                '규칙으로 찾는 검사라 모든 오류를 잡지는 못하니 한 번 더 소리 내어 읽어 보세요.</div>';
+            return 0;
+        }
+        box.innerHTML = '<div class="bg-white border-2 border-butter-300 rounded-xl p-4 text-sm text-gray-700">' +
+            '<div class="font-bold text-gray-800"><i class="fa-solid fa-spell-check text-butter-600 mr-1"></i> 맞춤법 검사 — 고칠 곳 ' + issues.length + '군데</div>' +
+            '<p class="text-xs text-gray-500 mt-1">국립국어원 「한글 맞춤법, 표준어 규정 해설」(2018)의 조항에 근거했습니다. ‘뒤로’를 눌러 고친 뒤 다시 등록할 수 있습니다.</p>' +
+            spellListHtml(issues) + '</div>';
+        return issues.length;
     }
 
     function runSpellCheck() {
         const box = el('spell-result');
         if (!box) return 0;
-        const text = FIELDS.map(function (f) { const n = el(f.id); return n ? n.value : ''; }).join('\n');
+        const text = fullText();
         if (text.trim() === '') {
             box.className = 'text-xs text-gray-500 leading-relaxed';
             box.innerHTML = '글을 쓰기 시작하면 자주 틀리는 표현을 찾아 알려 줍니다.';
@@ -4899,10 +5013,7 @@
             return 0;
         }
         box.className = 'text-xs text-gray-700 leading-relaxed';
-        box.innerHTML = '<b class="text-pinky-700">고칠 곳 ' + issues.length + '군데</b><ul class="mt-1.5 space-y-1">' +
-            issues.map(function (it) {
-                return '<li class="border-l-2 border-pinky-300 pl-2">‘<b>' + escapeHtml(it.wrong) + '</b>’ → ‘<b class="text-emerald-700">' + escapeHtml(it.fix) + '</b>’ — ' + escapeHtml(it.why) + '</li>';
-            }).join('') + '</ul>';
+        box.innerHTML = '<b class="text-pinky-700">고칠 곳 ' + issues.length + '군데</b>' + spellListHtml(issues);
         return issues.length;
     }
 
