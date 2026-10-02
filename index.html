@@ -203,6 +203,7 @@
             <button id="nav-read" class="navbtn" onclick="showSection('read')"><i class="fa-solid fa-book-open-reader"></i> 글 읽기</button>
             <button id="nav-practice" class="navbtn" onclick="openPracticePicker()"><i class="fa-solid fa-dumbbell"></i> 근거찾기</button>
             <button id="nav-debate" class="navbtn" onclick="showSection('debate')"><i class="fa-solid fa-pen-to-square"></i> 토론 개요서</button>
+            <button id="nav-board" class="navbtn" onclick="showSection('board')"><i class="fa-solid fa-users"></i> 모두의 기록</button>
         </div>
     </nav>
 
@@ -370,6 +371,17 @@
             </div>
 
             <div id="fallacy-body"></div>
+        </section>
+
+        <!-- ===================== 모두의 기록 ===================== -->
+        <section id="sec-board" class="fade-in hidden">
+            <button onclick="goBackScreen()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>
+            <div class="sec-head">
+                <h2>모두의 기록</h2>
+                <p>친구들이 활동한 결과를 <b>별명</b>으로 함께 봅니다. 이름이나 쓴 글은 올라가지 않습니다.</p>
+            </div>
+            <div id="board-state" class="text-xs text-gray-500 mb-3"></div>
+            <div id="board-body" class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5"></div>
         </section>
 
         <!-- ===================== 바로 연습하기 화면 ===================== -->
@@ -988,7 +1000,8 @@
     </div>
 
     <!-- 학습 콘텐츠(개념·읽기 자료·토론 주제·맞춤법 규칙) -->
-    <script src="./content.js?v=20260812a"></script>
+    <script src="./content.js?v=20261002a"></script>
+    <script src="./firebase-config.js?v=20261002a"></script>
 
     <script>
 
@@ -1192,6 +1205,7 @@
 
         loadAdmin();
         loadRecords();
+        initCloud();
         renderConceptTabs();
         renderConcepts(CONCEPT_GROUPS[0].key);
         renderReadingCards();
@@ -2809,7 +2823,7 @@
     /* =========================================================
        15. 화면 이동 (개념 정리 · 글 읽기 · 토론 개요서)
        ========================================================= */
-    const SECTIONS = ['home', 'sec-concept', 'sec-read', 'sec-fallacy', 'sec-practice', 'step-1', 'step-2', 'step-2w', 'step-3', 'step-4', 'step-5'];
+    const SECTIONS = ['home', 'sec-concept', 'sec-read', 'sec-fallacy', 'sec-board', 'sec-practice', 'step-1', 'step-2', 'step-2w', 'step-3', 'step-4', 'step-5'];
 
     /* 등록 뒤 화면 흐름 : 내 글 → 친구 생각·예상 반론 → 완성글 */
     function goToFriends() {
@@ -2905,6 +2919,7 @@
         'sec-read':    { nav: 'read',     std: 'read',     name: '글 읽기' },
         'sec-fallacy': { nav: 'practice', std: 'fallacy',  name: '오류 찾기' },
         'sec-practice':{ nav: 'practice', std: 'practice', name: '근거찾기' },
+        'sec-board':   { nav: 'board',    std: 'all',      name: '모두의 기록' },
         'step-1':      { nav: 'debate',   std: 'debate',   name: '주제 고르기' },
         'step-2':      { nav: 'debate',   std: 'debate',   name: '준비 화면' },
         'step-2w':     { nav: 'debate',   std: 'debate',   name: '개요서 작성' },
@@ -2968,7 +2983,7 @@
     /* 위쪽 이동 메뉴에서 지금 있는 곳을 표시한다 */
     function setActiveNav(which) {
         setTimeout(updateBackBtn, 0);
-        ['home', 'concept', 'read', 'debate', 'practice'].forEach(function (k) {
+        ['home', 'concept', 'read', 'debate', 'practice', 'board'].forEach(function (k) {
             const btn = el('nav-' + k);
             if (btn) btn.classList.toggle('on', k === which);
         });
@@ -2994,6 +3009,10 @@
         } else if (which === 'debate') {
             el('step-1').classList.remove('hidden');
             showStandard('debate');
+        } else if (which === 'board') {
+            el('sec-board').classList.remove('hidden');
+            renderBoard();
+            showStandard('all');
         } else {
             el('home').classList.remove('hidden');
             showStandard('all');
@@ -3272,9 +3291,16 @@
             return;
         }
 
-        const students = summarizeStudents();
-
         let html = '<p class="text-xs font-bold text-gray-700 mb-1">학생별 학습 결과 (모아 보기)</p>' +
+            studentTableHtml(summarizeStudents(), '');
+
+        html += recordDetailsHtml();
+        box.innerHTML = html;
+    }
+
+    /* 학생별 결과 표 — 관리자 페이지와 '모두의 기록'이 함께 쓴다 */
+    function studentTableHtml(students, me) {
+        let html =
             '<div class="overflow-x-auto mb-4"><table class="w-full text-xs border-collapse">' +
             '<thead><tr class="bg-gray-50">' +
                 '<th class="border border-gray-200 p-2 text-left">별명</th>' +
@@ -3292,8 +3318,9 @@
                 .sort(function (a, b) { return s.weakConcepts[b] - s.weakConcepts[a]; })
                 .slice(0, 2).join(', ');
             const anRate = s.anTotal ? Math.round(s.anRight / s.anTotal * 100) + '%' : '-';
-            html += '<tr>' +
-                '<td class="border border-gray-200 p-2 font-bold text-gray-800 whitespace-nowrap">' + escapeHtml(s.nick) + '</td>' +
+            const mine = me && s.nick === me;
+            html += '<tr' + (mine ? ' class="bg-pinky-50"' : '') + '>' +
+                '<td class="border border-gray-200 p-2 font-bold text-gray-800 whitespace-nowrap">' + escapeHtml(s.nick) + (mine ? ' <span class="text-pinky-600">(나)</span>' : '') + '</td>' +
                 '<td class="border border-gray-200 p-2 text-center">' + s.solved + ' / ' + s.tries + '</td>' +
                 '<td class="border border-gray-200 p-2 text-center">' + s.first + '</td>' +
                 '<td class="border border-gray-200 p-2 text-center">' + anRate + (s.anCount ? ' <span class="text-gray-400">(' + s.anCount + '회)</span>' : '') + '</td>' +
@@ -3305,6 +3332,12 @@
             '</tr>';
         });
         html += '</tbody></table></div>';
+        return html;
+    }
+
+    /* 관리자 페이지에만 보이는 자세한 기록 */
+    function recordDetailsHtml() {
+        let html = '';
 
         /* 자주 틀린 개념 */
         const wrongByConcept = {};
@@ -3364,7 +3397,34 @@
                 '</tr>';
             }).join('') + '</tbody></table></div>';
 
-        box.innerHTML = html;
+        return html;
+    }
+
+    /* --- 모두의 기록 화면 --- */
+    function renderBoard() {
+        const body = el('board-body');
+        if (!body) return;
+        const state = el('board-state');
+        if (state) {
+            state.innerHTML = cloudDb
+                ? '<i class="fa-solid fa-cloud text-emerald-500 mr-1"></i> 모든 기기의 기록이 함께 보입니다. 새 기록은 바로 반영됩니다.'
+                : '<i class="fa-solid fa-laptop text-gray-400 mr-1"></i> 지금은 <b>이 기기에서 한 활동</b>만 보입니다.';
+        }
+        const students = summarizeStudents();
+        if (students.length === 0) {
+            body.innerHTML = '<p class="text-sm text-gray-500">아직 기록이 없습니다. 개념 문제나 오류 찾기를 풀면 여기에 쌓입니다.</p>';
+            return;
+        }
+        body.innerHTML = '<p class="text-sm text-gray-600 mb-3">내 별명은 <b class="text-pinky-700">' + escapeHtml(myNickname) + '</b>입니다.</p>' +
+            studentTableHtml(students, myNickname);
+    }
+
+    /* 기록이 바뀌면 열려 있는 기록 화면을 다시 그린다 */
+    function refreshRecordViews() {
+        const board = el('sec-board');
+        if (board && !board.classList.contains('hidden')) renderBoard();
+        const panel = el('admin-panel');
+        if (panel && !panel.classList.contains('hidden')) renderRecords();
     }
 
     function exportRecords() {
@@ -3393,6 +3453,7 @@
     }
 
     function clearRecords() {
+        if (cloudDb) { showToast('모두의 기록은 Firebase 콘솔에서 지웁니다.', 'error'); return; }
         if (!confirm('쌓인 학습 기록을 모두 지울까요? 되돌릴 수 없습니다.')) return;
         records = { quiz: [], analysis: [], debate: [], fallacy: [], summary: [] };
         persistRecords();
@@ -4203,37 +4264,80 @@
     }
 
     function saveSummaryRecord(reading, score, chars) {
-        records.summary.push({ t: nowText(), nick: myNickname, reading: String(reading).slice(0, 24), score: score, chars: chars });
-        if (records.summary.length > 2000) records.summary = records.summary.slice(-2000);
-        persistRecords();
+        addRecord('summary', { t: nowText(), nick: myNickname, reading: String(reading).slice(0, 24), score: score, chars: chars });
     }
 
     function saveFallacyRecord(line, choice, correct) {
         const t = FALLACY_TYPES.find(function (x) { return x.key === line.key; });
         const c = FALLACY_TYPES.find(function (x) { return x.key === choice; });
-        records.fallacy.push({
+        addRecord('fallacy', {
             t: nowText(), nick: myNickname,
             answer: t ? t.name : line.key,
             choice: c ? c.name : choice,
             attempt: line.tries, correct: correct
         });
-        if (records.fallacy.length > 2000) records.fallacy = records.fallacy.slice(-2000);
-        persistRecords();
     }
 
     function saveDebateRecord() {
-        records.debate.push({
+        addRecord('debate', {
             t: nowText(), nick: myNickname,
             topic: currentTopic.title.slice(0, 24),
             stance: selectedStance === 'pro' ? currentTopic.proLabel : currentTopic.conLabel,
             chars: allText().replace(/\s/g, '').length
         });
-        if (records.debate.length > 2000) records.debate = records.debate.slice(-2000);
-        persistRecords();
     }
 
     function persistRecords() {
         try { localStorage.setItem(RECORD_KEY, JSON.stringify(records)); } catch (e) { /* 저장 불가 */ }
+    }
+
+    /* 기록 하나를 더한다. Firebase가 켜져 있으면 그곳에 올리고,
+       화면은 Firebase가 돌려주는 목록으로 다시 그린다. */
+    function addRecord(kind, rec) {
+        if (cloudDb) {
+            cloudDb.collection('records').add({ kind: kind, nick: rec.nick, ms: Date.now(), rec: rec })
+                .catch(function () { showToast('기록을 올리지 못했어요. 인터넷 연결을 확인하세요.', 'error'); });
+            return;
+        }
+        records[kind].push(rec);
+        if (records[kind].length > 2000) records[kind] = records[kind].slice(-2000);
+        persistRecords();
+        refreshRecordViews();
+    }
+
+    /* ── 모두의 기록: firebase-config.js에 설정이 있으면 Firestore와 이어 붙인다 ── */
+    let cloudDb = null;
+    const FIREBASE_SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
+
+    function loadScript(src) {
+        return new Promise(function (resolve, reject) {
+            const s = document.createElement('script');
+            s.src = src; s.onload = resolve; s.onerror = reject;
+            document.head.appendChild(s);
+        });
+    }
+
+    function initCloud() {
+        if (typeof FIREBASE_CONFIG === 'undefined' || !FIREBASE_CONFIG) return;
+        loadScript(FIREBASE_SDK + 'firebase-app-compat.js')
+            .then(function () { return loadScript(FIREBASE_SDK + 'firebase-firestore-compat.js'); })
+            .then(function () {
+                firebase.initializeApp(FIREBASE_CONFIG);
+                cloudDb = firebase.firestore();
+                cloudDb.collection('records').orderBy('ms', 'desc').limit(5000).onSnapshot(function (snap) {
+                    const next = { quiz: [], analysis: [], debate: [], fallacy: [], summary: [] };
+                    snap.forEach(function (doc) {
+                        const d = doc.data();
+                        if (next[d.kind] && d.rec) next[d.kind].push(d.rec);
+                    });
+                    Object.keys(next).forEach(function (k) { next[k].reverse(); });
+                    records = next;
+                    refreshRecordViews();
+                }, function () {
+                    showToast('모두의 기록을 불러오지 못했어요.', 'error');
+                });
+            })
+            .catch(function () { cloudDb = null; });
     }
 
     function nowText() {
@@ -4244,23 +4348,19 @@
 
     function saveQuizRecord(qi, choice, correct, attempt) {
         const q = quizList[qi];
-        records.quiz.push({
+        addRecord('quiz', {
             t: nowText(), nick: myNickname, no: qi + 1,
             concept: q.concept || '', attempt: attempt,
             choice: q.options[choice], correct: correct
         });
-        if (records.quiz.length > 2000) records.quiz = records.quiz.slice(-2000);
-        persistRecords();
     }
 
     function saveAnalysisRecord(readingTitleText, mode, right, total) {
-        records.analysis.push({
+        addRecord('analysis', {
             t: nowText(), nick: myNickname, reading: readingTitleText,
             mode: mode === 'fo' ? '사실/의견' : '주장/근거',
             right: right, total: total
         });
-        if (records.analysis.length > 2000) records.analysis = records.analysis.slice(-2000);
-        persistRecords();
     }
 
     /* =========================================================

@@ -1,0 +1,19 @@
+rules_version = '2';
+
+// 모두의 기록: 누구나 읽고 새 기록을 더할 수 있다.
+// 고치거나 지우는 것은 막는다(지울 때는 Firebase 콘솔에서 교사가 지운다).
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /records/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['kind', 'nick', 'ms', 'rec'])
+        && request.resource.data.kind in ['quiz', 'analysis', 'debate', 'fallacy', 'summary']
+        && request.resource.data.nick is string
+        && request.resource.data.nick.size() <= 30
+        && request.resource.data.ms is number
+        && request.resource.data.rec is map
+        && request.resource.data.rec.size() <= 10;
+      allow update, delete: if false;
+    }
+  }
+}
