@@ -197,7 +197,6 @@
     <!-- 화면 이동 메뉴 -->
     <nav class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm">
         <div class="max-w-4xl mx-auto px-4 py-2.5 flex items-center gap-2 overflow-x-auto">
-            <button id="nav-back" class="navbtn hidden" onclick="goBackScreen()" style="color:#b45309;border-color:#fcd34d;background:#fffbeb"><i class="fa-solid fa-arrow-left"></i> 이전</button>
             <button id="nav-home" class="navbtn" onclick="goHome()"><i class="fa-solid fa-house"></i> 처음</button>
             <span class="text-gray-300">›</span>
             <button id="nav-concept" class="navbtn" onclick="showSection('concept')"><i class="fa-solid fa-lightbulb"></i> 개념 정리</button>
@@ -1566,7 +1565,7 @@
     function renderExcerpt(topic, kind) {
         const box = el('practice-excerpt');
         const ids = (topic.readings || []).slice();
-        const list = READINGS.filter(function (r) { return ids.indexOf(r.id) >= 0 || r.topicId === topic.id; });
+        const list = READINGS.filter(function (r) { return isMainReading(r) && (ids.indexOf(r.id) >= 0 || r.topicId === topic.id); });
         if (list.length === 0) { box.innerHTML = ''; return; }
 
         const keys = excerptKeywords(topic, kind);
@@ -1869,7 +1868,7 @@
     /* --- 주제와 이어지는 읽기 자료 --- */
     function renderTopicReadings(topic) {
         const list = allReadings().filter(function (r) {
-            return (topic.readings || []).indexOf(r.id) >= 0 || r.topicId === topic.id;
+            return isMainReading(r) && ((topic.readings || []).indexOf(r.id) >= 0 || r.topicId === topic.id);
         });
         if (list.length === 0) { el('topic-readings').innerHTML = ''; return; }
 
@@ -3843,6 +3842,17 @@
         return r ? r.title : '';
     }
 
+    /* 개념 카드의 '글 열기' — 앱 안 글은 펼치고, 링크만 남긴 글은 원문으로 보낸다 */
+    function conceptReadingLink(id) {
+        const r = id ? READINGS.find(function (x) { return x.id === id; }) : null;
+        if (!r) return '';
+        if (isMainReading(r)) {
+            return ' <button onclick="openReadingFrom(\'' + r.id + '\')" class="underline font-bold text-pinky-700">「' + escapeHtml(r.title) + '」 열기</button>';
+        }
+        const url = readingUrl(r);
+        return url ? ' <a href="' + url + '" target="_blank" rel="noopener noreferrer" class="underline font-bold text-pinky-700">「' + escapeHtml(r.title) + '」 원문 <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>' : '';
+    }
+
     function renderConceptTabs() {
         el('concept-tabs').innerHTML = CONCEPT_GROUPS.map(function (g) {
             const on = g.key === conceptGroup;
@@ -3873,7 +3883,7 @@
                     '<p class="text-sm text-gray-700 leading-relaxed">' + escapeHtml(c.desc) + '</p>' +
                     (c.find ? '<p class="text-xs text-gray-600 leading-relaxed bg-pinky-50 border border-pinky-200 rounded-lg p-2">' +
                         '<b class="text-pinky-700">글에서 찾기</b> — ' + escapeHtml(c.find) +
-                        (c.where ? ' <button onclick="openReadingFrom(\'' + c.where + '\')" class="underline font-bold text-pinky-700">「' + escapeHtml(readingTitle(c.where)) + '」 열기</button>' : '') +
+                        conceptReadingLink(c.where) +
                         '</p>' : '') +
                     (c.check ? '<p class="text-xs text-gray-600 leading-relaxed bg-butter-50 border border-butter-200 rounded-lg p-2">' +
                         '<b class="text-butter-700">이렇게 오해하기 쉬워요</b> — ' + escapeHtml(c.check) + '</p>' : '') +
@@ -4094,8 +4104,13 @@
             const tmp = chosen[i]; chosen[i] = chosen[j]; chosen[j] = tmp;
         }
 
+        /* 같은 유형이 두 번 뽑혀도 같은 문장이 되풀이되지 않게 한다 */
+        const used = {};
         fallacyLines = chosen.map(function (k, i) {
-            return { i: i, key: k, text: pickOne(bank.lines[k]), tries: 0, solved: false, wrong: [] };
+            const left = bank.lines[k].filter(function (t) { return !used[t]; });
+            const text = pickOne(left.length ? left : bank.lines[k]);
+            used[text] = true;
+            return { i: i, key: k, text: text, tries: 0, solved: false, wrong: [] };
         });
 
         el('fallacy-body').innerHTML =
@@ -4270,6 +4285,29 @@
         return READINGS.concat(extra);
     }
 
+    /* 앱 안에서 펼쳐 읽는 글인지 — 교사가 올린 글은 늘 펼쳐 읽는다 */
+    function isMainReading(r) {
+        return !!r && (r.uploaded || MAIN_READING_IDS.indexOf(r.id) >= 0);
+    }
+
+    function readingUrl(r) {
+        return (r.source && r.source.url) || r.url || ((r.sources && r.sources[0]) ? r.sources[0].url : '');
+    }
+
+    /* 더 읽을 거리 — 제목과 출처만 두고 원문으로 바로 보낸다 */
+    function readingLinkHtml(r) {
+        const url = readingUrl(r);
+        const meta = r.source
+            ? escapeHtml(r.source.media) + (r.source.date ? ' · ' + escapeHtml(r.source.date) : '')
+            : escapeHtml(r.genre);
+        return '<li class="py-2 border-b border-gray-100 last:border-0">' +
+            (url
+                ? '<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-pinky-700 hover:underline leading-snug">' +
+                  escapeHtml(r.title) + ' <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>'
+                : '<span class="text-sm font-bold text-gray-700">' + escapeHtml(r.title) + '</span>') +
+            '<div class="text-[11px] text-gray-500 mt-0.5">' + meta + '</div></li>';
+    }
+
     function renderReadingCards() {
         const box = el('reading-cards');
         if (!box) return;
@@ -4278,16 +4316,21 @@
         const list = allReadings();
         let html = '';
         discussionData.forEach(function (topic) {
-            const group = list.filter(function (r) { return r.topicId === topic.id; });
-            if (group.length === 0) return;
-            const pro = group.filter(function (r) { return r.stance === 'pro'; }).length;
-            const con = group.filter(function (r) { return r.stance === 'con'; }).length;
+            const all = list.filter(function (r) { return r.topicId === topic.id; });
+            const group = all.filter(isMainReading);
+            const more = all.filter(function (r) { return !isMainReading(r); });
+            if (all.length === 0) return;
             html +=
                 '<div class="sm:col-span-2 mt-8 mb-2 border-l-4 border-pinky-300 pl-4">' +
                     '<div class="text-sm font-bold text-pinky-600 mb-1">' + escapeHtml(topic.region) + '</div>' +
                     '<h3 class="text-xl md:text-2xl font-bold text-gray-900 leading-snug">' + escapeHtml(topic.title) + '</h3>' +
-                    '<p class="text-sm text-gray-500 mt-1.5">글 ' + group.length + '편</p>' +
+                    '<p class="text-sm text-gray-500 mt-1.5">글 ' + group.length + '편' + (more.length ? ' · 더 읽을 거리 ' + more.length + '편' : '') + '</p>' +
                 '</div>' + group.map(readingCardHtml).join('');
+            if (more.length) {
+                html += '<div class="sm:col-span-2 bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3">' +
+                    '<div class="text-xs font-bold text-gray-600 mb-1"><i class="fa-solid fa-link mr-1"></i> 더 읽을 거리 (원문 링크)</div>' +
+                    '<ul>' + more.map(readingLinkHtml).join('') + '</ul></div>';
+            }
         });
         const rest = list.filter(function (r) { return !r.topicId; });
         if (rest.length) {
@@ -4382,7 +4425,7 @@
         view.classList.remove('hidden');
 
         let html =
-            '<button onclick="goBackScreen()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>' +
+            '<button onclick="backFromReading()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 뒤로</button>' +
             '<article class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8 mb-6">' +
                 '<div class="flex flex-wrap items-center gap-2 mb-3">' +
                     '<span class="text-[11px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded-full">' + escapeHtml(r.genre) + '</span>' +
@@ -4394,7 +4437,6 @@
                     ? '<p class="text-sm text-gray-600 mb-3"><b>' + escapeHtml(r.source.media) + '</b> · ' +
                       escapeHtml(r.source.author) + ' · ' + escapeHtml(r.source.date) + '</p>'
                     : '') +
-                '<p class="text-base text-gray-600 leading-relaxed border-l-4 border-pinky-200 pl-3 mb-4">' + escapeHtml(r.summary) + '</p>' +
                 (r.uploaded
                     ? '<p class="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-lg p-2 mb-4">선생님이 올린 자료입니다.' +
                       (r.url ? ' <a href="' + r.url + '" target="_blank" rel="noopener noreferrer" class="text-pinky-600 underline">원문 보기</a>' : '') + '</p>'
@@ -4421,6 +4463,9 @@
             });
             html += '</div>';
         }
+
+        html += '<h4 class="text-base font-bold text-gray-800 mb-2"><i class="fa-solid fa-list-check text-pinky-400 mr-1"></i> 요약</h4>' +
+            '<p class="text-base text-gray-600 leading-relaxed border-l-4 border-pinky-200 pl-3 mb-4">' + escapeHtml(r.summary) + '</p>';
 
         const fullUrl = (r.source && r.source.url) || r.url || '';
         if (fullUrl) {
@@ -4570,6 +4615,13 @@
             if (tab) tab.className = 'text-sm font-bold px-3 py-2 rounded-xl border-2 transition-colors ' +
                 (t === which ? 'bg-pinky-500 border-pinky-500 text-white' : 'bg-white border-gray-200 text-gray-600 hover:border-pinky-300');
         });
+    }
+
+    /* 글 목록에서 열었으면 목록으로, 다른 화면에서 열었으면 그 화면으로 */
+    function backFromReading() {
+        if (readingReturnTo === 'read') { closeReading(); return; }
+        readingReturnTo = 'read';
+        goBackScreen();
     }
 
     function closeReading() {
