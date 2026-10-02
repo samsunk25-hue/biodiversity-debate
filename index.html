@@ -815,11 +815,10 @@
 
             <!-- 잠금 화면 -->
             <div id="admin-lock" class="p-5">
-                <label for="admin-pass" class="text-sm font-bold text-gray-700 block mb-2">관리자 암호</label>
-                <input type="password" id="admin-pass" autocomplete="off" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-pinky-300 mb-2" placeholder="암호를 입력하세요">
-                <button onclick="unlockAdmin()" class="w-full bg-pinky-500 hover:bg-pinky-600 text-white font-bold py-2.5 rounded-xl transition-colors">들어가기</button>
-                <p id="admin-lock-msg" class="text-xs text-pinky-600 mt-2 hidden">암호가 맞지 않습니다.</p>
-                <p class="text-[11px] text-gray-400 mt-3">이 암호는 학생의 접근을 잠깐 막는 용도이며 보안 기능이 아닙니다. 개인정보는 절대 입력하지 마세요.</p>
+                <p class="text-sm text-gray-700 mb-3">관리자 화면은 <b>등록된 선생님 구글 계정</b>으로만 들어갈 수 있습니다.</p>
+                <button id="admin-login-btn" onclick="unlockAdmin()" class="w-full bg-pinky-500 hover:bg-pinky-600 text-white font-bold py-2.5 rounded-xl transition-colors"><i class="fa-brands fa-google mr-1"></i> 구글로 로그인</button>
+                <p id="admin-lock-msg" class="text-xs text-pinky-600 mt-2 hidden"></p>
+                <p class="text-[11px] text-gray-400 mt-3">들어갈 수 있는 계정은 Firebase 콘솔의 Firestore 규칙에서 정합니다.</p>
             </div>
 
             <!-- 관리 화면 -->
@@ -940,9 +939,9 @@
                         </div>
                     </div>
                     <p class="text-xs text-gray-500 mb-3">개념 확인 문제는 <b>틀려서 다시 고른 것까지 모두</b> 남습니다. 문장 분석 연습과 개요서 제출 결과도 함께 쌓입니다.</p>
-                    <div id="adm-cloud" class="hidden bg-butter-50 border border-butter-200 rounded-lg p-3 mb-3 text-xs text-gray-700 flex flex-wrap items-center gap-2">
-                        <span id="adm-cloud-state" class="flex-grow">지금은 이 기기의 기록만 보입니다. 모든 학생의 기록은 선생님 구글 계정으로 로그인해야 볼 수 있습니다.</span>
-                        <button id="adm-cloud-btn" onclick="teacherLogin()" class="font-bold bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-2.5 py-1.5 rounded-lg"><i class="fa-brands fa-google mr-1"></i> 구글로 로그인</button>
+                    <div class="bg-butter-50 border border-butter-200 rounded-lg p-3 mb-3 text-xs text-gray-700 flex flex-wrap items-center gap-2">
+                        <span id="adm-cloud-state" class="flex-grow">모든 학생의 기록을 불러오는 중입니다.</span>
+                        <button onclick="teacherLogout()" class="font-bold bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-2.5 py-1.5 rounded-lg">로그아웃</button>
                     </div>
                     <div id="adm-records"></div>
                 </div>
@@ -971,10 +970,6 @@
                             설정 불러오기
                             <input type="file" accept=".json,application/json" onchange="importAdmin(event)" class="hidden">
                         </label>
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-2 mt-3">
-                        <input type="password" id="adm-newpass" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="새 관리자 암호 (바꾸려면 입력)">
-                        <button onclick="changeAdminPass()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-semibold text-sm px-4 py-2.5 rounded-xl">암호 바꾸기</button>
                     </div>
                     <div class="mt-4 border-t border-gray-100 pt-4">
                         <h4 class="font-bold text-gray-800 text-sm mb-1"><i class="fa-solid fa-spell-check text-butter-600 mr-1"></i> 맞춤법 자동 점검 결과</h4>
@@ -3022,7 +3017,6 @@
     ];
 
     let adminData = {
-        pass: '1111',
         standards: { all: '', concept: '', read: '', debate: '' },
         rubric: [],
         readings: [],
@@ -3135,8 +3129,8 @@
         el('admin-modal').classList.add('flex');
         el('admin-lock').classList.remove('hidden');
         el('admin-panel').classList.add('hidden');
-        el('admin-pass').value = '';
         el('admin-lock-msg').classList.add('hidden');
+        loadAuth();                 /* 로그인 창이 막히지 않게 미리 불러 둔다 */
     }
 
     function closeAdmin() {
@@ -3144,14 +3138,35 @@
         el('admin-modal').classList.remove('flex');
     }
 
+    function adminLockMsg(text) {
+        const m = el('admin-lock-msg');
+        m.innerHTML = text;
+        m.classList.remove('hidden');
+    }
+
+    /* 구글로 로그인하고, 학생 기록을 읽을 수 있는 계정이면 관리 화면을 연다 */
     function unlockAdmin() {
-        if (el('admin-pass').value !== adminData.pass) {
-            el('admin-lock-msg').classList.remove('hidden');
-            return;
-        }
-        el('admin-lock').classList.add('hidden');
-        el('admin-panel').classList.remove('hidden');
-        fillAdminForm();
+        if (!cloudDb) { adminLockMsg('Firebase에 연결되지 않았어요. 인터넷 연결을 확인하고 새로 고쳐 보세요.'); return; }
+        loadAuth()
+            .then(function () {
+                const auth = firebase.auth();
+                return auth.currentUser ? { user: auth.currentUser } : auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+            })
+            .then(function (res) {
+                const email = (res.user && res.user.email) || '';
+                return cloudDb.collection('records').limit(1).get().then(function () {
+                    el('admin-lock').classList.add('hidden');
+                    el('admin-panel').classList.remove('hidden');
+                    fillAdminForm();
+                    watchAllRecords(email);
+                }, function () {
+                    adminLockMsg('<b>' + escapeHtml(email) + '</b> 계정은 관리자로 등록되어 있지 않습니다.');
+                    firebase.auth().signOut();
+                });
+            })
+            .catch(function (e) {
+                adminLockMsg('로그인하지 못했어요. ' + escapeHtml((e && e.code) || ''));
+            });
     }
 
     function fillAdminForm() {
@@ -3552,16 +3567,6 @@
             showStandard('all');
             renderReadingCards();
             showToast('설정을 저장했습니다.', 'success');
-        }
-    }
-
-    function changeAdminPass() {
-        const v = el('adm-newpass').value.trim();
-        if (v.length < 2) { showToast('새 암호를 2자 이상 입력하세요.', 'error'); return; }
-        adminData.pass = v;
-        if (persistAdmin()) {
-            el('adm-newpass').value = '';
-            showToast('관리자 암호를 바꿨습니다.', 'success');
         }
     }
 
@@ -4291,41 +4296,45 @@
             .then(function () {
                 firebase.initializeApp(FIREBASE_CONFIG);
                 cloudDb = firebase.firestore();
-                const box = el('adm-cloud');
-                if (box) box.classList.remove('hidden');
             })
             .catch(function () { cloudDb = null; });
     }
 
-    /* 선생님 구글 계정으로 로그인해 모든 학생의 기록을 불러온다 */
-    function teacherLogin() {
-        if (!cloudDb) { showToast('Firebase에 연결되지 않았어요.', 'error'); return; }
+    function loadAuth() {
+        if (!cloudDb) return Promise.reject(new Error('no-cloud'));
+        if (typeof firebase.auth === 'function') return Promise.resolve();
+        return loadScript(FIREBASE_SDK + 'firebase-auth-compat.js');
+    }
+
+    /* 모든 학생의 기록을 받아 오고, 새 기록이 오면 다시 그린다 */
+    let stopWatch = null;
+    function watchAllRecords(email) {
+        if (stopWatch) stopWatch();
         const state = el('adm-cloud-state');
-        const ready = (typeof firebase.auth === 'function') ? Promise.resolve() : loadScript(FIREBASE_SDK + 'firebase-auth-compat.js');
-        ready
-            .then(function () { return firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()); })
-            .then(function (res) {
-                const email = (res.user && res.user.email) || '';
-                cloudDb.collection('records').orderBy('ms', 'desc').limit(5000).onSnapshot(function (snap) {
-                    const next = { quiz: [], analysis: [], debate: [], fallacy: [], summary: [] };
-                    snap.forEach(function (doc) {
-                        const d = doc.data();
-                        if (next[d.kind] && d.rec) next[d.kind].push(d.rec);
-                    });
-                    Object.keys(next).forEach(function (k) { next[k].reverse(); });
-                    cloudView = true;
-                    records = next;
-                    state.innerHTML = '<b class="text-emerald-700">' + escapeHtml(email) + '</b> 계정으로 모든 학생의 기록을 보고 있습니다. 새 기록은 바로 반영됩니다.';
-                    el('adm-cloud-btn').classList.add('hidden');
-                    refreshRecordViews();
-                }, function () {
-                    state.innerHTML = '<b class="text-rose-700">' + escapeHtml(email) + '</b> 계정은 학생 기록을 볼 권한이 없습니다. 선생님 계정으로 다시 로그인하세요.';
-                    firebase.auth().signOut();
-                });
-            })
-            .catch(function (e) {
-                showToast('로그인하지 못했어요. ' + ((e && e.code) || ''), 'error');
+        stopWatch = cloudDb.collection('records').orderBy('ms', 'desc').limit(5000).onSnapshot(function (snap) {
+            const next = { quiz: [], analysis: [], debate: [], fallacy: [], summary: [] };
+            snap.forEach(function (doc) {
+                const d = doc.data();
+                if (next[d.kind] && d.rec) next[d.kind].push(d.rec);
             });
+            Object.keys(next).forEach(function (k) { next[k].reverse(); });
+            cloudView = true;
+            records = next;
+            state.innerHTML = '<b class="text-emerald-700">' + escapeHtml(email) + '</b> 계정으로 모든 학생의 기록을 보고 있습니다. 새 기록은 바로 반영됩니다.';
+            refreshRecordViews();
+        }, function () {
+            state.innerHTML = '학생 기록을 불러오지 못했어요.';
+        });
+    }
+
+    function teacherLogout() {
+        if (stopWatch) { stopWatch(); stopWatch = null; }
+        cloudView = false;
+        records = { quiz: [], analysis: [], debate: [], fallacy: [], summary: [] };
+        loadRecords();
+        if (cloudDb && typeof firebase.auth === 'function') firebase.auth().signOut();
+        closeAdmin();
+        showToast('로그아웃했습니다.', 'success');
     }
 
     function nowText() {
