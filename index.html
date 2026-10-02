@@ -514,7 +514,7 @@
                             </div>
                             <div>
                                 <label for="prep-group" class="text-sm font-bold text-gray-700 block mb-1">모둠</label>
-                                <input type="text" id="prep-group" maxlength="20" placeholder="예: 3모둠"
+                                <input type="text" autocomplete="off" id="prep-group" maxlength="20" placeholder="예: 3모둠"
                                     class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pinky-300 focus:border-pinky-400 outline-none text-gray-700">
                             </div>
                         </div>
@@ -878,15 +878,15 @@
                         올린 글은 <b>맞춤법과 바른 말을 자동으로 검사</b>합니다.
                     </p>
                     <div class="space-y-2">
-                        <input type="text" id="adm-r-title" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="글 제목 (비우면 본문 첫 줄을 제목으로 씁니다)">
+                        <input type="text" autocomplete="off" id="adm-r-title" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="글 제목 (비우면 본문 첫 줄을 제목으로 씁니다)">
                         <div class="flex flex-col sm:flex-row gap-2">
-                            <input type="text" id="adm-r-genre" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="갈래 (예: 기사, 보도자료, 칼럼)">
+                            <input type="text" autocomplete="off" id="adm-r-genre" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="갈래 (예: 기사, 보도자료, 칼럼)">
                             <input type="url" id="adm-r-url" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="원문 링크 (있으면 학생에게 함께 보여 줍니다)">
                         </div>
                         <textarea id="adm-r-body" rows="5" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200 leading-relaxed" placeholder="본문을 붙여 넣거나, 링크만 등록하려면 비워 두세요."></textarea>
                         <div class="flex flex-col sm:flex-row gap-2">
-                            <input type="text" id="adm-r-media" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="매체·기관 이름 (예: 오마이뉴스)">
-                            <input type="text" id="adm-r-date" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="발표 날짜 (예: 2026년 6월 10일)">
+                            <input type="text" autocomplete="off" id="adm-r-media" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="매체·기관 이름 (예: 오마이뉴스)">
+                            <input type="text" autocomplete="off" id="adm-r-date" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="발표 날짜 (예: 2026년 6월 10일)">
                             <select id="adm-r-stance" class="p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200">
                                 <option value="">입장 없음</option>
                                 <option value="pro">찬성 쪽</option>
@@ -911,7 +911,7 @@
                     <p class="text-xs text-gray-500 mb-3">수업에서 더 다룰 개념을 넣으면 학생의 개념 정리 화면에 함께 나오고, <b>‘모두 확인’ 조건에도 포함</b>됩니다.</p>
                     <div class="space-y-2">
                         <div class="flex flex-col sm:flex-row gap-2">
-                            <input type="text" id="adm-c-term" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="개념 이름 (예: 남획)">
+                            <input type="text" autocomplete="off" id="adm-c-term" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="개념 이름 (예: 남획)">
                             <select id="adm-c-group" class="p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200">
                                 <option value="bio">생물다양성이란</option>
                                 <option value="eco">생태계는 어떻게 유지되나</option>
@@ -919,10 +919,10 @@
                                 <option value="data">자료를 바르게 읽기</option>
                             </select>
                         </div>
-                        <input type="text" id="adm-c-short" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="한 줄 설명 (카드 앞면에 보입니다)">
+                        <input type="text" autocomplete="off" id="adm-c-short" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="한 줄 설명 (카드 앞면에 보입니다)">
                         <textarea id="adm-c-desc" rows="3" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200 leading-relaxed" placeholder="자세한 설명 (교과서 서술을 기준으로 써 주세요)"></textarea>
-                        <input type="text" id="adm-c-find" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="글에서 찾기 — 어느 글의 어느 대목에서 볼 수 있는지 (선택)">
-                        <input type="text" id="adm-c-check" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="이렇게 오해하기 쉬워요 — 오개념 바로잡기 (선택)">
+                        <input type="text" autocomplete="off" id="adm-c-find" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="글에서 찾기 — 어느 글의 어느 대목에서 볼 수 있는지 (선택)">
+                        <input type="text" autocomplete="off" id="adm-c-check" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-pinky-200" placeholder="이렇게 오해하기 쉬워요 — 오개념 바로잡기 (선택)">
                         <button onclick="saveConcept()" class="w-full bg-pinky-500 hover:bg-pinky-600 text-white font-bold text-sm py-2.5 rounded-xl transition-colors">개념 추가하기</button>
                     </div>
                     <div id="adm-c-list" class="mt-3 space-y-2"></div>
@@ -1667,7 +1667,7 @@
                         '<label for="main-' + n + '" class="text-sm font-bold text-gray-700">논점 ' + n + ' 주장</label>' +
                         '<span class="text-xs text-gray-400"><span id="count-main-' + n + '">0</span>/100자</span>' +
                     '</div>' +
-                    '<input type="text" id="main-' + n + '" maxlength="100" ' +
+                    '<input type="text" autocomplete="off" id="main-' + n + '" maxlength="100" ' +
                         'class="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pinky-300 focus:border-pinky-400 outline-none text-gray-700" ' +
                         'placeholder="이 논점에서 내 입장을 한 문장으로 씁니다.">' +
                 '</div>' +
@@ -1737,10 +1737,10 @@
             let html = '';
             for (let i = 1; i <= 4; i++) {
                 html += '<tr>' +
-                    '<td class="border border-gray-300 p-1"><input type="text" id="role-no-' + i + '" maxlength="8" class="w-full p-1.5 text-xs outline-none"></td>' +
-                    '<td class="border border-gray-300 p-1"><input type="text" id="role-name-' + i + '" maxlength="10" class="w-full p-1.5 text-xs outline-none"></td>' +
-                    '<td class="border border-gray-300 p-1"><input type="text" id="role-prep-' + i + '" maxlength="30" placeholder="예: 자료 찾기" class="w-full p-1.5 text-xs outline-none"></td>' +
-                    '<td class="border border-gray-300 p-1"><input type="text" id="role-deb-' + i + '" maxlength="30" placeholder="예: 입론 발표" class="w-full p-1.5 text-xs outline-none"></td>' +
+                    '<td class="border border-gray-300 p-1"><input type="text" autocomplete="off" id="role-no-' + i + '" maxlength="8" class="w-full p-1.5 text-xs outline-none"></td>' +
+                    '<td class="border border-gray-300 p-1"><input type="text" autocomplete="off" id="role-name-' + i + '" maxlength="10" class="w-full p-1.5 text-xs outline-none"></td>' +
+                    '<td class="border border-gray-300 p-1"><input type="text" autocomplete="off" id="role-prep-' + i + '" maxlength="30" placeholder="예: 자료 찾기" class="w-full p-1.5 text-xs outline-none"></td>' +
+                    '<td class="border border-gray-300 p-1"><input type="text" autocomplete="off" id="role-deb-' + i + '" maxlength="30" placeholder="예: 입론 발표" class="w-full p-1.5 text-xs outline-none"></td>' +
                     '</tr>';
             }
             body.innerHTML = html;
@@ -3534,13 +3534,13 @@
         box.innerHTML = adminData.rubric.map(function (r, i) {
             return '<div class="border border-gray-200 rounded-xl p-3">' +
                 '<div class="flex gap-2 mb-2">' +
-                    '<input type="text" value="' + escapeHtml(r.item) + '" oninput="editRubric(' + i + ',\'item\',this.value)" ' +
+                    '<input type="text" autocomplete="off" value="' + escapeHtml(r.item) + '" oninput="editRubric(' + i + ',\'item\',this.value)" ' +
                         'class="flex-1 p-2 border border-gray-300 rounded-lg text-sm font-bold outline-none focus:ring-2 focus:ring-pinky-200" placeholder="평가 항목">' +
                     '<button onclick="removeRubric(' + i + ')" class="text-gray-400 hover:text-pinky-600 px-2" aria-label="삭제"><i class="fa-solid fa-trash"></i></button>' +
                 '</div>' +
-                '<input type="text" value="' + escapeHtml(r.high) + '" oninput="editRubric(' + i + ',\'high\',this.value)" class="w-full p-2 border border-gray-200 rounded-lg text-xs mb-1.5 outline-none focus:ring-2 focus:ring-pinky-200" placeholder="상 수준">' +
-                '<input type="text" value="' + escapeHtml(r.mid) + '" oninput="editRubric(' + i + ',\'mid\',this.value)" class="w-full p-2 border border-gray-200 rounded-lg text-xs mb-1.5 outline-none focus:ring-2 focus:ring-pinky-200" placeholder="중 수준">' +
-                '<input type="text" value="' + escapeHtml(r.low) + '" oninput="editRubric(' + i + ',\'low\',this.value)" class="w-full p-2 border border-gray-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-pinky-200" placeholder="하 수준">' +
+                '<input type="text" autocomplete="off" value="' + escapeHtml(r.high) + '" oninput="editRubric(' + i + ',\'high\',this.value)" class="w-full p-2 border border-gray-200 rounded-lg text-xs mb-1.5 outline-none focus:ring-2 focus:ring-pinky-200" placeholder="상 수준">' +
+                '<input type="text" autocomplete="off" value="' + escapeHtml(r.mid) + '" oninput="editRubric(' + i + ',\'mid\',this.value)" class="w-full p-2 border border-gray-200 rounded-lg text-xs mb-1.5 outline-none focus:ring-2 focus:ring-pinky-200" placeholder="중 수준">' +
+                '<input type="text" autocomplete="off" value="' + escapeHtml(r.low) + '" oninput="editRubric(' + i + ',\'low\',this.value)" class="w-full p-2 border border-gray-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-pinky-200" placeholder="하 수준">' +
             '</div>';
         }).join('');
     }
